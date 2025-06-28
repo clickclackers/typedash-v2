@@ -18,4 +18,4 @@
 ## Push database schema changes
 
 1. Make changes to db/schema.sql or db/queries
-2. `sqlc generate -f internal/db/sqlc.yaml`
+2. `sqlc generate -f db/sqlc.yaml`
