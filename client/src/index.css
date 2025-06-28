@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .letter-correct {
+    color: theme('colors.white');
+  }
+
+  .letter-incorrect {
+    color: theme('colors.red.500');
+  }
+
+  .letter-idle {
+    color: #939eae;
+  }
+
+  .word-active {
+    position: relative;
+  }
+
+  .caret {
+    position: absolute;
+    width: 0.15rem;
+    height: 1.6rem;
+    border-radius: 0.05rem;
+    transition: left 0.2s;
+  }
+
+  @keyframes blink {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0.3;
+    }
+  }
+}
+
+html,
+body {
+  min-height: 100vh;
+}
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  /* background-color: #242424; */
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}

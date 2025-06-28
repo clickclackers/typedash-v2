@@ -1,0 +1,72 @@
+[
+  {
+    "id": 0,
+    "type": "Songs",
+    "title": "Bohemian Rhapsody",
+    "author": "Queen",
+    "content": "Is this the real life? Is this just fantasy? Caught in a landslide, no escape from reality. Open your eyes, look up to the skies and see. I'm just a poor boy, I need no sympathy, because I'm easy come, easy go, little high, little low."
+  },
+  {
+    "id": 1,
+    "type": "Songs",
+    "title": "Imagine",
+    "author": "John Lennon",
+    "content": "Imagine there's no heaven. It's easy if you try. No hell below us. Above us only sky. Imagine all the people living for today. Imagine there's no countries. It isn't hard to do. Nothing to kill or die for. And no religion too."
+  },
+  {
+    "id": 2,
+    "type": "Songs",
+    "title": "Shape of You",
+    "author": "Ed Sheeran",
+    "content": "The club isn't the best place to find a lover, so the bar is where I go. Me and my friends at the table doing shots, drinking fast, and then we talk slow. Come over and start up a conversation with just me, and trust me, I'll give it a chance now."
+  },
+  {
+    "id": 3,
+    "type": "Songs",
+    "title": "Don't Stop Believin'",
+    "author": "Journey",
+    "content": "Just a small-town girl, living in a lonely world. She took the midnight train going anywhere. Just a city boy, born and raised in South Detroit. He took the midnight train going anywhere. A singer in a smoky room, a smell of wine and cheap perfume."
+  },
+  {
+    "id": 4,
+    "type": "Songs",
+    "title": "Blinding Lights",
+    "author": "The Weeknd",
+    "content": "I've been tryna call. I've been on my own for long enough. Maybe you can show me how to love, maybe. I'm going through withdrawals. You don't even have to do too much. You can turn me on with just a touch, baby."
+  },
+  {
+    "id": 5,
+    "type": "Songs",
+    "title": "Rolling in the Deep",
+    "author": "Adele",
+    "content": "There's a fire starting in my heart, reaching a fever pitch and it's bringing me out the dark. Finally, I can see you crystal clear. Go 'head and sell me out, and I'll lay your ship bare. See how I'll leave with every piece of you, don't underestimate the things that I will do."
+  },
+  {
+    "id": 6,
+    "type": "Songs",
+    "title": "Billie Jean",
+    "author": "Michael Jackson",
+    "content": "She was more like a beauty queen from a movie scene. I said, 'Don't mind, but what do you mean, I am the one who will dance on the floor in the round?' She said I am the one who will dance on the floor in the round."
+  },
+  {
+    "id": 7,
+    "type": "Songs",
+    "title": "Hey Jude",
+    "author": "The Beatles",
+    "content": "Hey Jude, don't make it bad. Take a sad song and make it better. Remember to let her into your heart. Then you can start to make it better. Hey Jude, don't be afraid. You were made to go out and get her. The minute you let her under your skin, then you begin to make it better."
+  },
+  {
+    "id": 8,
+    "type": "Songs",
+    "title": "Wrecking Ball",
+    "author": "Miley Cyrus",
+    "content": "We clawed, we chained, our hearts in vain. We jumped, never asking why. We kissed, I fell under your spell. A love no one could deny. Don't you ever say I just walked away. I will always want you. I can't live a lie, running for my life. I will always want you."
+  },
+  {
+    "id": 9,
+    "type": "Songs",
+    "title": "Blank Space",
+    "author": "Taylor Swift",
+    "content": "Nice to meet you, where you been? I could show you incredible things. Magic, madness, heaven, sin. Saw you there, and I thought 'Oh my God, look at that face'. You look like my next mistake. Love's a game, want to play?"
+  }
+]

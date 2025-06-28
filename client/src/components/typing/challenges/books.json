@@ -1,0 +1,72 @@
+[
+  {
+    "id": 0,
+    "type": "Books",
+    "title": "To Kill a Mockingbird",
+    "author": "Harper Lee",
+    "content": "Atticus said to Jem one day, 'I'd rather you shot at tin cans in the backyard, but I know you'll go after birds. Shoot all the blue jays you want if you can hit 'em, but remember it's a sin to kill a mockingbird.'"
+  },
+  {
+    "id": 1,
+    "type": "Books",
+    "title": "1984",
+    "author": "George Orwell",
+    "content": "But if there was hope, it lay in the proles. You had to cling on to that. When you put it in words it sounded reasonable: it was when you looked at the human beings passing you on the pavement that it became an act of faith."
+  },
+  {
+    "id": 2,
+    "type": "Books",
+    "title": "Fahrenheit 451",
+    "author": "Ray Bradbury",
+    "content": "He felt his smile slide away, melt, fold over, and down on itself like a tallow skin, like the stuff of a fantastic candle burning too long and now collapsing and now blown out. Darkness. He was not happy. He was not happy. He said the words to himself."
+  },
+  {
+    "id": 3,
+    "type": "Books",
+    "title": "The Hunger Games",
+    "author": "Suzanne Collins",
+    "content": "The agony of kissing Gale so hard returns to me, and I think, why did I do that? Because I couldn't help myself. Gale's mine. I'm his. Anything else is unthinkable. Why did it take a kiss to understand that?"
+  },
+  {
+    "id": 4,
+    "type": "Books",
+    "title": "Harry Potter and the Philosopher's Stone",
+    "author": "J.K. Rowling",
+    "content": "Harry lay there, lost for words. Then a brilliant idea struck him. He sat up and clutched the package to his chest. 'I'm going to have a lot of fun with Dudley this summer,' he grinned maliciously. With that, he fell asleep, and all his dreams were sweet."
+  },
+  {
+    "id": 5,
+    "type": "Books",
+    "title": "Jane Eyre",
+    "author": "Charlotte Brontë",
+    "content": "I could see nothing but the dense darkness; yet it seemed that, in a second, my eyes grew used to the obscurity, and I could make out the velvet blackness of her eyes, her smooth white forehead, her nose, kneeling on a low, stool, and looking, as Adele had said, quite a lady."
+  },
+  {
+    "id": 6,
+    "type": "Books",
+    "title": "Moby-Dick",
+    "author": "Herman Melville",
+    "content": "Call me Ishmael. Some years ago-never mind how long precisely-having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world."
+  },
+  {
+    "id": 7,
+    "type": "Books",
+    "title": "The Picture of Dorian Gray",
+    "author": "Oscar Wilde",
+    "content": "He grew more and more enamoured of his own beauty, more and more interested in the corruption of his own soul, and in the soul of others. The years seemed to him to have passed in a sort of slow, lethargic agony."
+  },
+  {
+    "id": 8,
+    "type": "Books",
+    "title": "Brave New World",
+    "author": "Aldous Huxley",
+    "content": "But I don't want comfort. I want God, I want poetry, I want real danger, I want freedom, I want goodness. I want sin. I'm claiming them all. He picked up his glass and drained it at a gulp. 'I drink to the Pope,' he said."
+  },
+  {
+    "id": 9,
+    "type": "Books",
+    "title": "The Adventures of Huckleberry Finn",
+    "author": "Mark Twain",
+    "content": "You don't know about me, without you have read a book by the name of 'The Adventures of Tom Sawyer,' but that ain't no matter. That book was made by Mr. Mark Twain, and he told the truth, mainly. There was things which he stretched."
+  }
+]

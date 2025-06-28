@@ -30,3 +30,29 @@ go.work.sum
 # Editor/IDE
 .idea/
 .vscode/
+
+# Frontend build outputs
+client/dist/
+client/dist-ssr/
+client/build/
+client/.next/
+client/out/
+
+# Frontend environment files
+client/.env.local
+client/.env.development.local
+client/.env.test.local
+client/.env.production.local
+
+# Frontend cache
+client/.cache/
+client/.parcel-cache/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

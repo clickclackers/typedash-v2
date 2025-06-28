@@ -1,0 +1,32 @@
+[
+  {
+    "id": 0,
+    "type": "Algorithms",
+    "title": "Bubble Sort",
+    "content": "def bubble_sort(arr): n = len(arr) for i in range(n): for j in range(n - i - 1): if arr[j] > arr[j + 1]: arr[j], arr[j + 1] = arr[j + 1], arr[j]"
+  },
+  {
+    "id": 1,
+    "type": "Algorithms",
+    "title": "Linear Search",
+    "content": "def linear_search(arr, target): for i, x in enumerate(arr): if x == target: return i return -1"
+  },
+  {
+    "id": 2,
+    "type": "Algorithms",
+    "title": "Fibonacci Sequence (Recursive)",
+    "content": "def fib(n): if n <= 1: return n else: return fib(n - 1) + fib(n - 2)"
+  },
+  {
+    "id": 3,
+    "type": "Algorithms",
+    "title": "Selection Sort",
+    "content": "def selection_sort(arr): n = len(arr) for i in range(n): min_idx = i for j in range(i, n): if arr[j] < arr[min_idx]: min_idx = j arr[i], arr[min_idx] = arr[min_idx], arr[i]"
+  },
+  {
+    "id": 4,
+    "type": "Algorithms",
+    "title": "Merge Sort",
+    "content": "def merge_sort(arr): if len(arr) <= 1: return arr else: mid = len(arr) // 2 left = merge_sort(arr[:mid]) right = merge_sort(arr[mid:]) return merge(left, right)"
+  }
+]
