@@ -8,7 +8,7 @@ CREATE TABLE users
 );
 
 -- CHALLENGES
-CREATE TABLE challenge
+CREATE TABLE challenges
 (
     id        SERIAL PRIMARY KEY,
     title     VARCHAR(255) NOT NULL,
