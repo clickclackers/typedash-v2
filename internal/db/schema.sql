@@ -53,6 +53,6 @@ CREATE TABLE multi_challenge_stats
     wpm          INTEGER NOT NULL CHECK (wpm >= 0),
     accuracy     NUMERIC(5, 2) NOT NULL CHECK (accuracy >= 0.00 AND accuracy <= 100.00),
     num_players  INTEGER NOT NULL CHECK (num_players >= 2 AND num_players <= 6),
-    position     INTEGER NOT NULL CHECK (position >= 1) AND position <= num_players,
+    position     INTEGER NOT NULL CHECK (position >= 1 AND position <= num_players),
     PRIMARY KEY (session_id, user_id)
 );
