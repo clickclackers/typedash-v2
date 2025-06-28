@@ -10,6 +10,6 @@ repos:
     hooks:
       - id: golangci-lint
         name: Run golangci-lint
-        entry: golangci-lint run
+        entry: golangci-lint run --fix
         language: system
         types: [go]
