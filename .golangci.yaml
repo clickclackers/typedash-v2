@@ -1,3 +1,5 @@
+version: "2"
+
 issues:
   skip-dirs:
     - internal/db/sqlc
