@@ -21,13 +21,13 @@ help:
 .PHONY: dev
 dev:
 	@trap 'kill $$(jobs -p)' EXIT; \
-	cd server && go run main.go & \
+	cd server && go run . & \
 	cd client && npm run dev & \
 	wait
 
 .PHONY: server
 server:
-	cd server && go run main.go
+	cd server && go run .
 
 .PHONY: client
 client:
