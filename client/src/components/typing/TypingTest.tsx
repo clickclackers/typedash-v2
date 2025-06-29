@@ -26,11 +26,7 @@ import Word from './Word';
 import { ChallengeProps } from './challenges/challenge.interface';
 import Result from './results/Result';
 
-interface TypingTestProps {
-  specificChallenge?: ChallengeProps;
-}
-
-const TypingTest: FC<TypingTestProps> = ({}) => {
+const TypingTest: FC = () => {
   const [challenge, setChallenge] = useState<ChallengeProps>();
   const [wordSet, setWordSet] = useState<string[]>([]);
   const [letterSet, setLetterSet] = useState<string[]>([]);
@@ -52,6 +48,7 @@ const TypingTest: FC<TypingTestProps> = ({}) => {
   });
   const INITIAL_TIME = 120;
   const [time, { startTimer, pauseTimer, resetTimer }] = useTimer(INITIAL_TIME); // default time is 120 seconds
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const [middleContainerRef] = useOutletContext();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -234,8 +231,8 @@ const TypingTest: FC<TypingTestProps> = ({}) => {
 
   // function to handle each key press
   const handleKeyPress = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (wrongLettersInWord >= 10) {
-      inputRef.current!.value = inputRef.current?.value.slice(0, -1)!;
+    if (inputRef.current && wrongLettersInWord >= 10) {
+      inputRef.current.value = inputRef.current.value.slice(0, -1);
       return;
     }
     if (testStatus === 0) {
@@ -347,9 +344,9 @@ const TypingTest: FC<TypingTestProps> = ({}) => {
                       index === activeWordIndex
                         ? 'active'
                         : index < activeWordIndex &&
-                          typedWordList[index] === word
-                        ? 'completed'
-                        : 'idle'
+                            typedWordList[index] === word
+                          ? 'completed'
+                          : 'idle'
                     }
                   />
                 ))}
@@ -401,7 +398,6 @@ const TypingTest: FC<TypingTestProps> = ({}) => {
             {challengeItems.map((type, i) => (
               <Button
                 key={i}
-                // @ts-ignore
                 ref={(el) => (challengeOptionRef.current[i] = el)}
                 leftIcon={challengeType === type.name ? <CheckIcon /> : <div />}
                 onClick={handleChallengeTypeSwitch}

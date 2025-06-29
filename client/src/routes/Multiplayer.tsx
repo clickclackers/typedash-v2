@@ -17,9 +17,7 @@ import { ChallengeProps } from '../components/typing/challenges/challenge.interf
 import { challengeItems, randomChallenge } from '../helpers/randomChallenge';
 import socket from '../services/socket';
 
-interface MultiplayerProps {}
-
-const Multiplayer: FC<MultiplayerProps> = ({}) => {
+const Multiplayer: FC = () => {
   const [challenge, setChallenge] = useState<ChallengeProps>();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();

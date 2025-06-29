@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Button, Icon, SlideFade, useToast } from '@chakra-ui/react';
 import { FC, useContext, useEffect, useState } from 'react';
 import {
@@ -10,35 +9,40 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import MultiplayerTest from '../components/typing/MultiplayerTest';
 import ProgressBar from '../components/typing/ProgressBar';
-import { ChallengeProps } from '../components/typing/challenges/Books.constants';
+import { ChallengeProps } from '../components/typing/challenges/challenge.interface';
 import { authContext } from '../context/authContext';
 import useTimer from '../helpers/useTimer';
 import socket from '../services/socket';
 
-interface RoomProps {}
-interface TypingProgressProps {
-  playerId: number;
+interface Player {
+  id: number;
+  username: string;
 }
 
-const Room: FC<RoomProps> = ({}) => {
+const Room: FC = () => {
   const location = useLocation();
   const roomID = location.pathname.split('/')[2];
-  const roomUrl = `https://main--cosmic-fox-2ad203.netlify.app/multiplayer/${roomID}`;
+  // TODO: Setup env
+  const roomUrl =
+    import.meta.env.VITE_ENV === 'development'
+      ? `http://localhost:5173/multiplayer/${roomID}`
+      : `https://typedash.songyang.dev/multiplayer/${roomID}`;
   const navigate = useNavigate();
   const [numPlayers, setNumPlayers] = useState(1);
-  const [listOfPlayers, setListOfPlayers] = useState([]);
+  const [listOfPlayers, setListOfPlayers] = useState<Player[]>([]);
   const [numReady, setNumReady] = useState(0);
-  const [completedPlayers, setCompletedPlayers] = useState(0);
-  const [time, { startTimer, pauseTimer, resetTimer }] = useTimer(5);
+  const [time, { startTimer, resetTimer }] = useTimer(5);
   const [gameStarted, setGameStarted] = useState(false);
   const [chosenChallenge, setChosenChallenge] = useState<ChallengeProps>();
   const [lettersTyped, setLettersTyped] = useState(0);
-  const [typingProgresses, setTypingProgresses] = useState({});
-  const [rankings, setRankings] = useState({});
+  const [typingProgresses, setTypingProgresses] = useState<
+    Record<number, number>
+  >({});
+  const [rankings, setRankings] = useState<Record<number, number>>({});
   const context = useContext(authContext);
   const username = context?.user || 'Guest';
   const toast = useToast();
-  const { state } = useLocation();
+  console.log(lettersTyped);
 
   const displayBadges = (position: number) => {
     const badges = [
@@ -139,7 +143,7 @@ const Room: FC<RoomProps> = ({}) => {
   return (
     <div className='flex flex-col justify-between'>
       <div className='flex flex-col gap-4'>
-        {listOfPlayers!.map((player) => (
+        {(listOfPlayers ?? []).map((player) => (
           <div
             key={player.id}
             className='flex items-center justify-between gap-6'
@@ -151,13 +155,15 @@ const Room: FC<RoomProps> = ({}) => {
                 <SlideFade in={time === 0}>
                   <ProgressBar
                     lettersTyped={typingProgresses[player.id]}
-                    totalLetters={chosenChallenge?.content.split('').length!}
+                    totalLetters={
+                      chosenChallenge?.content.split('').length || 0
+                    }
                   />
                 </SlideFade>
               </div>
             </div>
             <div className='flex justify-end items-center w-8 h-8'>
-              <SlideFade in={rankings[player.id]}>
+              <SlideFade in={!!rankings[player.id]}>
                 {displayBadges(rankings[player.id])}
               </SlideFade>
             </div>

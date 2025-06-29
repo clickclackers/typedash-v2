@@ -4,15 +4,13 @@ import { authContext } from '../context/authContext';
 import { getLoadouts, getStatistics } from '../services/services';
 import Loadouts from './Loadouts';
 
-interface AccountProps {}
-
 export interface LoadoutProps {
   id: number;
   name: string;
   switches: string | undefined;
   others: string | undefined;
 }
-const Account: FC<AccountProps> = () => {
+const Account: FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadouts, setLoadouts] = useState<LoadoutProps[]>([]);
   const [stats, setStats] = useState({
@@ -28,9 +26,9 @@ const Account: FC<AccountProps> = () => {
     setIsLoading(true);
     getStatistics({ user }).then((res) => {
       const statsArr = res?.data.stats;
-      let time: number = 0;
-      let totalWPM: number = 0;
-      let highestWPM: number = 0;
+      let time = 0;
+      let totalWPM = 0;
+      let highestWPM = 0;
       const completed = statsArr.length;
       for (let i = 0; i < completed; i++) {
         time += statsArr[i].time_taken;

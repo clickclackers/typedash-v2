@@ -1,8 +1,6 @@
 import { FC } from 'react';
 
-interface AboutProps {}
-
-const About: FC<AboutProps> = ({}) => {
+const About: FC = () => {
   return (
     <div className='flex flex-col justify-center font-semibold'>
       <div>

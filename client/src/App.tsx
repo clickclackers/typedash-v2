@@ -1,8 +1,7 @@
-// @ts-nocheck
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import jwt_decode, { JwtPayload } from 'jwt-decode';
-import { useContext, useEffect, useState } from 'react';
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
 import { customTheme } from './chakra-theme';
 import theme_8008 from './components/themes/8008';
@@ -24,21 +23,20 @@ function App() {
       theme_8008,
   );
   const mergedTheme = extendTheme(customTheme, { colors: currentTheme.colors });
-  const context = useContext(authContext);
-  const navigate = useNavigate();
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       const decoded = jwt_decode<JwtPayload>(token || '') || null;
       const currentTime = Date.now() / 1000;
       // check if token has expired
-      if (decoded.exp < currentTime) {
+      if (!decoded.exp || decoded.exp < currentTime) {
         localStorage.removeItem('token');
         setUser(undefined);
         return;
       } else {
         // if token has not expired, set user details as per normal
-        setUser(decoded.name);
+        setUser((decoded as any).name);
       }
     } else {
       // if token does not exist, user is undefined

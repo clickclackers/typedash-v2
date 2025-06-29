@@ -6,9 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { authContext } from '../context/authContext';
 import { loginUser } from '../services/services';
-interface LoginProps {}
 
-export const Login: FC<LoginProps> = ({}) => {
+export const Login: FC = () => {
   const navigate = useNavigate();
   const context = useContext(authContext);
 

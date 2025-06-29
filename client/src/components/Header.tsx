@@ -5,20 +5,19 @@ import {
   Tooltip,
   useDisclosure,
   useMediaQuery,
-} from "@chakra-ui/react";
-import { FC, useContext } from "react";
-import { BsFillPersonFill, BsPeopleFill } from "react-icons/bs";
-import { CgSmile } from "react-icons/cg";
-import { FaInfo } from "react-icons/fa";
-import { FiLogIn, FiLogOut } from "react-icons/fi";
-import { RiPaletteFill } from "react-icons/ri";
-import { Link, useNavigate } from "react-router-dom";
-import { authContext } from "../context/authContext";
-// @ts-ignore:next-line
-import { ReactComponent as CatLogo } from "../assets/cat.svg";
-import { logoutUser } from "../services/services";
-import { ThemeProps } from "./themes/theme.inteface";
-import ThemeModal from "./themes/ThemeModal";
+} from '@chakra-ui/react';
+import { FC, useContext } from 'react';
+import { BsFillPersonFill, BsPeopleFill } from 'react-icons/bs';
+import { CgSmile } from 'react-icons/cg';
+import { FaInfo } from 'react-icons/fa';
+import { FiLogIn, FiLogOut } from 'react-icons/fi';
+import { RiPaletteFill } from 'react-icons/ri';
+import { Link, useNavigate } from 'react-router-dom';
+import { authContext } from '../context/authContext';
+import CatLogo from '../assets/cat.svg';
+import { logoutUser } from '../services/services';
+import { ThemeProps } from './themes/theme.inteface';
+import ThemeModal from './themes/ThemeModal';
 
 interface HeaderProps {
   currentTheme: ThemeProps;
@@ -32,126 +31,128 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
     onOpen: onThemeOpen,
     onClose: onThemeClose,
   } = useDisclosure();
-  const [isMobile] = useMediaQuery("(max-width: 767px)");
+  const [isMobile] = useMediaQuery('(max-width: 767px)');
   const context = useContext(authContext);
   const logoutHandler = () => {
     logoutUser().then(() => {
-      navigate("/");
+      navigate('/');
       context?.setUser(undefined);
-      localStorage.removeItem("token");
+      localStorage.removeItem('token');
     });
   };
   return (
-    <div className="flex justify-between items-center">
-      <div className="flex items-center gap-8">
-        <Box fill="accent.300" className="flex items-center gap-4">
-          {!isMobile && <CatLogo className="h-14 w-14" />}
+    <div className='flex justify-between items-center'>
+      <div className='flex items-center gap-8'>
+        <Box fill='accent.300' className='flex items-center gap-4'>
+          {!isMobile && (
+            <img src={CatLogo} className='h-14 w-14' alt='Cat Logo' />
+          )}
           <Link to={`/`}>
-            <h1 className="font-bold text-lg md:text-2xl">TypeDash</h1>
+            <h1 className='font-bold text-lg md:text-2xl'>TypeDash</h1>
           </Link>
         </Box>
-        <div className="flex gap-2">
+        <div className='flex gap-2'>
           <Tooltip
-            label="Singleplayer"
-            aria-label="Singleplayer tooltip"
-            className="font-mono"
+            label='Singleplayer'
+            aria-label='Singleplayer tooltip'
+            className='font-mono'
           >
             <IconButton
-              onClick={() => navigate("/singleplayer")}
-              variant="ghost"
-              color="text.primary"
-              _hover={{ color: "text.secondary" }}
-              aria-label="Singleplayer tooltip"
+              onClick={() => navigate('/singleplayer')}
+              variant='ghost'
+              color='text.primary'
+              _hover={{ color: 'text.secondary' }}
+              aria-label='Singleplayer tooltip'
               icon={<BsFillPersonFill size={25} />}
             />
           </Tooltip>
           <Tooltip
-            label="Multiplayer"
-            aria-label="Multiplayer tooltip"
-            className="font-mono"
+            label='Multiplayer'
+            aria-label='Multiplayer tooltip'
+            className='font-mono'
           >
             <IconButton
-              onClick={() => navigate("/multiplayer")}
-              variant="ghost"
-              color="text.primary"
-              _hover={{ color: "text.secondary" }}
-              aria-label="Multiplayer tooltip"
+              onClick={() => navigate('/multiplayer')}
+              variant='ghost'
+              color='text.primary'
+              _hover={{ color: 'text.secondary' }}
+              aria-label='Multiplayer tooltip'
               icon={<BsPeopleFill size={25} />}
             />
           </Tooltip>
           <Tooltip
-            label="About"
-            aria-label="About tooltip"
-            className="font-mono"
+            label='About'
+            aria-label='About tooltip'
+            className='font-mono'
           >
             <IconButton
-              onClick={() => navigate("/about")}
-              variant="ghost"
-              color="text.primary"
-              _hover={{ color: "text.secondary" }}
-              aria-label="About tooltip"
+              onClick={() => navigate('/about')}
+              variant='ghost'
+              color='text.primary'
+              _hover={{ color: 'text.secondary' }}
+              aria-label='About tooltip'
               icon={<FaInfo size={20} />}
             />
           </Tooltip>
         </div>
       </div>
-      <div className="flex">
+      <div className='flex'>
         <Button
-          variant="ghost"
-          color="text.primary"
-          _hover={{ color: "text.secondary" }}
+          variant='ghost'
+          color='text.primary'
+          _hover={{ color: 'text.secondary' }}
           onClick={onThemeOpen}
-          aria-label="Theme tooltip"
-          className="flex items-center gap-2"
+          aria-label='Theme tooltip'
+          className='flex items-center gap-2'
         >
           <RiPaletteFill size={25} />
           <span>{currentTheme.name}</span>
         </Button>
         {!context?.user && (
           <Tooltip
-            label="Log In"
-            aria-label="Log in tooltip"
-            className="font-mono"
+            label='Log In'
+            aria-label='Log in tooltip'
+            className='font-mono'
           >
             <IconButton
-              onClick={() => navigate("/login")}
-              variant="ghost"
-              color="text.primary"
-              _hover={{ color: "text.secondary" }}
-              aria-label="Login tooltip"
+              onClick={() => navigate('/login')}
+              variant='ghost'
+              color='text.primary'
+              _hover={{ color: 'text.secondary' }}
+              aria-label='Login tooltip'
               icon={<FiLogIn size={25} />}
             />
           </Tooltip>
         )}
         {context?.user && (
-          <div className="flex items-center gap-4">
+          <div className='flex items-center gap-4'>
             <Tooltip
-              label="Your account"
-              aria-label="Account tooltip"
-              className="font-mono"
+              label='Your account'
+              aria-label='Account tooltip'
+              className='font-mono'
             >
               <Button
-                variant="ghost"
-                color="text.primary"
-                _hover={{ color: "text.secondary" }}
-                onClick={() => navigate("/account")}
-                className="flex items-center gap-2"
+                variant='ghost'
+                color='text.primary'
+                _hover={{ color: 'text.secondary' }}
+                onClick={() => navigate('/account')}
+                className='flex items-center gap-2'
               >
                 <CgSmile size={25} />
                 <span>{context?.user}</span>
               </Button>
             </Tooltip>
             <Tooltip
-              label="Log Out"
-              aria-label="Log out tooltip"
-              className="font-mono"
+              label='Log Out'
+              aria-label='Log out tooltip'
+              className='font-mono'
             >
               <IconButton
                 onClick={logoutHandler}
-                variant="ghost"
-                color="text.primary"
-                _hover={{ color: "text.secondary" }}
-                aria-label="Login tooltip"
+                variant='ghost'
+                color='text.primary'
+                _hover={{ color: 'text.secondary' }}
+                aria-label='Login tooltip'
                 icon={<FiLogOut size={25} />}
               />
             </Tooltip>

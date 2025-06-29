@@ -39,7 +39,6 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
     time: 0,
   });
   const INITIAL_TIME = 120;
-  // @ts-ignore
   const [time, { startTimer, pauseTimer, resetTimer }] = useTimer(INITIAL_TIME); // default time is 120 seconds
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -171,7 +170,9 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
   // function to handle each key press
   const handleKeyPress = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (wrongLettersInWord >= 10) {
-      inputRef.current!.value = inputRef.current?.value.slice(0, -1)!;
+      if (inputRef.current && inputRef.current.value) {
+        inputRef.current.value = inputRef.current.value.slice(0, -1);
+      }
       return;
     }
     if (testStatus === 0) {
@@ -255,8 +256,8 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
                     index === activeWordIndex
                       ? 'active'
                       : index < activeWordIndex && typedWordList[index] === word
-                      ? 'completed'
-                      : 'idle'
+                        ? 'completed'
+                        : 'idle'
                   }
                 />
               ))}

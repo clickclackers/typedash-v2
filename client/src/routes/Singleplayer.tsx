@@ -1,9 +1,7 @@
 import type { FC } from 'react';
 import TypingTest from '../components/typing/TypingTest';
 
-interface SingleplayerProps {}
-
-const Singleplayer: FC<SingleplayerProps> = ({}) => {
+const Singleplayer: FC = () => {
   return <TypingTest />;
 };
 

@@ -5,9 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { registerUser } from '../services/services';
 
-interface RegisterProps {}
-
-const Register: FC<RegisterProps> = ({}) => {
+const Register: FC = () => {
   const navigate = useNavigate();
   const registerUserHandler = (values: FormikValues) => {
     registerUser(values).then((res) => {

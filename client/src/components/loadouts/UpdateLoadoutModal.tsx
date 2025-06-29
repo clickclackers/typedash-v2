@@ -12,7 +12,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { Field, Form, Formik } from 'formik';
+import { Field, Form, Formik, FieldProps } from 'formik';
 import { FC } from 'react';
 import * as Yup from 'yup';
 import { LoadoutProps } from '../../routes/Account';
@@ -92,22 +92,26 @@ const UpdateLoadoutModal: FC<UpdateLoadoutModalProps> = ({
             <Form autoComplete='off'>
               <ModalBody>
                 <Field name='name'>
-                  {/* @ts-ignore */}
-                  {({ field, form }) => (
+                  {({ field, form }: FieldProps) => (
                     <FormControl
-                      isInvalid={form.errors.name && form.touched.name}
+                      isInvalid={!!form.errors.name && !!form.touched.name}
                     >
                       <FormLabel htmlFor='name'>Keyboard Name</FormLabel>
                       <Input {...field} />
-                      <FormErrorMessage>{form.errors.name}</FormErrorMessage>
+                      <FormErrorMessage>
+                        {typeof form.errors.name === 'string'
+                          ? form.errors.name
+                          : undefined}
+                      </FormErrorMessage>
                     </FormControl>
                   )}
                 </Field>
                 <Field name='switches'>
-                  {/* @ts-ignore */}
-                  {({ field, form }) => (
+                  {({ field, form }: FieldProps) => (
                     <FormControl
-                      isInvalid={form.errors.switches && form.touched.switches}
+                      isInvalid={
+                        !!form.errors.switches && !!form.touched.switches
+                      }
                       mt={4}
                     >
                       <FormLabel htmlFor='switches'>
@@ -115,21 +119,26 @@ const UpdateLoadoutModal: FC<UpdateLoadoutModalProps> = ({
                       </FormLabel>
                       <Input {...field} />
                       <FormErrorMessage>
-                        {form.errors.switches}
+                        {typeof form.errors.switches === 'string'
+                          ? form.errors.switches
+                          : undefined}
                       </FormErrorMessage>
                     </FormControl>
                   )}
                 </Field>
                 <Field name='others'>
-                  {/* @ts-ignore */}
-                  {({ field, form }) => (
+                  {({ field, form }: FieldProps) => (
                     <FormControl
-                      isInvalid={form.errors.others && form.touched.others}
+                      isInvalid={!!form.errors.others && !!form.touched.others}
                       mt={4}
                     >
                       <FormLabel htmlFor='name'>Others (optional)</FormLabel>
                       <Input {...field} />
-                      <FormErrorMessage>{form.errors.others}</FormErrorMessage>
+                      <FormErrorMessage>
+                        {typeof form.errors.others === 'string'
+                          ? form.errors.others
+                          : undefined}
+                      </FormErrorMessage>
                     </FormControl>
                   )}
                 </Field>
