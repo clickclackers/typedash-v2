@@ -9,6 +9,27 @@ import (
 	"context"
 )
 
+const createUserOverviewStats = `-- name: CreateUserOverviewStats :one
+INSERT INTO user_overview_stats (user_id)
+VALUES ($1)
+RETURNING user_id, single_total_races, single_total_time, single_avg_wpm, multi_total_races, multi_total_time, multi_avg_wpm
+`
+
+func (q *Queries) CreateUserOverviewStats(ctx context.Context, userID int32) (UserOverviewStat, error) {
+	row := q.db.QueryRow(ctx, createUserOverviewStats, userID)
+	var i UserOverviewStat
+	err := row.Scan(
+		&i.UserID,
+		&i.SingleTotalRaces,
+		&i.SingleTotalTime,
+		&i.SingleAvgWpm,
+		&i.MultiTotalRaces,
+		&i.MultiTotalTime,
+		&i.MultiAvgWpm,
+	)
+	return i, err
+}
+
 const getOverviewStatsByUserID = `-- name: GetOverviewStatsByUserID :one
 SELECT user_id, single_total_races, single_total_time, single_avg_wpm, multi_total_races, multi_total_time, multi_avg_wpm
 FROM user_overview_stats

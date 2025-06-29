@@ -7,7 +7,12 @@ help:
 	@echo "  make dev          - Start both server and client in development mode"
 	@echo "  make server       - Start only the Go server"
 	@echo "  make client       - Start only the React client"
-	@echo "  make db           - Run sqlc generate"
+	@echo "  make sqlc         - Run sqlc generate"
+	@echo "  make db-setup     - Setup PostgreSQL database (db-start, db-create, db-schema)"
+	@echo "  make db-start     - Start PostgreSQL service"
+	@echo "  make db-create    - Create typedash database"
+	@echo "  make db-schema    - Apply database schema"
+	@echo "  make db-reset     - Drop and recreate database with schema"
 	@echo "  make install      - Install all dependencies (Go modules + npm packages)"
 	@echo "  make test         - Run tests for both server and client"
 	@echo "  make lint         - Run linting for both server and client"
@@ -15,10 +20,6 @@ help:
 # Development targets
 .PHONY: dev
 dev:
-	@echo "🚀 Starting TypeDash Development Environment..."
-	@echo "📱 Client will be available at: http://localhost:5173"
-	@echo "🔧 Server will be available at: http://localhost:8080"
-	@echo "Press Ctrl+C to stop both servers"
 	@trap 'kill $$(jobs -p)' EXIT; \
 	cd server && go run main.go & \
 	cd client && npm run dev & \
@@ -26,12 +27,10 @@ dev:
 
 .PHONY: server
 server:
-	@echo "📡 Starting Go server on port 8080..."
 	cd server && go run main.go
 
 .PHONY: client
 client:
-	@echo "⚛️  Starting React client on port 5173..."
 	cd client && npm run dev
 
 # Installation targets
@@ -52,12 +51,66 @@ test:
 	cd client && npm test
 	@echo "✅ All tests complete!"
 
-# Database targets (if you have database setup)
-.PHONY: db
-db:
-	@echo "🗄️  Setting up database..."
-	sqlc generate -f db/sqlc.yaml
+# Database targets
+.PHONY: sqlc
+sqlc:
+	@echo "🗄️  Generating sqlc code..."
+	cd db && sqlc generate
+	@echo "✅ Database code generation complete!"
+
+.PHONY: db-setup
+db-setup: db-start db-create db-schema
 	@echo "✅ Database setup complete!"
+	@echo "📝 Set your environment variables:"
+	@echo "   DATABASE_URL=\"postgres://$(shell whoami)@localhost:5432/typedash?sslmode=disable\""
+	@echo "   export JWT_SECRET=\"your-super-secret-jwt-key-change-this-in-production\""
+
+.PHONY: db-start
+db-start:
+	@echo "🚀 Starting PostgreSQL service..."
+	@if ! brew services list | grep postgresql | grep started > /dev/null; then \
+		brew services start postgresql; \
+		echo "✅ PostgreSQL service started"; \
+	else \
+		echo "✅ PostgreSQL service already running"; \
+	fi
+
+.PHONY: db-create
+db-create:
+	@echo "🗄️  Creating typedash database..."
+	@if ! psql -lqt | cut -d \| -f 1 | grep -qw typedash; then \
+		createdb typedash; \
+		echo "✅ Database 'typedash' created"; \
+	else \
+		echo "✅ Database 'typedash' already exists"; \
+	fi
+
+.PHONY: db-schema
+db-schema:
+	@echo "📋 Applying database schema..."
+	@if [ "$$(psql -d typedash -t -c "\dt" | wc -l)" -gt 0 ]; then \
+		echo "✅ Schema already applied"; \
+	else \
+		psql -d typedash -f db/schema.sql; \
+		echo "✅ Schema applied successfully"; \
+	fi
+
+.PHONY: db-reset
+db-reset:
+	@echo "🔄 Resetting database..."
+	@echo "⚠️  This will drop and recreate the database!"
+	@read -p "Are you sure? (y/N): " confirm && [ "$$confirm" = "y" ] || exit 1
+	dropdb typedash 2>/dev/null || true
+	createdb typedash
+	psql -d typedash -f db/schema.sql
+	@echo "✅ Database reset complete!"
+
+.PHONY: db-status
+db-status:
+	@echo "📊 Database Status:"
+	@echo "PostgreSQL Service: $$(brew services list | grep postgresql | awk '{print $$2}')"
+	@echo "Database exists: $$(psql -lqt | cut -d \| -f 1 | grep -qw typedash && echo "Yes" || echo "No")"
+	@echo "Tables: $$(psql -d typedash -c "\dt" 2>/dev/null | wc -l | tr -d ' ')"
 
 # Linting targets
 .PHONY: lint
