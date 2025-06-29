@@ -38,7 +38,7 @@ client:
 .PHONY: install
 install:
 	@echo "📦 Installing Go dependencies..."
-	go mod download
+	go mod tidy
 	@echo "📦 Installing npm dependencies..."
 	cd client && npm install
 	@echo "✅ All dependencies installed!"

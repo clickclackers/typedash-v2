@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 const http = () => {
-  const api_url: string =
-    process.env.NODE_ENV === 'production'
-      ? (import.meta.env.VITE_API_URL as string)
-      : 'http://localhost:3000/';
+  const baseURL: string =
+    import.meta.env.VITE_ENV === 'development'
+      ? 'http://localhost:3000/'
+      : import.meta.env.VITE_API_URL;
   const instance = axios.create({
-    baseURL: api_url,
+    baseURL,
     headers: {
       'Content-Type': 'application/json',
       //'Access-Control-Allow-Origin': '*',
