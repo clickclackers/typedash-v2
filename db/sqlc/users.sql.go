@@ -11,7 +11,7 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (username, password_hash)
-VALUES ($1, $2) RETURNING id, username, password_hash, created_at
+VALUES ($1, $2) RETURNING id, username, email, password_hash, created_at
 `
 
 type CreateUserParams struct {
@@ -25,6 +25,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
+		&i.Email,
 		&i.PasswordHash,
 		&i.CreatedAt,
 	)
@@ -32,7 +33,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, username, password_hash, created_at
+SELECT id, username, email, password_hash, created_at
 FROM users
 WHERE id = $1
 `
@@ -43,6 +44,7 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
+		&i.Email,
 		&i.PasswordHash,
 		&i.CreatedAt,
 	)
@@ -50,7 +52,7 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, password_hash, created_at
+SELECT id, username, email, password_hash, created_at
 FROM users
 WHERE username = $1
 `
@@ -61,6 +63,7 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
+		&i.Email,
 		&i.PasswordHash,
 		&i.CreatedAt,
 	)
@@ -68,7 +71,7 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, username, password_hash, created_at
+SELECT id, username, email, password_hash, created_at
 FROM users
 ORDER BY id LIMIT $1
 OFFSET $2
@@ -91,6 +94,7 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 		if err := rows.Scan(
 			&i.ID,
 			&i.Username,
+			&i.Email,
 			&i.PasswordHash,
 			&i.CreatedAt,
 		); err != nil {
