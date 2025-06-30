@@ -11,11 +11,11 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "eslint --fix",
+      "eslint --fix --report-unused-disable-directives --max-warnings 100",
       "prettier --write"
     ],
     "*.{js,jsx}": [
-      "eslint --fix",
+      "eslint --fix --report-unused-disable-directives --max-warnings 100",
       "prettier --write"
     ],
     "*.{json,css,md}": [
