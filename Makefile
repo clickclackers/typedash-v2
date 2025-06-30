@@ -55,7 +55,7 @@ test:
 .PHONY: sqlc
 sqlc:
 	@echo "🗄️  Generating sqlc code..."
-	cd db && sqlc generate
+	cd server/db && sqlc generate
 	@echo "✅ Database code generation complete!"
 
 .PHONY: db-setup
