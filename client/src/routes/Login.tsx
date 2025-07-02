@@ -1,21 +1,20 @@
 import { Button } from '@chakra-ui/button';
 import { Box, FormControl, FormErrorMessage, Input } from '@chakra-ui/react';
 import { Formik, FormikValues } from 'formik';
-import { FC, useContext } from 'react';
+import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
-import { authContext } from '../context/authContext';
+import { useAuth } from '../context/authContext';
 import { loginUser } from '../services/services';
 
 export const Login: FC = () => {
   const navigate = useNavigate();
-  const context = useContext(authContext);
+  const { login } = useAuth();
 
   const loginUserHandler = (values: FormikValues) => {
     loginUser(values).then((res) => {
       if (res?.status === 200) {
-        context?.setUser(res?.data.user.name);
-        localStorage.setItem('token', res?.data.token);
+        login(res.data.user, res.data.token);
         navigate('/');
       }
     });
@@ -29,7 +28,9 @@ export const Login: FC = () => {
           password: '',
         }}
         validationSchema={Yup.object({
-          email: Yup.string().required('Please enter your email'),
+          email: Yup.string()
+            .email('Please enter a valid email')
+            .required('Please enter your email'),
           password: Yup.string().required('Please enter your password'),
         })}
         onSubmit={(values) => loginUserHandler(values)}

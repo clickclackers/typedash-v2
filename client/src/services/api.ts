@@ -10,7 +10,6 @@ const http = () => {
     headers: {
       'Content-Type': 'application/json',
       //'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
     },
   });
   instance.interceptors.request.use(

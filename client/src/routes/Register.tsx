@@ -3,45 +3,43 @@ import { Formik, FormikValues } from 'formik';
 import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
+import { useAuth } from '../context/authContext';
 import { registerUser } from '../services/services';
 
 const Register: FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const registerUserHandler = (values: FormikValues) => {
     registerUser(values).then((res) => {
       if (res?.status === 201) {
-        navigate('/login');
+        // Auto-login after successful registration
+        login(res.data.user, res.data.token);
+        navigate('/');
       }
     });
-  };
-
-  const getCharacterValidationError = (str: string) => {
-    return `Your password must have at least 1 ${str} character.`;
   };
 
   return (
     <div className='flex flex-col justify-center items-center gap-6'>
       <Formik
         initialValues={{
-          name: '',
+          username: '',
           email: '',
           password: '',
           password2: '',
         }}
         validationSchema={Yup.object({
-          name: Yup.string()
-            .min(6, 'Username must be at least 6 characters')
-            .max(15, 'Username must be 15 characters or less')
+          username: Yup.string()
+            .min(3, 'Username must be at least 3 characters')
+            .max(20, 'Username must be 20 characters or less')
             .required('Username is required'),
           email: Yup.string()
-            .email('Invalid email address')
+            .email('Please enter a valid email')
             .required('Email is required'),
           password: Yup.string()
             .required('Please enter a password')
-            .min(8, 'Password must have at least 8 characters')
-            .matches(/[0-9]/, getCharacterValidationError('digit'))
-            .matches(/[a-z]/, getCharacterValidationError('lowercase'))
-            .matches(/[A-Z]/, getCharacterValidationError('uppercase')),
+            .min(6, 'Password must have at least 6 characters'),
           password2: Yup.string()
             .required('Please re-type your password')
             .oneOf([Yup.ref('password')], 'Passwords does not match'),
@@ -62,22 +60,22 @@ const Register: FC = () => {
           >
             <div>register</div>
             <div className='flex flex-col gap-2'>
-              <FormControl isInvalid={touched.name && !!errors.name}>
+              <FormControl isInvalid={touched.username && !!errors.username}>
                 <Input
-                  id='name'
-                  name='name'
+                  id='username'
+                  name='username'
                   borderColor='text.primary'
                   focusBorderColor='accent.200'
                   errorBorderColor='red.600'
                   type='text'
-                  placeholder='name'
+                  placeholder='username'
                   _placeholder={{ color: 'inherit' }}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  value={values.name}
+                  value={values.username}
                 />
                 <FormErrorMessage color='red.600'>
-                  {errors.name}
+                  {errors.username}
                 </FormErrorMessage>
               </FormControl>
             </div>

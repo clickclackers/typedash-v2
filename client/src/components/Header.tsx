@@ -6,14 +6,14 @@ import {
   useDisclosure,
   useMediaQuery,
 } from '@chakra-ui/react';
-import { FC, useContext } from 'react';
+import { FC } from 'react';
 import { BsFillPersonFill, BsPeopleFill } from 'react-icons/bs';
 import { CgSmile } from 'react-icons/cg';
 import { FaInfo } from 'react-icons/fa';
 import { FiLogIn, FiLogOut } from 'react-icons/fi';
 import { RiPaletteFill } from 'react-icons/ri';
 import { Link, useNavigate } from 'react-router-dom';
-import { authContext } from '../context/authContext';
+import { useAuth } from '../context/authContext';
 import CatLogo from '../assets/cat.svg';
 import { logoutUser } from '../services/services';
 import { ThemeProps } from './themes/theme.inteface';
@@ -32,14 +32,15 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
     onClose: onThemeClose,
   } = useDisclosure();
   const [isMobile] = useMediaQuery('(max-width: 767px)');
-  const context = useContext(authContext);
+  const { user, logout, isAuthenticated } = useAuth();
+
   const logoutHandler = () => {
     logoutUser().then(() => {
+      logout();
       navigate('/');
-      context?.setUser(undefined);
-      localStorage.removeItem('token');
     });
   };
+
   return (
     <div className='flex justify-between items-center'>
       <div className='flex items-center gap-8'>
@@ -108,7 +109,7 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
           <RiPaletteFill size={25} />
           <span>{currentTheme.name}</span>
         </Button>
-        {!context?.user && (
+        {!isAuthenticated && (
           <Tooltip
             label='Log In'
             aria-label='Log in tooltip'
@@ -124,7 +125,7 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
             />
           </Tooltip>
         )}
-        {context?.user && (
+        {isAuthenticated && user && (
           <div className='flex items-center gap-4'>
             <Tooltip
               label='Your account'
@@ -139,7 +140,7 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
                 className='flex items-center gap-2'
               >
                 <CgSmile size={25} />
-                <span>{context?.user}</span>
+                <span>{user.username}</span>
               </Button>
             </Tooltip>
             <Tooltip

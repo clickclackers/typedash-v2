@@ -1,14 +1,23 @@
 import { createStandaloneToast } from '@chakra-ui/react';
 import { AxiosError } from 'axios';
 import { FormikValues } from 'formik';
-import { LoadoutProps } from '../routes/Account';
 import http from './api';
 const { toast } = createStandaloneToast();
+
+interface AuthResponse {
+  message: string;
+  token: string;
+  user: {
+    id: number;
+    username: string;
+    email: string;
+  };
+}
 
 export const loginUser = async (params: FormikValues) => {
   try {
     const res = await http()
-      .post('login', params)
+      .post<AuthResponse>('login', params)
       .then((response) => {
         toast({
           title: 'Login successful.',
@@ -40,7 +49,7 @@ export const loginUser = async (params: FormikValues) => {
 export const registerUser = async (params: FormikValues) => {
   try {
     const res = await http()
-      .post('register', params)
+      .post<AuthResponse>('register', params)
       .then((response) => {
         toast({
           title: 'Registered successfully.',
@@ -138,7 +147,7 @@ export const createLoadout = async (params: any) => {
   }
 };
 
-export const updateLoadout = async (params: LoadoutProps) => {
+export const updateLoadout = async (params: any) => {
   try {
     const res = await http()
       .put('account/loadout/update', params)
@@ -158,6 +167,7 @@ export const updateLoadout = async (params: LoadoutProps) => {
     console.log(e);
   }
 };
+
 export const deleteLoadout = async (params: { data: number }) => {
   try {
     const res = await http()
