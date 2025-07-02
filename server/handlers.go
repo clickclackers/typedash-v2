@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -31,8 +32,8 @@ func RegisterHandler(c *gin.Context) {
 	if err == nil {
 		c.JSON(http.StatusConflict, gin.H{"message": "Email already exists"})
 		return
-	} else if err != sql.ErrNoRows {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Database error"})
+	} else if !errors.Is(err, sql.ErrNoRows) {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -79,7 +80,7 @@ func LoginHandler(c *gin.Context) {
 	// Get user from database by email
 	userID, username, email, passwordHash, err := GetUserByEmail(req.Email)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid email or password"})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "Database error"})

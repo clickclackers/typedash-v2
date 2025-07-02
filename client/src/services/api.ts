@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const http = () => {
   const baseURL: string =
-    import.meta.env.VITE_ENV === 'development'
+    import.meta.env.VITE_ENV !== 'production'
       ? 'http://localhost:3000/'
       : import.meta.env.VITE_API_URL;
   const instance = axios.create({

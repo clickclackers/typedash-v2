@@ -5,8 +5,9 @@
 1. `brew install sqlc pre-commit golangci-lint goimports redis postgresql`
 2. `pre-commit install`
 3. `make install`
-4. `make db-setup`
-5. `make dev`
+4. Add `export PATH="$HOME/go/bin:$PATH"` to `~/.zshrc`
+5. `make db-setup`
+6. `make dev`
 
 ## Push database schema changes
 
