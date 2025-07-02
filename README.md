@@ -18,4 +18,5 @@ e.g. `migrate create -ext sql -dir server/db/migrations -seq add_users_table`
 <!-- https://medium.com/gravel-engineering/using-sqlc-for-orm-alternative-in-golang-ft-go-migrate-pgx-b9e35ec623b2 -->
 
 1. After making changes to db/queries or generating a new migration, run
-2. `make sqlc`
+2. `make sqlc` to generate queries
+3. `make db-schema` to run migrations
