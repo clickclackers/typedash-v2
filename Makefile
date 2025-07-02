@@ -1,6 +1,5 @@
 # TypeDash Development Makefile
 
-# Default target
 .PHONY: help
 help:
 	@echo "TypeDash Development Commands:"
@@ -17,7 +16,6 @@ help:
 	@echo "  make test         - Run tests for both server and client"
 	@echo "  make lint         - Run linting for both server and client"
 
-# Development targets
 .PHONY: dev
 dev:
 	@trap 'kill $$(jobs -p)' EXIT; \
@@ -33,7 +31,6 @@ server:
 client:
 	cd client && npm run dev
 
-# Installation targets
 .PHONY: install
 install:
 	@echo "📦 Installing Go dependencies..."
@@ -42,7 +39,6 @@ install:
 	cd client && npm install
 	@echo "✅ All dependencies installed!"
 
-# Test targets
 .PHONY: test
 test:
 	@echo "🧪 Running Go tests..."
@@ -51,7 +47,6 @@ test:
 	cd client && npm test
 	@echo "✅ All tests complete!"
 
-# Database targets
 .PHONY: sqlc
 sqlc:
 	@echo "🗄️  Generating sqlc code..."
@@ -91,7 +86,7 @@ db-schema:
 	@if [ "$$(psql -d typedash -t -c "\dt" | wc -l)" -gt 0 ]; then \
 		echo "✅ Schema already applied"; \
 	else \
-		psql -d typedash -f db/schema.sql; \
+		psql -d typedash -f server/db/schema.sql; \
 		echo "✅ Schema applied successfully"; \
 	fi
 
@@ -102,7 +97,7 @@ db-reset:
 	@read -p "Are you sure? (y/N): " confirm && [ "$$confirm" = "y" ] || exit 1
 	dropdb typedash 2>/dev/null || true
 	createdb typedash
-	psql -d typedash -f db/schema.sql
+	psql -d typedash -f server/db/schema.sql
 	@echo "✅ Database reset complete!"
 
 .PHONY: db-status
@@ -112,11 +107,10 @@ db-status:
 	@echo "Database exists: $$(psql -lqt | cut -d \| -f 1 | grep -qw typedash && echo "Yes" || echo "No")"
 	@echo "Tables: $$(psql -d typedash -c "\dt" 2>/dev/null | wc -l | tr -d ' ')"
 
-# Linting targets
 .PHONY: lint
 lint:
 	@echo "🔍 Linting Go code..."
 	cd server && go vet ./...
 	@echo "🔍 Linting React code..."
 	cd client && npm run lint
-	@echo "✅ Linting complete!" 
+	@echo "✅ Linting complete!"
