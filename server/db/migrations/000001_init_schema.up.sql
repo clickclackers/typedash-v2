@@ -35,7 +35,7 @@ CREATE TABLE user_overview_stats
 CREATE TABLE single_challenge_stats
 (
     user_id      INTEGER NOT NULL REFERENCES users (id),
-    challenge_id INTEGER NOT NULL REFERENCES challenge (id),
+    challenge_id INTEGER NOT NULL REFERENCES challenges (id),
     created_at   TIMESTAMP DEFAULT NOW(),
     time_taken   INTEGER NOT NULL CHECK (time_taken >= 0),
     wpm          INTEGER NOT NULL CHECK (wpm >= 0),
@@ -48,7 +48,7 @@ CREATE TABLE multi_challenge_stats
 (
     session_id   VARCHAR(255) NOT NULL,
     user_id      INTEGER NOT NULL REFERENCES users (id),
-    challenge_id INTEGER NOT NULL REFERENCES challenge (id),
+    challenge_id INTEGER NOT NULL REFERENCES challenges (id),
     created_at   TIMESTAMP DEFAULT NOW(),
     time_taken   INTEGER NOT NULL CHECK (time_taken >= 0),
     wpm          INTEGER NOT NULL CHECK (wpm >= 0),

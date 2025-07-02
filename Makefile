@@ -82,13 +82,9 @@ db-create:
 
 .PHONY: db-schema
 db-schema:
-	@echo "📋 Applying database schema..."
-	@if [ "$$(psql -d typedash -t -c "\dt" | wc -l)" -gt 0 ]; then \
-		echo "✅ Schema already applied"; \
-	else \
-		psql -d typedash -f server/db/schema.sql; \
-		echo "✅ Schema applied successfully"; \
-	fi
+	@echo "📋 Applying database migrations..."
+	migrate -path server/db/migrations -database "postgres://$(shell whoami)@localhost:5432/typedash?sslmode=disable" up
+	@echo "✅ Migrations applied successfully!"
 
 .PHONY: db-reset
 db-reset:
