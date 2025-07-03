@@ -9,7 +9,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import MultiplayerTest from '../components/typing/MultiplayerTest';
 import ProgressBar from '../components/typing/ProgressBar';
-import { ChallengeProps } from '../components/typing/challenges/challenge.interface';
+import { Challenge } from '../components/typing/challenges/challenge.interface';
 import { authContext } from '../context/authContext';
 import useTimer from '../helpers/useTimer';
 import socket from '../services/socket';
@@ -24,7 +24,7 @@ const Room: FC = () => {
   const roomID = location.pathname.split('/')[2];
   // TODO: Setup env
   const roomUrl =
-    import.meta.env.VITE_ENV === 'development'
+    import.meta.env.VITE_ENV !== 'production'
       ? `http://localhost:5173/multiplayer/${roomID}`
       : `https://typedash.songyang.dev/multiplayer/${roomID}`;
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ const Room: FC = () => {
   const [numReady, setNumReady] = useState(0);
   const [time, { startTimer, resetTimer }] = useTimer(5);
   const [gameStarted, setGameStarted] = useState(false);
-  const [chosenChallenge, setChosenChallenge] = useState<ChallengeProps>();
+  const [chosenChallenge, setChosenChallenge] = useState<Challenge>();
   const [lettersTyped, setLettersTyped] = useState(0);
   const [typingProgresses, setTypingProgresses] = useState<
     Record<number, number>

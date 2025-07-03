@@ -1,6 +1,6 @@
 import { Box, Fade } from '@chakra-ui/react';
 import { FC } from 'react';
-import { ChallengeProps } from '../challenges/challenge.interface';
+import { Challenge } from '../challenges/challenge.interface';
 
 interface ResultProps {
   result: {
@@ -9,7 +9,7 @@ interface ResultProps {
     time: number;
   };
   showResults: boolean;
-  challenge: ChallengeProps | undefined;
+  challenge: Challenge | undefined;
   timerRanOut: boolean;
 }
 

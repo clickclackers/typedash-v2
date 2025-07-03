@@ -23,11 +23,11 @@ import useTimer from '../../helpers/useTimer';
 import http from '../../services/api';
 import ProgressBar from './ProgressBar';
 import Word from './Word';
-import { ChallengeProps } from './challenges/challenge.interface';
+import { Challenge } from './challenges/challenge.interface';
 import Result from './results/Result';
 
 const TypingTest: FC = () => {
-  const [challenge, setChallenge] = useState<ChallengeProps>();
+  const [challenge, setChallenge] = useState<Challenge>();
   const [wordSet, setWordSet] = useState<string[]>([]);
   const [letterSet, setLetterSet] = useState<string[]>([]);
   const [typedWordList, setTypedWordList] = useState<string[]>(['']);

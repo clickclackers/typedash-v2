@@ -37,9 +37,9 @@ func main() {
 	router.Use(cors.New(config))
 
 	// Health check endpoint
-	router.GET("/ping", func(c *gin.Context) {
+	router.GET("/healthz", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "pong",
+			"message": "OK",
 		})
 	})
 
@@ -47,6 +47,11 @@ func main() {
 	router.POST("/register", RegisterHandler)
 	router.POST("/login", LoginHandler)
 	router.POST("/logout", LogoutHandler)
+
+	// Websocket route
+	router.GET("/ws", func(c *gin.Context) {
+		ServeWs(c.Writer, c.Request)
+	})
 
 	// Protected routes
 	protected := router.Group("/")

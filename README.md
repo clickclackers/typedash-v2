@@ -1,5 +1,7 @@
 # typedash
 
+Deployment link: <https://typedash.songyang.dev>
+
 ## Getting started
 
 1. `brew install sqlc pre-commit golangci-lint goimports golang-migrate redis postgresql`

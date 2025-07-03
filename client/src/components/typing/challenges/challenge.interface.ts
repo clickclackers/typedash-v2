@@ -1,4 +1,4 @@
-export interface ChallengeProps {
+export interface Challenge {
   id: number;
   title: string;
   type: string;

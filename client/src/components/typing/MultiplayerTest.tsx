@@ -7,7 +7,7 @@ import useTimer from '../../helpers/useTimer';
 import http from '../../services/api';
 import socket from '../../services/socket';
 import Word from './Word';
-import { ChallengeProps } from './challenges/challenge.interface';
+import { Challenge } from './challenges/challenge.interface';
 import Result from './results/Result';
 
 interface MultiplayerTestProps {
@@ -19,7 +19,7 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
   startTyping,
   setLettersTyped,
 }) => {
-  const [challenge, setChallenge] = useState<ChallengeProps>();
+  const [challenge, setChallenge] = useState<Challenge>();
   const [wordSet, setWordSet] = useState<string[]>([]);
   const [letterSet, setLetterSet] = useState<string[]>([]);
   const [typedWordList, setTypedWordList] = useState<string[]>(['']);

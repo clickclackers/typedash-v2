@@ -13,15 +13,16 @@ import {
 import { FC, useEffect, useState } from 'react';
 import { FaKeyboard } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { ChallengeProps } from '../components/typing/challenges/challenge.interface';
+import { Challenge } from '../components/typing/challenges/challenge.interface';
 import { challengeItems, randomChallenge } from '../helpers/randomChallenge';
-import socket from '../services/socket';
+import { baseURL } from '../services/api';
 
 const Multiplayer: FC = () => {
-  const [challenge, setChallenge] = useState<ChallengeProps>();
+  const [challenge, setChallenge] = useState<Challenge>();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const [socket, setSocket] = useState<WebSocket | null>(null);
 
   const getDefaultChallengeType = () => {
     const storedChallenge = localStorage.getItem('challenge-type');
@@ -36,23 +37,48 @@ const Multiplayer: FC = () => {
     setChallenge(chosenChallenge);
   }, [challengeType]);
 
-  useEffect(() => {
-    socket.on('roomCreated', (roomID) => {
-      navigate(`/multiplayer/${roomID}`);
-    });
-  }, []);
-
   const createRoom = () => {
-    toast({
-      position: 'top-right',
-      title: 'Multiplayer is not maintained anymore! :/',
-      status: 'error',
-      duration: 5000,
-      isClosable: true,
-    });
+    const wsUrl = baseURL.replace(/^http/, 'ws') + '/ws';
+    const newSocket = new WebSocket(wsUrl);
 
-    socket.emit('createRoom', challenge);
+    newSocket.onopen = () => {
+      if (challenge) {
+        newSocket.send(
+          JSON.stringify({ type: 'createRoom', payload: challenge }),
+        );
+      }
+    };
+
+    newSocket.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        if (message.type === 'roomCreated') {
+          navigate(`/multiplayer/${message.payload.roomID}`);
+        }
+      } catch (error) {
+        console.error('Error parsing message:', error);
+      }
+    };
+
+    newSocket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      toast({
+        position: 'top-right',
+        title: 'Failed to connect to server.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    };
+
+    setSocket(newSocket);
   };
+
+  useEffect(() => {
+    return () => {
+      socket?.close();
+    };
+  }, [socket]);
 
   const handleChallengeTypeSwitch = (
     e: React.MouseEvent<HTMLButtonElement>,

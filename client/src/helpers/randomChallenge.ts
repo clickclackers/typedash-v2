@@ -1,6 +1,6 @@
 import algorithms from '../components/typing/challenges/algorithms.json';
 import books from '../components/typing/challenges/books.json';
-import { ChallengeProps } from '../components/typing/challenges/challenge.interface';
+import { Challenge } from '../components/typing/challenges/challenge.interface';
 import songs from '../components/typing/challenges/songs.json';
 
 export const challengeItems = [
@@ -31,7 +31,7 @@ export const randomChallenge = (
   excludedChallengeId?: number,
 ) => {
   const currentChallengeType = challengeType.toLowerCase();
-  let challenges: ChallengeProps[];
+  let challenges: Challenge[];
   switch (currentChallengeType) {
     case 'books':
       challenges = books;
@@ -69,9 +69,7 @@ export const randomChallenge = (
     //   break;
   }
   const filteredChallenges = excludedChallengeId
-    ? challenges!.filter(
-        (item: ChallengeProps) => item.id !== excludedChallengeId,
-      )
+    ? challenges!.filter((item: Challenge) => item.id !== excludedChallengeId)
     : challenges!;
   return filteredChallenges[
     Math.floor(Math.random() * filteredChallenges.length)
