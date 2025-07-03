@@ -22,11 +22,9 @@ interface Player {
 const Room: FC = () => {
   const location = useLocation();
   const roomID = location.pathname.split('/')[2];
-  // TODO: Setup env
-  const roomUrl =
-    import.meta.env.VITE_ENV !== 'production'
-      ? `http://localhost:5173/multiplayer/${roomID}`
-      : `https://typedash.songyang.dev/multiplayer/${roomID}`;
+  const roomUrl = import.meta.env.DEV
+    ? `http://localhost:5173/multiplayer/${roomID}`
+    : `${import.meta.env.VITE_APP_URL}/multiplayer/${roomID}`;
   const navigate = useNavigate();
   const [numPlayers, setNumPlayers] = useState(1);
   const [listOfPlayers, setListOfPlayers] = useState<Player[]>([]);
