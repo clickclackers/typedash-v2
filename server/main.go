@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/clickclackers/typedash-v2/server/api/routes"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -56,6 +58,12 @@ func main() {
 	// Protected routes
 	protected := router.Group("/")
 	protected.Use(AuthMiddleware())
+
+	// Register routes for user overview stats, singleplayer and multiplayer stats
+	routes.RegisterUserOverviewStatsRoutes(protected, queries)
+	routes.RegisterSingleplayerChallengeStatsRoutes(protected, queries)
+	routes.RegisterMultiplayerChallengeStatsRoutes(protected, queries)
+
 	{
 		protected.GET("/profile", GetUserProfileHandler)
 		// Add other protected routes here

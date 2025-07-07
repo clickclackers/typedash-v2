@@ -7,7 +7,44 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const createSingleChallengeStats = `-- name: CreateSingleChallengeStats :one
+INSERT INTO single_challenge_stats (user_id, challenge_id, created_at, time_taken, wpm, accuracy)
+VALUES ($1, $2, $3, $4, $5, $6) RETURNING user_id, challenge_id, created_at, time_taken, wpm, accuracy
+`
+
+type CreateSingleChallengeStatsParams struct {
+	UserID      int32            `json:"user_id"`
+	ChallengeID int32            `json:"challenge_id"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	TimeTaken   int32            `json:"time_taken"`
+	Wpm         int32            `json:"wpm"`
+	Accuracy    pgtype.Numeric   `json:"accuracy"`
+}
+
+func (q *Queries) CreateSingleChallengeStats(ctx context.Context, arg CreateSingleChallengeStatsParams) (SingleChallengeStat, error) {
+	row := q.db.QueryRow(ctx, createSingleChallengeStats,
+		arg.UserID,
+		arg.ChallengeID,
+		arg.CreatedAt,
+		arg.TimeTaken,
+		arg.Wpm,
+		arg.Accuracy,
+	)
+	var i SingleChallengeStat
+	err := row.Scan(
+		&i.UserID,
+		&i.ChallengeID,
+		&i.CreatedAt,
+		&i.TimeTaken,
+		&i.Wpm,
+		&i.Accuracy,
+	)
+	return i, err
+}
 
 const getSingleStatsByChallengeID = `-- name: GetSingleStatsByChallengeID :many
 SELECT user_id, challenge_id, created_at, time_taken, wpm, accuracy

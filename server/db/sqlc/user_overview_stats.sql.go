@@ -10,13 +10,31 @@ import (
 )
 
 const createUserOverviewStats = `-- name: CreateUserOverviewStats :one
-INSERT INTO user_overview_stats (user_id)
-VALUES ($1)
-RETURNING user_id, single_total_races, single_total_time, single_avg_wpm, multi_total_races, multi_total_time, multi_avg_wpm
+INSERT INTO user_overview_stats (user_id, single_total_races, single_total_time, single_avg_wpm, multi_total_races,
+                                 multi_total_time, multi_avg_wpm)
+VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING user_id, single_total_races, single_total_time, single_avg_wpm, multi_total_races, multi_total_time, multi_avg_wpm
 `
 
-func (q *Queries) CreateUserOverviewStats(ctx context.Context, userID int32) (UserOverviewStat, error) {
-	row := q.db.QueryRow(ctx, createUserOverviewStats, userID)
+type CreateUserOverviewStatsParams struct {
+	UserID           int32 `json:"user_id"`
+	SingleTotalRaces int32 `json:"single_total_races"`
+	SingleTotalTime  int32 `json:"single_total_time"`
+	SingleAvgWpm     int32 `json:"single_avg_wpm"`
+	MultiTotalRaces  int32 `json:"multi_total_races"`
+	MultiTotalTime   int32 `json:"multi_total_time"`
+	MultiAvgWpm      int32 `json:"multi_avg_wpm"`
+}
+
+func (q *Queries) CreateUserOverviewStats(ctx context.Context, arg CreateUserOverviewStatsParams) (UserOverviewStat, error) {
+	row := q.db.QueryRow(ctx, createUserOverviewStats,
+		arg.UserID,
+		arg.SingleTotalRaces,
+		arg.SingleTotalTime,
+		arg.SingleAvgWpm,
+		arg.MultiTotalRaces,
+		arg.MultiTotalTime,
+		arg.MultiAvgWpm,
+	)
 	var i UserOverviewStat
 	err := row.Scan(
 		&i.UserID,
