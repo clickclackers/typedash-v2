@@ -7,7 +7,53 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const createMultiChallengeStats = `-- name: CreateMultiChallengeStats :one
+INSERT INTO multi_challenge_stats (session_id, user_id, challenge_id, created_at, time_taken, wpm, accuracy, num_players, position)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING session_id, user_id, challenge_id, created_at, time_taken, wpm, accuracy, num_players, position
+`
+
+type CreateMultiChallengeStatsParams struct {
+	SessionID   string           `json:"session_id"`
+	UserID      int32            `json:"user_id"`
+	ChallengeID int32            `json:"challenge_id"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	TimeTaken   int32            `json:"time_taken"`
+	Wpm         int32            `json:"wpm"`
+	Accuracy    pgtype.Numeric   `json:"accuracy"`
+	NumPlayers  int32            `json:"num_players"`
+	Position    int32            `json:"position"`
+}
+
+func (q *Queries) CreateMultiChallengeStats(ctx context.Context, arg CreateMultiChallengeStatsParams) (MultiChallengeStat, error) {
+	row := q.db.QueryRow(ctx, createMultiChallengeStats,
+		arg.SessionID,
+		arg.UserID,
+		arg.ChallengeID,
+		arg.CreatedAt,
+		arg.TimeTaken,
+		arg.Wpm,
+		arg.Accuracy,
+		arg.NumPlayers,
+		arg.Position,
+	)
+	var i MultiChallengeStat
+	err := row.Scan(
+		&i.SessionID,
+		&i.UserID,
+		&i.ChallengeID,
+		&i.CreatedAt,
+		&i.TimeTaken,
+		&i.Wpm,
+		&i.Accuracy,
+		&i.NumPlayers,
+		&i.Position,
+	)
+	return i, err
+}
 
 const getMultiStatsByChallengeID = `-- name: GetMultiStatsByChallengeID :many
 SELECT session_id, user_id, challenge_id, created_at, time_taken, wpm, accuracy, num_players, position

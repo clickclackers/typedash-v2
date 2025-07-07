@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	db "github.com/clickclackers/typedash-v2-backend/server/db/sqlc"
+	db "github.com/clickclackers/typedash-v2/server/db/sqlc"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
