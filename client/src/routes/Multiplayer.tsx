@@ -38,6 +38,13 @@ const Multiplayer: FC = () => {
   }, [challengeType]);
 
   const createRoom = () => {
+    toast({
+      position: 'top-right',
+      title: 'Multiplayer is being revamped!',
+      status: 'error',
+      duration: 5000,
+      isClosable: true,
+    });
     const wsUrl = baseURL.replace(/^http/, 'ws') + '/ws';
     const newSocket = new WebSocket(wsUrl);
 
