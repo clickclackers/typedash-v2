@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/clickclackers/typedash-v2/server/api/handlers"
 	"github.com/clickclackers/typedash-v2/server/api/routes"
 
 	"github.com/gin-contrib/cors"
@@ -46,18 +47,13 @@ func main() {
 	})
 
 	// Authentication routes
-	router.POST("/register", RegisterHandler)
-	router.POST("/login", LoginHandler)
-	router.POST("/logout", LogoutHandler)
-
-	// Websocket route
-	router.GET("/ws", func(c *gin.Context) {
-		ServeWs(c.Writer, c.Request)
-	})
+	router.POST("/register", handlers.RegisterHandler(queries))
+	router.POST("/login", handlers.LoginHandler(queries))
+	router.POST("/logout", handlers.LogoutHandler())
 
 	// Protected routes
 	protected := router.Group("/")
-	protected.Use(AuthMiddleware())
+	protected.Use(handlers.AuthMiddleware())
 
 	// Register routes for user overview stats, singleplayer and multiplayer stats
 	routes.RegisterUserOverviewStatsRoutes(protected, queries)
@@ -65,7 +61,10 @@ func main() {
 	routes.RegisterMultiplayerChallengeStatsRoutes(protected, queries)
 
 	{
-		protected.GET("/profile", GetUserProfileHandler)
+		protected.GET("/profile", handlers.GetUserProfileHandler(queries))
+		protected.GET("/ws", func(c *gin.Context) {
+			ServeWs(c.Writer, c.Request)
+		})
 		// Add other protected routes here
 	}
 
