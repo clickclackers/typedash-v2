@@ -5,7 +5,7 @@ import '/src/App.css';
 import { customTheme } from '/src/chakra-theme';
 import theme_8008 from '/src/themes/8008';
 import { themeItems } from '/src/themes/themes';
-import { AuthProvider } from '/src/context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import About from '/src/routes/About';
 import Account from '/src/routes/Account';
 import Layout from '/src/routes/Layout';

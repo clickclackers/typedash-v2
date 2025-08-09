@@ -1,8 +1,8 @@
 import { Box, Divider, Fade, Spinner } from '@chakra-ui/react';
-import { FC, useContext, useEffect, useState } from 'react';
-import { authContext } from '/src/context/AuthContext';
+import { FC, useEffect, useState } from 'react';
 import { getLoadouts, getStatistics } from '/src/services/services';
 import Loadouts from '/src/routes/Loadouts';
+import { useAuth } from '/src/context/AuthContext';
 
 export interface LoadoutProps {
   id: number;
@@ -19,12 +19,11 @@ const Account: FC = () => {
     highestWPM: 0,
     averageWPM: 0,
   });
-  const context = useContext(authContext);
-  const user = context?.user;
+  const { user } = useAuth();
 
   const initialGetUserData = () => {
     setIsLoading(true);
-    getStatistics({ user }).then((res) => {
+    getStatistics({ user: user?.id?.toString() }).then((res) => {
       const statsArr = res?.data.stats;
       let time = 0;
       let totalWPM = 0;
@@ -43,7 +42,7 @@ const Account: FC = () => {
         averageWPM: totalWPM / completed,
       });
     });
-    getLoadouts({ data: user }).then((res) => {
+    getLoadouts({ data: user?.id?.toString() }).then((res) => {
       const loadouts = res?.data.loadouts;
       // sort loadouts by id in ascending order
       loadouts.sort((a: LoadoutProps, b: LoadoutProps) => a.id - b.id);
@@ -77,7 +76,7 @@ const Account: FC = () => {
         >
           <div className='flex flex-col text-left'>
             <Box color='text.secondary' className='font-semibold text-2xl'>
-              {context?.user}
+              {user?.username}
             </Box>
           </div>
           <div className='h-4/5'>
@@ -112,7 +111,7 @@ const Account: FC = () => {
           </div>
         </Box>
         <Loadouts
-          user={context?.user}
+          user={user?.username}
           loadouts={loadouts}
           setLoadouts={setLoadouts}
         />

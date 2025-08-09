@@ -80,11 +80,3 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return React.createElement(AuthContext.Provider, { value }, children);
 };
-
-// Legacy interface for backward compatibility
-interface authInterface {
-  user: string | undefined;
-  setUser: React.Dispatch<React.SetStateAction<string | undefined>>;
-}
-
-export const authContext = createContext<authInterface | null>(null);

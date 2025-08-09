@@ -1,7 +1,6 @@
 import { Box } from '@chakra-ui/react';
-import { FC, useContext, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { HiCursorClick } from 'react-icons/hi';
-import { authContext } from '/src/context/AuthContext';
 import { randomChallenge } from '/src/helpers/randomChallenge';
 import useTimer from '/src/helpers/useTimer';
 import http from '/src/services/api';
@@ -9,6 +8,7 @@ import socket from '/src/services/socket';
 import Word from '/src/components/typing/Word';
 import { Challenge } from '/src/components/typing/challenges/challenge.interface';
 import Result from '/src/components/typing/results/Result';
+import { useAuth } from '/src/context/AuthContext';
 
 interface MultiplayerTestProps {
   startTyping: boolean;
@@ -43,8 +43,7 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const restartRef = useRef<HTMLButtonElement>(null);
-  const context = useContext(authContext);
-  const user = context?.user;
+  const { user } = useAuth();
 
   useEffect(() => {
     socket.on('playerJoined', ({ challenge }) => {
@@ -129,7 +128,7 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
         accuracy,
         time_taken: timeTaken,
         datetime: new Date().toString(),
-        username: user,
+        username: user.username,
       };
       http().post('/results/create', params);
     }

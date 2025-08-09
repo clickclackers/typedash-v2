@@ -12,12 +12,11 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { FC, useContext, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { FaKeyboard } from 'react-icons/fa';
 import { HiCursorClick } from 'react-icons/hi';
 import { VscDebugRestart } from 'react-icons/vsc';
 import { useOutletContext } from 'react-router-dom';
-import { authContext } from '/src/context/AuthContext';
 import { challengeItems, randomChallenge } from '/src/helpers/randomChallenge';
 import useTimer from '/src/helpers/useTimer';
 import http from '/src/services/api';
@@ -25,6 +24,7 @@ import ProgressBar from '/src/components/typing/ProgressBar';
 import Word from '/src/components/typing/Word';
 import { Challenge } from '/src/components/typing/challenges/challenge.interface';
 import Result from '/src/components/typing/results/Result';
+import { useAuth } from '/src/context/AuthContext';
 
 const TypingTest: FC = () => {
   const [challenge, setChallenge] = useState<Challenge>();
@@ -57,8 +57,7 @@ const TypingTest: FC = () => {
   const challengeSwitchRef = useRef<HTMLButtonElement>(null);
   const challengeOptionRef = useRef<Array<HTMLButtonElement | null>>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const context = useContext(authContext);
-  const user = context?.user;
+  const { user } = useAuth();
 
   const getDefaultChallengeType = () => {
     const storedChallenge = localStorage.getItem('challenge-type');
@@ -139,7 +138,7 @@ const TypingTest: FC = () => {
         accuracy,
         time_taken: timeTaken,
         datetime: new Date().toString(),
-        username: user,
+        username: user.username,
       };
       http().post('/results/create', params);
     }

@@ -1,5 +1,5 @@
 import { Button, Icon, SlideFade, useToast } from '@chakra-ui/react';
-import { FC, useContext, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import {
   TbRosetteNumber1,
   TbRosetteNumber2,
@@ -10,9 +10,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import MultiplayerTest from '/src/components/typing/MultiplayerTest';
 import ProgressBar from '/src/components/typing/ProgressBar';
 import { Challenge } from '/src/components/typing/challenges/challenge.interface';
-import { authContext } from '/src/context/AuthContext';
 import useTimer from '/src/helpers/useTimer';
 import socket from '/src/services/socket';
+import { useAuth } from '/src/context/AuthContext';
 
 interface Player {
   id: number;
@@ -37,8 +37,8 @@ const Room: FC = () => {
     Record<number, number>
   >({});
   const [rankings, setRankings] = useState<Record<number, number>>({});
-  const context = useContext(authContext);
-  const username = context?.user || 'Guest';
+  const { user } = useAuth();
+  const username = user?.username || 'Guest';
   const toast = useToast();
   console.log(lettersTyped);
 
