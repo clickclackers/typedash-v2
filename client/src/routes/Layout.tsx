@@ -20,6 +20,7 @@ export const Layout: FC<LayoutProps> = ({ currentTheme, setCurrentTheme }) => {
     else if (darkThemes.includes(currentTheme) && colorMode === 'light')
       toggleColorMode();
   }, [currentTheme]);
+
   return (
     <Box
       bg='bg.primary'
