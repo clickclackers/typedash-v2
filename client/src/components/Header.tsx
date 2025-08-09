@@ -13,7 +13,7 @@ import { FaInfo } from 'react-icons/fa';
 import { FiLogIn, FiLogOut } from 'react-icons/fi';
 import { RiPaletteFill } from 'react-icons/ri';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '/src/context/AuthContext';
 import CatLogo from '/src/assets/cat.svg';
 import { logoutUser } from '/src/services/services';
 import { ThemeProps } from '/src/themes/theme.interface';

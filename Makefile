@@ -12,7 +12,7 @@ help:
 	@echo "  make db-create    - Create typedash database"
 	@echo "  make db-schema    - Apply database schema"
 	@echo "  make db-reset     - Drop and recreate database with schema"
-	@echo "  make install      - Install all dependencies (Go modules + npm packages)"
+	@echo "  make install      - Install all dependencies (Go modules + pnpm packages)"
 	@echo "  make test         - Run tests for both server and client"
 	@echo "  make lint         - Run linting for both server and client"
 
@@ -29,7 +29,7 @@ server:
 
 .PHONY: client
 client:
-	cd client && npm run dev
+	cd client && pnpm dev
 
 .PHONY: install
 install:
@@ -37,8 +37,8 @@ install:
 	pre-commit install
 	@echo "📦 Installing Go dependencies..."
 	go mod tidy
-	@echo "📦 Installing npm dependencies..."
-	cd client && npm install
+	@echo "📦 Installing pnpm dependencies..."
+	cd client && pnpm install
 	@echo "✅ All dependencies installed!"
 
 .PHONY: test
@@ -46,7 +46,7 @@ test:
 	@echo "🧪 Running Go tests..."
 	cd server && go test ./...
 	@echo "🧪 Running React tests..."
-	cd client && npm test
+	cd client && pnpm test
 	@echo "✅ All tests complete!"
 
 .PHONY: sqlc
@@ -110,5 +110,5 @@ lint:
 	@echo "🔍 Linting Go code..."
 	cd server && go vet ./...
 	@echo "🔍 Linting React code..."
-	cd client && npm run lint
+	cd client && pnpm lint
 	@echo "✅ Linting complete!"
