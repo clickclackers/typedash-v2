@@ -1,10 +1,10 @@
 import { Box, useColorMode } from '@chakra-ui/react';
 import { FC, useEffect, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
-import Footer from '../components/Footer';
-import Header from '../components/Header';
-import { ThemeProps } from '../components/themes/theme.inteface';
-import { darkThemes, lightThemes } from '../components/themes/themes';
+import Footer from '/src/components/Footer';
+import Header from '/src/components/Header';
+import { ThemeProps } from '/src/themes/theme.interface';
+import { darkThemes, lightThemes } from '/src/themes/themes';
 
 interface LayoutProps {
   currentTheme: ThemeProps;

@@ -1,7 +1,7 @@
-import algorithms from '../components/typing/challenges/algorithms.json';
-import books from '../components/typing/challenges/books.json';
-import { Challenge } from '../components/typing/challenges/challenge.interface';
-import songs from '../components/typing/challenges/songs.json';
+import algorithms from '/src/components/typing/challenges/algorithms.json';
+import books from '/src/components/typing/challenges/books.json';
+import { Challenge } from '/src/components/typing/challenges/challenge.interface';
+import songs from '/src/components/typing/challenges/songs.json';
 
 export const challengeItems = [
   {

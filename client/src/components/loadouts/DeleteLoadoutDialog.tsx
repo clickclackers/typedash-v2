@@ -8,7 +8,7 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { FC, MutableRefObject, useState } from 'react';
-import { deleteLoadout } from '../../services/services';
+import { deleteLoadout } from '/src/services/services';
 
 interface DeleteLoadoutDialogProps {
   isDeleteOpen: boolean;

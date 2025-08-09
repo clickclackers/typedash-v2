@@ -1,7 +1,7 @@
 import { createStandaloneToast } from '@chakra-ui/react';
 import { AxiosError } from 'axios';
 import { FormikValues } from 'formik';
-import http from './api';
+import http from '/src/services/api';
 const { toast } = createStandaloneToast();
 
 interface AuthResponse {

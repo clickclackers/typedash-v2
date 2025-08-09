@@ -1,6 +1,6 @@
 import { Box, Fade } from '@chakra-ui/react';
 import { FC } from 'react';
-import { Challenge } from '../challenges/challenge.interface';
+import { Challenge } from '/src/components/typing/challenges/challenge.interface';
 
 interface ResultProps {
   result: {

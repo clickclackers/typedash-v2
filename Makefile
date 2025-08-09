@@ -33,6 +33,8 @@ client:
 
 .PHONY: install
 install:
+	@echo "🔍 Installing pre-commit hooks..."
+	pre-commit install
 	@echo "📦 Installing Go dependencies..."
 	go mod tidy
 	@echo "📦 Installing npm dependencies..."

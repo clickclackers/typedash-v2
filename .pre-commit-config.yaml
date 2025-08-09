@@ -27,7 +27,7 @@ repos:
 
       - id: client-typecheck
         name: client typecheck
-        entry: bash -c 'cd client && npx tsc --noEmit'
+        entry: bash -c 'cd client && npx tsc --noEmit --skipLibCheck'
         language: system
         files: ^client/
         pass_filenames: false

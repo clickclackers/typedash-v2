@@ -1,19 +1,19 @@
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import './App.css';
-import { customTheme } from './chakra-theme';
-import theme_8008 from './components/themes/8008';
-import { themeItems } from './components/themes/themes';
-import { AuthProvider } from './context/authContext';
-import About from './routes/About';
-import Account from './routes/Account';
-import Layout from './routes/Layout';
-import Login from './routes/Login';
-import Multiplayer from './routes/Multiplayer';
-import Register from './routes/Register';
-import Room from './routes/Room';
-import Singleplayer from './routes/Singleplayer';
+import '/src/App.css';
+import { customTheme } from '/src/chakra-theme';
+import theme_8008 from '/src/themes/8008';
+import { themeItems } from '/src/themes/themes';
+import { AuthProvider } from '/src/context/AuthContext';
+import About from '/src/routes/About';
+import Account from '/src/routes/Account';
+import Layout from '/src/routes/Layout';
+import Login from '/src/routes/Login';
+import Multiplayer from '/src/routes/Multiplayer';
+import Register from '/src/routes/Register';
+import Room from '/src/routes/Room';
+import Singleplayer from '/src/routes/Singleplayer';
 
 function App() {
   const [currentTheme, setCurrentTheme] = useState(

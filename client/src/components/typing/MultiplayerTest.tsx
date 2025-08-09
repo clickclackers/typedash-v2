@@ -1,14 +1,14 @@
 import { Box } from '@chakra-ui/react';
 import { FC, useContext, useEffect, useRef, useState } from 'react';
 import { HiCursorClick } from 'react-icons/hi';
-import { authContext } from '../../context/authContext';
-import { randomChallenge } from '../../helpers/randomChallenge';
-import useTimer from '../../helpers/useTimer';
-import http from '../../services/api';
-import socket from '../../services/socket';
-import Word from './Word';
-import { Challenge } from './challenges/challenge.interface';
-import Result from './results/Result';
+import { authContext } from '/src/context/AuthContext';
+import { randomChallenge } from '/src/helpers/randomChallenge';
+import useTimer from '/src/helpers/useTimer';
+import http from '/src/services/api';
+import socket from '/src/services/socket';
+import Word from '/src/components/typing/Word';
+import { Challenge } from '/src/components/typing/challenges/challenge.interface';
+import Result from '/src/components/typing/results/Result';
 
 interface MultiplayerTestProps {
   startTyping: boolean;

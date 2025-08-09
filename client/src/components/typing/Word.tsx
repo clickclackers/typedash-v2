@@ -1,6 +1,6 @@
 import { FC, memo } from 'react';
-import Caret from './Caret';
-import Letter from './Letter';
+import Caret from '/src/components/typing/Caret';
+import Letter from '/src/components/typing/Letter';
 
 interface WordProps {
   word: string;

@@ -1,8 +1,8 @@
 import { Box, Divider, Fade, Spinner } from '@chakra-ui/react';
 import { FC, useContext, useEffect, useState } from 'react';
-import { authContext } from '../context/authContext';
-import { getLoadouts, getStatistics } from '../services/services';
-import Loadouts from './Loadouts';
+import { authContext } from '/src/context/AuthContext';
+import { getLoadouts, getStatistics } from '/src/services/services';
+import Loadouts from '/src/routes/Loadouts';
 
 export interface LoadoutProps {
   id: number;

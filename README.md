@@ -5,11 +5,10 @@ Deployment link: <https://typedash.songyang.dev>
 ## Getting started
 
 1. `brew install sqlc pre-commit golangci-lint goimports golang-migrate redis postgresql`
-2. `pre-commit install`
-3. `make install`
-4. Add `export PATH="$HOME/go/bin:$PATH"` to `~/.zshrc`
-5. `make db-setup`
-6. `make dev`
+2. `make install`
+3. Add `export PATH="$HOME/go/bin:$PATH"` to `~/.zshrc` for pre-commit
+4. `make db-setup`
+5. `make dev`
 
 ## Push database schema changes
 

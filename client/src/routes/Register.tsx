@@ -3,8 +3,8 @@ import { Formik, FormikValues } from 'formik';
 import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
-import { useAuth } from '../context/authContext';
-import { registerUser } from '../services/services';
+import { useAuth } from '/src/context/AuthContext';
+import { registerUser } from '/src/services/services';
 
 const Register: FC = () => {
   const navigate = useNavigate();

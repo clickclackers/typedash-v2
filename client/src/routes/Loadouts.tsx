@@ -10,11 +10,11 @@ import {
 import { FC, useEffect, useRef, useState } from 'react';
 import { FiEdit } from 'react-icons/fi';
 import { MdDeleteOutline } from 'react-icons/md';
-import CreateLoadoutModal from '../components/loadouts/CreateLoadoutModal';
-import DeleteLoadoutDialog from '../components/loadouts/DeleteLoadoutDialog';
-import UpdateLoadoutModal from '../components/loadouts/UpdateLoadoutModal';
-import { getLoadouts } from '../services/services';
-import { LoadoutProps } from './Account';
+import CreateLoadoutModal from '/src/components/loadouts/CreateLoadoutModal';
+import DeleteLoadoutDialog from '/src/components/loadouts/DeleteLoadoutDialog';
+import UpdateLoadoutModal from '/src/components/loadouts/UpdateLoadoutModal';
+import { getLoadouts } from '/src/services/services';
+import { LoadoutProps } from '/src/routes/Account';
 
 interface LoadoutsProps {
   user: string | undefined;

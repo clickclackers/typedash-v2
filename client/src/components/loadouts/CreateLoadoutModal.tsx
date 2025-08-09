@@ -15,7 +15,7 @@ import {
 import { Field, Form, Formik, FieldProps } from 'formik';
 import { FC } from 'react';
 import * as Yup from 'yup';
-import { createLoadout } from '../../services/services';
+import { createLoadout } from '/src/services/services';
 
 interface CreateLoadoutModalProps {
   isCreateOpen: boolean;

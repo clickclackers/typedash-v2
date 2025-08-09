@@ -13,9 +13,9 @@ import {
 import { FC, useEffect, useState } from 'react';
 import { FaKeyboard } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { Challenge } from '../components/typing/challenges/challenge.interface';
-import { challengeItems, randomChallenge } from '../helpers/randomChallenge';
-import { baseURL } from '../services/api';
+import { Challenge } from '/src/components/typing/challenges/challenge.interface';
+import { challengeItems, randomChallenge } from '/src/helpers/randomChallenge';
+import { baseURL } from '/src/services/api';
 
 const Multiplayer: FC = () => {
   const [challenge, setChallenge] = useState<Challenge>();
@@ -69,13 +69,13 @@ const Multiplayer: FC = () => {
 
     newSocket.onerror = (error) => {
       console.error('WebSocket error:', error);
-      toast({
-        position: 'top-right',
-        title: 'Failed to connect to server.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      // toast({
+      //   position: 'top-right',
+      //   title: 'Failed to connect to server.',
+      //   status: 'error',
+      //   duration: 5000,
+      //   isClosable: true,
+      // });
     };
 
     setSocket(newSocket);

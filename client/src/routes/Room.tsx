@@ -7,12 +7,12 @@ import {
   TbRosetteNumber4,
 } from 'react-icons/tb';
 import { useLocation, useNavigate } from 'react-router-dom';
-import MultiplayerTest from '../components/typing/MultiplayerTest';
-import ProgressBar from '../components/typing/ProgressBar';
-import { Challenge } from '../components/typing/challenges/challenge.interface';
-import { authContext } from '../context/authContext';
-import useTimer from '../helpers/useTimer';
-import socket from '../services/socket';
+import MultiplayerTest from '/src/components/typing/MultiplayerTest';
+import ProgressBar from '/src/components/typing/ProgressBar';
+import { Challenge } from '/src/components/typing/challenges/challenge.interface';
+import { authContext } from '/src/context/AuthContext';
+import useTimer from '/src/helpers/useTimer';
+import socket from '/src/services/socket';
 
 interface Player {
   id: number;

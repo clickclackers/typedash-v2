@@ -17,14 +17,14 @@ import { FaKeyboard } from 'react-icons/fa';
 import { HiCursorClick } from 'react-icons/hi';
 import { VscDebugRestart } from 'react-icons/vsc';
 import { useOutletContext } from 'react-router-dom';
-import { authContext } from '../../context/authContext';
-import { challengeItems, randomChallenge } from '../../helpers/randomChallenge';
-import useTimer from '../../helpers/useTimer';
-import http from '../../services/api';
-import ProgressBar from './ProgressBar';
-import Word from './Word';
-import { Challenge } from './challenges/challenge.interface';
-import Result from './results/Result';
+import { authContext } from '/src/context/AuthContext';
+import { challengeItems, randomChallenge } from '/src/helpers/randomChallenge';
+import useTimer from '/src/helpers/useTimer';
+import http from '/src/services/api';
+import ProgressBar from '/src/components/typing/ProgressBar';
+import Word from '/src/components/typing/Word';
+import { Challenge } from '/src/components/typing/challenges/challenge.interface';
+import Result from '/src/components/typing/results/Result';
 
 const TypingTest: FC = () => {
   const [challenge, setChallenge] = useState<Challenge>();
