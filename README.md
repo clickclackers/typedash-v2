@@ -1,5 +1,7 @@
 # typedash
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/daf7afaa-f590-4244-b8ea-b57ae6fd1352/deploy-status)](https://app.netlify.com/projects/typedash-v2/deploys)
+
 Deployment link: <https://typedash.songyang.dev>
 
 ## Getting started
