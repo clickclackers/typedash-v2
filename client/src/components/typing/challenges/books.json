@@ -18,7 +18,7 @@
     "type": "Books",
     "title": "Fahrenheit 451",
     "author": "Ray Bradbury",
-    "content": "He felt his smile slide away, melt, fold over, and down on itself like a tallow skin, like the stuff of a fantastic candle burning too long and now collapsing and now blown out. Darkness. He was not happy. He was not happy. He said the words to himself."
+    "content": "He felt his smile slide away, melt, fold over, and down on itself like a tallow skin, like the stuff of a fantastic candle burning too long and now collapsing and now blown out. Darkness."
   },
   {
     "id": 3,
@@ -32,7 +32,7 @@
     "type": "Books",
     "title": "Harry Potter and the Philosopher's Stone",
     "author": "J.K. Rowling",
-    "content": "Harry lay there, lost for words. Then a brilliant idea struck him. He sat up and clutched the package to his chest. 'I'm going to have a lot of fun with Dudley this summer,' he grinned maliciously. With that, he fell asleep, and all his dreams were sweet."
+    "content": "He sat up and clutched the package to his chest. 'I'm going to have a lot of fun with Dudley this summer,' he grinned maliciously. With that, he fell asleep, and all his dreams were sweet."
   },
   {
     "id": 5,
@@ -60,13 +60,13 @@
     "type": "Books",
     "title": "Brave New World",
     "author": "Aldous Huxley",
-    "content": "But I don't want comfort. I want God, I want poetry, I want real danger, I want freedom, I want goodness. I want sin. I'm claiming them all. He picked up his glass and drained it at a gulp. 'I drink to the Pope,' he said."
+    "content": "I want God, I want poetry, I want real danger, I want freedom, I want goodness. I want sin. I'm claiming them all. He picked up his glass and drained it at a gulp. 'I drink to the Pope,' he said."
   },
   {
     "id": 9,
     "type": "Books",
     "title": "The Adventures of Huckleberry Finn",
     "author": "Mark Twain",
-    "content": "You don't know about me, without you have read a book by the name of 'The Adventures of Tom Sawyer,' but that ain't no matter. That book was made by Mr. Mark Twain, and he told the truth, mainly. There was things which he stretched."
+    "content": "You don't know about me, without you have read a book by the name of 'The Adventures of Tom Sawyer,' but that ain't no matter. That book was made by Mr. Mark Twain, and he told the truth, mainly."
   }
 ]
