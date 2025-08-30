@@ -1,0 +1,11 @@
+name = "typedash"
+main = "./src/index.js"
+
+# https://developers.cloudflare.com/workers/platform/compatibility-dates 
+compatibility_date = "2025-08-30"
+
+[site]
+bucket = "./dist"
+
+[build]
+command = "pnpm run build"
