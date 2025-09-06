@@ -172,7 +172,9 @@ const TypingTest: FC = () => {
   };
 
   const clearInput = () => {
-    inputRef.current!.value = '';
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
   };
 
   const handleTab = (e: React.KeyboardEvent) => {
@@ -196,7 +198,7 @@ const TypingTest: FC = () => {
     }
   };
 
-  // prevent crtl A and backspace to delete all words
+  // prevent ctrl A and backspace to delete all words
   useEffect(() => {
     document.addEventListener('keydown', preventCrtlA);
 
@@ -331,7 +333,7 @@ const TypingTest: FC = () => {
                 )}
               </div>
               <div
-                className='flex flex-wrap h-1/2 md:h-1/5 lg:sm:h-1/6 content-start 2xl:gap-y-4 mb-12 w-full'
+                className='flex flex-wrap h-1/2 md:h-1/5 lg:sm:h-1/6 content-start 2xl:gap-y-4 mb-12 w-full select-none'
                 onClick={focusOnInput}
               >
                 {wordSet.map((word, index) => (
