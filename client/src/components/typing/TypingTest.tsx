@@ -27,7 +27,8 @@ import { Challenge } from '/src/components/typing/challenges/challenge.interface
 import Result from '/src/components/typing/results/Result';
 import { useAuth } from '/src/context/AuthContext';
 
-const INITIAL_TIME = 120;
+const DEFAULT_TEST_DURATION = 120;
+const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
 
 const TypingTest: FC = () => {
   const [challenge, setChallenge] = useState<Challenge>();
@@ -49,7 +50,9 @@ const TypingTest: FC = () => {
     accuracy: 0,
     time: 0,
   });
-  const [time, { startTimer, pauseTimer, resetTimer }] = useTimer(INITIAL_TIME);
+  const [time, { startTimer, pauseTimer, resetTimer }] = useTimer(
+    DEFAULT_TEST_DURATION,
+  );
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const [middleContainerRef] = useOutletContext();
@@ -115,7 +118,7 @@ const TypingTest: FC = () => {
     ) {
       pauseTimer();
       setTestStatus(-1);
-      setTimeTaken(INITIAL_TIME - time);
+      setTimeTaken(DEFAULT_TEST_DURATION - time);
     }
   }, [typedWordList, wordSet, time]);
 
@@ -242,7 +245,7 @@ const TypingTest: FC = () => {
           setWrongLettersInWord(0);
         }
       }
-    } else if (e.key !== 'Shift' && e.key !== 'CapsLock') {
+    } else if (!EXCLUDED_KEYS.has(e.key)) {
       setTotalStrokes(totalStrokes + 1);
     }
   };
