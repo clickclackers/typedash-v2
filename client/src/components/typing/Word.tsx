@@ -21,10 +21,18 @@ const Word: FC<WordProps> = ({ word, typedWord, status }) => {
     let letterStatus = 'idle';
     if (status === 'completed') {
       letterStatus = 'correct';
-    } else if (status === 'active') {
+    } else if (status === 'active' || status === 'wrong') {
       if (typedWord?.charAt(i) === char) {
         letterStatus = 'correct';
       } else if (typedWord?.charAt(i) !== char && typedWord?.charAt(i)) {
+        letterStatus = 'incorrect';
+      } else if (
+        status === 'wrong' &&
+        typedWord !== word &&
+        i === typedWord.length &&
+        typedWord.length < word.length
+      ) {
+        // Highlight the next target character as incorrect for previously submitted wrong words
         letterStatus = 'incorrect';
       }
     }

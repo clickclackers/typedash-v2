@@ -26,6 +26,8 @@ import { Challenge } from '/src/components/typing/challenges/challenge.interface
 import Result from '/src/components/typing/results/Result';
 import { useAuth } from '/src/context/AuthContext';
 
+const INITIAL_TIME = 120;
+
 const TypingTest: FC = () => {
   const [challenge, setChallenge] = useState<Challenge>();
   const [wordSet, setWordSet] = useState<string[]>([]);
@@ -46,8 +48,7 @@ const TypingTest: FC = () => {
     accuracy: 0,
     time: 0,
   });
-  const INITIAL_TIME = 120;
-  const [time, { startTimer, pauseTimer, resetTimer }] = useTimer(INITIAL_TIME); // default time is 120 seconds
+  const [time, { startTimer, pauseTimer, resetTimer }] = useTimer(INITIAL_TIME);
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const [middleContainerRef] = useOutletContext();
@@ -216,16 +217,31 @@ const TypingTest: FC = () => {
     ) {
       e.preventDefault();
     } else if (e.key === ' ') {
-      if (wordSet[activeWordIndex] !== typedWordList[activeWordIndex]) {
-        e.preventDefault();
-      } else {
-        setActiveWordIndex(typedWordList.length);
-        setWrongLettersInWord(0);
-      }
+      // Always advance to next word on space and reset wrong-letter counter
+      setActiveWordIndex(typedWordList.length);
+      setWrongLettersInWord(0);
     } else if (e.key === 'Backspace') {
       if (wrongLettersInWord > 0) setWrongLettersInWord(wrongLettersInWord - 1);
-      if (inputRef.current?.value.slice(-1) === ' ') e.preventDefault();
-    } else if (e.key !== 'Shift') {
+      const endsWithSpace = inputRef.current?.value.slice(-1) === ' ';
+      if (endsWithSpace) {
+        const prevIndex = Math.max(0, activeWordIndex - 1);
+        const prevWordTyped = typedWordList[prevIndex];
+        const prevWordTarget = wordSet[prevIndex];
+        const prevWordHasErrors =
+          typeof prevWordTyped === 'string' &&
+          typeof prevWordTarget === 'string' &&
+          prevWordTyped !== prevWordTarget;
+        if (
+          !prevWordHasErrors ||
+          (prevIndex === 0 && prevWordTyped === undefined)
+        ) {
+          e.preventDefault();
+        } else {
+          setActiveWordIndex(prevIndex);
+          setWrongLettersInWord(0);
+        }
+      }
+    } else if (e.key !== 'Shift' && e.key !== 'CapsLock') {
       setTotalStrokes(totalStrokes + 1);
     }
   };
@@ -256,13 +272,15 @@ const TypingTest: FC = () => {
         setMistypedCount(mistypedCount + 1);
       }
     } else if (typed.slice(-1) === letterSet[currentLetterIndex]) {
-      setActiveLetterIndex(typed.length);
       if (wrongLetters.includes(currentLetterIndex)) {
         const filtered = wrongLetters.filter((x) => x !== currentLetterIndex);
         setWrongLetters(filtered);
       }
     }
-    setTypedWordList(typed.split(' '));
+    // Always reflect the caret position for progress bar
+    setActiveLetterIndex(typed.length);
+    const parts = typed.split(' ');
+    setTypedWordList(parts);
   };
 
   const handleChallengeTypeSwitch = (
@@ -344,9 +362,10 @@ const TypingTest: FC = () => {
                     status={
                       index === activeWordIndex
                         ? 'active'
-                        : index < activeWordIndex &&
-                            typedWordList[index] === word
-                          ? 'completed'
+                        : index < activeWordIndex
+                          ? typedWordList[index] === word
+                            ? 'completed'
+                            : 'wrong'
                           : 'idle'
                     }
                   />
@@ -359,6 +378,9 @@ const TypingTest: FC = () => {
                 onKeyDown={handleKeyDown}
                 onPasteCapture={(e) => e.preventDefault()}
                 ref={inputRef}
+                autoCorrect='off'
+                autoCapitalize='off'
+                spellCheck={false}
                 className='absolute -z-10 border-none bg-transparent focus:outline-none caret-transparent text-transparent'
               />
             </>
