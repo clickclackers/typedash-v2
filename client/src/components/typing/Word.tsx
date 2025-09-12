@@ -1,30 +1,32 @@
 import { FC, memo } from 'react';
 import Caret from '/src/components/typing/Caret';
 import Letter from '/src/components/typing/Letter';
+import { WordStatus } from '/src/components/typing/wordStatus';
 
 interface WordProps {
   word: string;
   typedWord: string;
-  status: string;
+  status: WordStatus;
 }
 
-const Word: FC<WordProps> = ({ word, typedWord, status }) => {
-  // const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
-  // const [isLargerThan1024] = useMediaQuery('(min-width: 1024px');
-  // const calculateOffset = () => {
-  //   if (isLargerThan1024) return [12, -3];
-  //   else if (isLargerThan768) return [10.7, -2.7];
-  //   else return [9.64, -1.5];
-  // };
+const Word: FC<WordProps> = memo(({ word, typedWord, status }) => {
   const offset = [12, -3];
   const letters = word.split('').map((char, i) => {
     let letterStatus = 'idle';
-    if (status === 'completed') {
+    if (status === WordStatus.COMPLETED) {
       letterStatus = 'correct';
-    } else if (status === 'active') {
+    } else if (status === WordStatus.ACTIVE || status === WordStatus.WRONG) {
       if (typedWord?.charAt(i) === char) {
         letterStatus = 'correct';
       } else if (typedWord?.charAt(i) !== char && typedWord?.charAt(i)) {
+        letterStatus = 'incorrect';
+      } else if (
+        status === WordStatus.WRONG &&
+        typedWord !== word &&
+        i === typedWord.length &&
+        typedWord.length < word.length
+      ) {
+        // Highlight the next target character as incorrect for previously submitted wrong words
         letterStatus = 'incorrect';
       }
     }
@@ -38,7 +40,7 @@ const Word: FC<WordProps> = ({ word, typedWord, status }) => {
     });
   return (
     <div className={`flex word-active h-8`}>
-      {status === 'active' && (
+      {status === WordStatus.ACTIVE && (
         <Caret offset={offset[0] * typedWord?.length || offset[1]} />
       )}
       {letters}
@@ -46,6 +48,6 @@ const Word: FC<WordProps> = ({ word, typedWord, status }) => {
       &nbsp;
     </div>
   );
-};
+});
 
-export default memo(Word);
+export default Word;

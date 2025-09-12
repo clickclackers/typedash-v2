@@ -22,9 +22,13 @@ import useTimer from '/src/helpers/useTimer';
 import http from '/src/services/api';
 import ProgressBar from '/src/components/typing/ProgressBar';
 import Word from '/src/components/typing/Word';
+import { WordStatus } from '/src/components/typing/wordStatus';
 import { Challenge } from '/src/components/typing/challenges/challenge.interface';
 import Result from '/src/components/typing/results/Result';
 import { useAuth } from '/src/context/AuthContext';
+
+const DEFAULT_TEST_DURATION = 120;
+const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
 
 const TypingTest: FC = () => {
   const [challenge, setChallenge] = useState<Challenge>();
@@ -46,8 +50,9 @@ const TypingTest: FC = () => {
     accuracy: 0,
     time: 0,
   });
-  const INITIAL_TIME = 120;
-  const [time, { startTimer, pauseTimer, resetTimer }] = useTimer(INITIAL_TIME); // default time is 120 seconds
+  const [time, { startTimer, pauseTimer, resetTimer }] = useTimer(
+    DEFAULT_TEST_DURATION,
+  );
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const [middleContainerRef] = useOutletContext();
@@ -113,18 +118,30 @@ const TypingTest: FC = () => {
     ) {
       pauseTimer();
       setTestStatus(-1);
-      setTimeTaken(INITIAL_TIME - time);
+      setTimeTaken(DEFAULT_TEST_DURATION - time);
     }
   }, [typedWordList, wordSet, time]);
 
   // generate result once test ends
   useEffect(() => {
     if (testStatus !== -1) return;
-    const WPM = Math.floor((typedWordList.length / timeTaken) * 60);
+    // WPM formula by MonkeyType:
+    // total amount of characters in the correctly typed words (including spaces), divided by 5 and normalised to 60 seconds.
+    let correctChars = 0;
+    const limit = Math.min(typedWordList.length, wordSet.length);
+    for (let i = 0; i < limit; i++) {
+      if (typedWordList[i] === wordSet[i]) {
+        // + 1 to account for the space after the word
+        correctChars += wordSet[i].length + 1;
+      }
+    }
+    correctChars = Math.max(correctChars - 1, 0);
+    const minutes = timeTaken > 0 ? timeTaken / 60 : 1;
+    const WPM = Math.floor(correctChars / 5 / minutes);
     const accuracy = +(
       ((totalStrokes - mistypedCount) / totalStrokes) *
       100
-    ).toFixed(2);
+    ).toFixed(1);
     setResult({
       wpm: WPM,
       accuracy,
@@ -216,16 +233,31 @@ const TypingTest: FC = () => {
     ) {
       e.preventDefault();
     } else if (e.key === ' ') {
-      if (wordSet[activeWordIndex] !== typedWordList[activeWordIndex]) {
-        e.preventDefault();
-      } else {
-        setActiveWordIndex(typedWordList.length);
-        setWrongLettersInWord(0);
-      }
+      // Always advance to next word on space and reset wrong-letter counter
+      setActiveWordIndex(typedWordList.length);
+      setWrongLettersInWord(0);
     } else if (e.key === 'Backspace') {
       if (wrongLettersInWord > 0) setWrongLettersInWord(wrongLettersInWord - 1);
-      if (inputRef.current?.value.slice(-1) === ' ') e.preventDefault();
-    } else if (e.key !== 'Shift') {
+      const endsWithSpace = inputRef.current?.value.slice(-1) === ' ';
+      if (endsWithSpace) {
+        const prevIndex = Math.max(0, activeWordIndex - 1);
+        const prevWordTyped = typedWordList[prevIndex];
+        const prevWordTarget = wordSet[prevIndex];
+        const prevWordHasErrors =
+          typeof prevWordTyped === 'string' &&
+          typeof prevWordTarget === 'string' &&
+          prevWordTyped !== prevWordTarget;
+        if (
+          !prevWordHasErrors ||
+          (prevIndex === 0 && prevWordTyped === undefined)
+        ) {
+          e.preventDefault();
+        } else {
+          setActiveWordIndex(prevIndex);
+          setWrongLettersInWord(0);
+        }
+      }
+    } else if (!EXCLUDED_KEYS.has(e.key)) {
       setTotalStrokes(totalStrokes + 1);
     }
   };
@@ -256,13 +288,15 @@ const TypingTest: FC = () => {
         setMistypedCount(mistypedCount + 1);
       }
     } else if (typed.slice(-1) === letterSet[currentLetterIndex]) {
-      setActiveLetterIndex(typed.length);
       if (wrongLetters.includes(currentLetterIndex)) {
         const filtered = wrongLetters.filter((x) => x !== currentLetterIndex);
         setWrongLetters(filtered);
       }
     }
-    setTypedWordList(typed.split(' '));
+    // Always reflect the caret position for progress bar
+    setActiveLetterIndex(typed.length);
+    const parts = typed.split(' ');
+    setTypedWordList(parts);
   };
 
   const handleChallengeTypeSwitch = (
@@ -343,11 +377,12 @@ const TypingTest: FC = () => {
                     typedWord={typedWordList[index]}
                     status={
                       index === activeWordIndex
-                        ? 'active'
-                        : index < activeWordIndex &&
-                            typedWordList[index] === word
-                          ? 'completed'
-                          : 'idle'
+                        ? WordStatus.ACTIVE
+                        : index < activeWordIndex
+                          ? typedWordList[index] === word
+                            ? WordStatus.COMPLETED
+                            : WordStatus.WRONG
+                          : WordStatus.IDLE
                     }
                   />
                 ))}
@@ -359,6 +394,9 @@ const TypingTest: FC = () => {
                 onKeyDown={handleKeyDown}
                 onPasteCapture={(e) => e.preventDefault()}
                 ref={inputRef}
+                autoCorrect='off'
+                autoCapitalize='off'
+                spellCheck={false}
                 className='absolute -z-10 border-none bg-transparent focus:outline-none caret-transparent text-transparent'
               />
             </>
