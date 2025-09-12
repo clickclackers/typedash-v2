@@ -135,8 +135,9 @@ const TypingTest: FC = () => {
         correctChars += wordSet[i].length + 1;
       }
     }
+    correctChars = Math.max(correctChars - 1, 0);
     const minutes = timeTaken > 0 ? timeTaken / 60 : 1;
-    const WPM = Math.floor((correctChars - 1) / 5 / minutes); // - 1 to account for no space at the end of the last word
+    const WPM = Math.floor(correctChars / 5 / minutes);
     const accuracy = +(
       ((totalStrokes - mistypedCount) / totalStrokes) *
       100
