@@ -125,11 +125,22 @@ const TypingTest: FC = () => {
   // generate result once test ends
   useEffect(() => {
     if (testStatus !== -1) return;
-    const WPM = Math.floor((typedWordList.length / timeTaken) * 60);
+    // WPM formula by MonkeyType:
+    // total amount of characters in the correctly typed words (including spaces), divided by 5 and normalised to 60 seconds.
+    let correctChars = 0;
+    const limit = Math.min(typedWordList.length, wordSet.length);
+    for (let i = 0; i < limit; i++) {
+      if (typedWordList[i] === wordSet[i]) {
+        // + 1 to account for the space after the word
+        correctChars += wordSet[i].length + 1;
+      }
+    }
+    const minutes = timeTaken > 0 ? timeTaken / 60 : 1;
+    const WPM = Math.floor((correctChars - 1) / 5 / minutes); // - 1 to account for no space at the end of the last word
     const accuracy = +(
       ((totalStrokes - mistypedCount) / totalStrokes) *
       100
-    ).toFixed(2);
+    ).toFixed(1);
     setResult({
       wpm: WPM,
       accuracy,
