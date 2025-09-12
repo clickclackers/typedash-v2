@@ -9,6 +9,7 @@ import Word from '/src/components/typing/Word';
 import { Challenge } from '/src/components/typing/challenges/challenge.interface';
 import Result from '/src/components/typing/results/Result';
 import { useAuth } from '/src/context/AuthContext';
+import { WordStatus } from './wordStatus';
 
 interface MultiplayerTestProps {
   startTyping: boolean;
@@ -253,10 +254,10 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
                   typedWord={typedWordList[index]}
                   status={
                     index === activeWordIndex
-                      ? 'active'
+                      ? WordStatus.ACTIVE
                       : index < activeWordIndex && typedWordList[index] === word
-                        ? 'completed'
-                        : 'idle'
+                        ? WordStatus.COMPLETED
+                        : WordStatus.IDLE
                   }
                 />
               ))}

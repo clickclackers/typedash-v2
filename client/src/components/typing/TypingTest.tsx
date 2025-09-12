@@ -22,6 +22,7 @@ import useTimer from '/src/helpers/useTimer';
 import http from '/src/services/api';
 import ProgressBar from '/src/components/typing/ProgressBar';
 import Word from '/src/components/typing/Word';
+import { WordStatus } from '/src/components/typing/wordStatus';
 import { Challenge } from '/src/components/typing/challenges/challenge.interface';
 import Result from '/src/components/typing/results/Result';
 import { useAuth } from '/src/context/AuthContext';
@@ -361,12 +362,12 @@ const TypingTest: FC = () => {
                     typedWord={typedWordList[index]}
                     status={
                       index === activeWordIndex
-                        ? 'active'
+                        ? WordStatus.ACTIVE
                         : index < activeWordIndex
                           ? typedWordList[index] === word
-                            ? 'completed'
-                            : 'wrong'
-                          : 'idle'
+                            ? WordStatus.COMPLETED
+                            : WordStatus.WRONG
+                          : WordStatus.IDLE
                     }
                   />
                 ))}
