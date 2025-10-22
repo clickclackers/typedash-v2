@@ -19,6 +19,8 @@ help:
 .PHONY: dev
 dev:
 	@trap 'kill $$(jobs -p)' EXIT; \
+	make redis-start & \
+	make db-start & \
 	make server & \
 	make client & \
 	wait
@@ -54,6 +56,16 @@ sqlc:
 	@echo "🗄️  Generating sqlc code..."
 	cd server/db && sqlc generate
 	@echo "✅ Database code generation complete!"
+
+.PHONY: redis-start
+redis-start:
+	@echo "🚀 Starting PostgreSQL service..."
+	@if ! brew services list | grep redis | grep started > /dev/null; then \
+		brew services start redis; \
+		echo "✅ Redis service started"; \
+	else \
+		echo "✅ Redis service already running"; \
+	fi
 
 .PHONY: db-setup
 db-setup: db-start db-create db-schema
