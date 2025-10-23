@@ -11,15 +11,15 @@ import MultiplayerTest from '/src/components/typing/MultiplayerTest';
 import ProgressBar from '/src/components/typing/ProgressBar';
 import { Challenge } from '/src/components/typing/challenges/challenge.interface';
 import useTimer from '/src/helpers/useTimer';
-import socket from '/src/services/socket';
-import { useAuth } from '/src/context/AuthContext';
+import { useAuth } from '/src/hooks/useAuth';
+import { baseURL } from '/src/services/api';
 
 interface Player {
   id: number;
   username: string;
 }
 
-const Room: FC = () => {
+const MultiplayerRoom: FC = () => {
   const location = useLocation();
   const roomID = location.pathname.split('/')[2];
   const roomUrl = import.meta.env.DEV
@@ -37,6 +37,7 @@ const Room: FC = () => {
     Record<number, number>
   >({});
   const [rankings, setRankings] = useState<Record<number, number>>({});
+  const [socket, setSocket] = useState<WebSocket | null>(null);
   const { user } = useAuth();
   const username = user?.username || 'Guest';
   const toast = useToast();
@@ -53,90 +54,147 @@ const Room: FC = () => {
   };
 
   const leaveRoom = () => {
-    socket.emit('leaveRoom');
+    if (socket) {
+      socket.send(JSON.stringify({ type: 'leaveRoom', roomID }));
+      socket.close();
+    }
     navigate('/singleplayer');
   };
 
   const ready = () => {
-    socket.emit('sendReady', username);
+    if (socket) {
+      socket.send(JSON.stringify({ type: 'ready', roomID, username }));
+    }
   };
 
   useEffect(() => {
-    socket.emit('joinRoom', { roomID, username });
+    const wsUrl = baseURL.replace(/^http/, 'ws').replace(/\/$/, '') + '/ws';
+    const newSocket = new WebSocket(wsUrl);
 
-    socket.on('invalidRoom', () => {
+    newSocket.onopen = () => {
+      // Join the room
+      newSocket.send(
+        JSON.stringify({
+          type: 'joinRoom',
+          roomID: roomID,
+          username: username,
+        }),
+      );
+    };
+
+    newSocket.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        console.log('Room message:', message);
+
+        switch (message.type) {
+          case 'invalidRoom':
+            toast({
+              title: 'Room not found.',
+              description: '',
+              variant: 'subtle',
+              status: 'error',
+              position: 'top-right',
+              duration: 5000,
+              isClosable: true,
+            });
+            navigate('/multiplayer');
+            break;
+
+          case 'roomFull':
+            toast({
+              title: 'Room is full.',
+              description: '',
+              variant: 'subtle',
+              status: 'error',
+              position: 'top-right',
+              duration: 5000,
+              isClosable: true,
+            });
+            navigate('/multiplayer');
+            break;
+
+          case 'playerJoined':
+            setNumReady(message.ready || 0);
+            setNumPlayers(message.players?.length || 0);
+            setListOfPlayers(message.players || []);
+            setChosenChallenge(message.challenge);
+            break;
+
+          case 'playerLeft':
+            setNumPlayers(message.players?.length || 0);
+            setListOfPlayers(message.players || []);
+            break;
+
+          case 'receiveReady':
+            setNumReady(message.readyCount || 0);
+            break;
+
+          case 'progressUpdate':
+            setTypingProgresses((prevProgress) => ({
+              ...prevProgress,
+              [message.id]: message.progress,
+            }));
+            break;
+
+          case 'playerCompleted':
+            setRankings(message.rankings || {});
+            break;
+
+          case 'allCompleted':
+            resetTimer();
+            setGameStarted(false);
+            setNumReady(0);
+            break;
+
+          case 'restartTest':
+            setChosenChallenge(message.nextChallenge);
+            setRankings({});
+            setTypingProgresses({});
+            break;
+
+          default:
+            console.log('Unknown message type:', message.type);
+        }
+      } catch (error) {
+        console.error('Error parsing message:', error);
+      }
+    };
+
+    newSocket.onerror = (error) => {
+      console.error('WebSocket error:', error);
       toast({
-        title: 'Room not found.',
-        description: '',
-        variant: 'subtle',
-        status: 'error',
         position: 'top-right',
+        title: 'Connection error.',
+        status: 'error',
         duration: 5000,
         isClosable: true,
       });
-      navigate('/singleplayer');
-    });
+    };
 
-    socket.on('roomFull', () => {
-      toast({
-        title: 'Room is full.',
-        description: '',
-        variant: 'subtle',
-        status: 'error',
-        position: 'top-right',
-        duration: 5000,
-        isClosable: true,
-      });
-      navigate('/singleplayer');
-    });
+    setSocket(newSocket);
 
-    socket.on('playerJoined', ({ ready, players, challenge }) => {
-      setNumReady(ready);
-      setNumPlayers(players.length);
-      setListOfPlayers(players);
-      setChosenChallenge(challenge);
-    });
-
-    socket.on('playerLeft', (players) => {
-      setNumPlayers(players.length);
-      setListOfPlayers(players);
-    });
-
-    socket.on('receiveReady', (readyCount) => {
-      setNumReady(readyCount);
-    });
-
-    socket.on('progressUpdate', ({ id, progress }) => {
-      setTypingProgresses((prevProgress) => ({
-        ...prevProgress,
-        [id]: progress,
-      }));
-    });
-
-    socket.on('playerCompleted', (rankings) => {
-      setRankings(rankings);
-    });
-
-    socket.on('allCompleted', () => {
-      resetTimer();
-      setGameStarted(false);
-      setNumReady(0);
-    });
-
-    socket.on('restartTest', (nextChallenge) => {
-      setChosenChallenge(nextChallenge);
-      setRankings({});
-      setTypingProgresses({});
-    });
-  }, []);
+    return () => {
+      newSocket.close();
+    };
+  }, [roomID, username]);
 
   useEffect(() => {
     if (!gameStarted && numReady === numPlayers) {
       startTimer();
       setGameStarted(true);
-      socket.emit('typingProgress', 0);
+      if (socket) {
+        socket.send(
+          JSON.stringify({
+            type: 'typingProgress',
+            roomID: roomID,
+            playerID: username,
+            charsTyped: 0,
+          }),
+        );
+      }
     }
-  }, [numReady, numPlayers]);
+  }, [numReady, numPlayers, socket, roomID, username]);
 
   return (
     <div className='flex flex-col justify-between'>
@@ -172,6 +230,10 @@ const Room: FC = () => {
       <MultiplayerTest
         startTyping={time === 0}
         setLettersTyped={setLettersTyped}
+        socket={socket}
+        roomID={roomID}
+        username={username}
+        challenge={chosenChallenge}
       />
       {time !== 0 && (
         <div>
@@ -196,4 +258,4 @@ const Room: FC = () => {
   );
 };
 
-export default Room;
+export default MultiplayerRoom;

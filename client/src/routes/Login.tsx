@@ -9,7 +9,7 @@ import { Formik, FormikValues } from 'formik';
 import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
-import { useAuth } from '/src/context/AuthContext';
+import { useAuth } from '/src/hooks/useAuth';
 import { loginUser } from '/src/services/services';
 
 export const Login: FC = () => {

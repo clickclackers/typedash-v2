@@ -16,13 +16,14 @@ import { useNavigate } from 'react-router-dom';
 import { Challenge } from '/src/components/typing/challenges/challenge.interface';
 import { challengeItems, randomChallenge } from '/src/helpers/randomChallenge';
 import { baseURL } from '/src/services/api';
+import { useSocket } from '/src/hooks/useSocket';
 
 const Multiplayer: FC = () => {
   const [challenge, setChallenge] = useState<Challenge>();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const { setSocket } = useSocket();
 
   const getDefaultChallengeType = () => {
     const storedChallenge = localStorage.getItem('challenge-type');
@@ -38,20 +39,17 @@ const Multiplayer: FC = () => {
   }, [challengeType]);
 
   const createRoom = () => {
-    toast({
-      position: 'top-right',
-      title: 'Multiplayer is being revamped!',
-      status: 'error',
-      duration: 5000,
-      isClosable: true,
-    });
-    const wsUrl = baseURL.replace(/^http/, 'ws') + '/ws';
+    const wsUrl = baseURL.replace(/^http/, 'ws').replace(/\/$/, '') + '/ws';
     const newSocket = new WebSocket(wsUrl);
 
     newSocket.onopen = () => {
       if (challenge) {
+        // Send createRoom message to server
         newSocket.send(
-          JSON.stringify({ type: 'createRoom', payload: challenge }),
+          JSON.stringify({
+            type: 'createRoom',
+            challenge: challenge,
+          }),
         );
       }
     };
@@ -59,8 +57,20 @@ const Multiplayer: FC = () => {
     newSocket.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
+        console.log('Received message:', message);
+
+        // Handle room creation response
         if (message.type === 'roomCreated') {
-          navigate(`/multiplayer/${message.payload.roomID}`);
+          const roomID = message.roomID;
+          navigate(`/multiplayer/${roomID}`);
+        } else if (message.type === 'error') {
+          toast({
+            position: 'top-right',
+            description: message.message || 'Error, please try again later',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
         }
       } catch (error) {
         console.error('Error parsing message:', error);
@@ -69,23 +79,17 @@ const Multiplayer: FC = () => {
 
     newSocket.onerror = (error) => {
       console.error('WebSocket error:', error);
-      // toast({
-      //   position: 'top-right',
-      //   title: 'Failed to connect to server.',
-      //   status: 'error',
-      //   duration: 5000,
-      //   isClosable: true,
-      // });
+      toast({
+        position: 'top-right',
+        title: 'Failed to connect to server.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     };
 
     setSocket(newSocket);
   };
-
-  useEffect(() => {
-    return () => {
-      socket?.close();
-    };
-  }, [socket]);
 
   const handleChallengeTypeSwitch = (
     e: React.MouseEvent<HTMLButtonElement>,

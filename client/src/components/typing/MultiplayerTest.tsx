@@ -1,24 +1,32 @@
 import { Box } from '@chakra-ui/react';
 import { FC, useEffect, useRef, useState } from 'react';
 import { HiCursorClick } from 'react-icons/hi';
-import { randomChallenge } from '/src/helpers/randomChallenge';
+// import { randomChallenge } from '/src/helpers/randomChallenge';
 import useTimer from '/src/helpers/useTimer';
 import http from '/src/services/api';
-import socket from '/src/services/socket';
+// import socket from '/src/services/socket';
 import Word from '/src/components/typing/Word';
 import { Challenge } from '/src/components/typing/challenges/challenge.interface';
 import Result from '/src/components/typing/results/Result';
-import { useAuth } from '/src/context/AuthContext';
+import { useAuth } from '/src/hooks/useAuth';
 import { WordStatus } from './wordStatus';
 
 interface MultiplayerTestProps {
   startTyping: boolean;
   setLettersTyped: React.Dispatch<React.SetStateAction<number>>;
+  socket: WebSocket | null;
+  roomID: string;
+  username: string;
+  challenge?: Challenge;
 }
 
 const MultiplayerTest: FC<MultiplayerTestProps> = ({
   startTyping,
   setLettersTyped,
+  socket,
+  roomID,
+  username,
+  challenge: propChallenge,
 }) => {
   const [challenge, setChallenge] = useState<Challenge>();
   const [wordSet, setWordSet] = useState<string[]>([]);
@@ -40,44 +48,22 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
     time: 0,
   });
   const INITIAL_TIME = 120;
-  const [time, { startTimer, pauseTimer, resetTimer }] = useTimer(INITIAL_TIME); // default time is 120 seconds
+  const [time, { startTimer, pauseTimer }] = useTimer(INITIAL_TIME); // default time is 120 seconds
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const restartRef = useRef<HTMLButtonElement>(null);
   const { user } = useAuth();
 
-  useEffect(() => {
-    socket.on('playerJoined', ({ challenge }) => {
-      setChallenge(challenge);
-    });
-
-    socket.on('restartTest', (nextChallenge) => {
-      setChallenge(nextChallenge);
-      resetTimer();
-      setTestStatus(0);
-      setTypedWordList(['']);
-      setActiveWordIndex(0);
-      setMistypedCount(0);
-      setActiveLetterIndex(0);
-      setTimeTaken(0);
-      setWrongLettersInWord(0);
-      setWrongLetters([]);
-      setResult({
-        wpm: 0,
-        accuracy: 0,
-        time: 0,
-      });
-      setShowResults(false);
-      focusOnInput();
-    });
-  }, []);
+  // Remove socket event listeners since we're handling them in the parent component
+  // The challenge will be passed down from the parent Room component
 
   useEffect(() => {
-    if (challenge) {
-      setLetterSet(challenge.content.split(''));
-      setWordSet(challenge.content.split(' '));
+    if (propChallenge) {
+      setChallenge(propChallenge);
+      setLetterSet(propChallenge.content.split(''));
+      setWordSet(propChallenge.content.split(' '));
     }
-  }, [challenge]);
+  }, [propChallenge]);
 
   useEffect(() => {
     const handleClickAway = (e: MouseEvent) => {
@@ -120,7 +106,17 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
       accuracy,
       time: timeTaken,
     });
-    socket.emit('testCompleted', randomChallenge);
+    if (socket) {
+      socket.send(
+        JSON.stringify({
+          type: 'testCompleted',
+          roomID: roomID,
+          playerID: username,
+          result: result,
+        }),
+      );
+    }
+    // Only save stats for authenticated users
     if (user) {
       const params = {
         challenge_id: challenge?.id,
@@ -132,6 +128,13 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
         username: user.username,
       };
       http().post('/results/create', params);
+    } else {
+      // Guest users - just log the result locally
+      console.log('Guest user result:', {
+        wpm: WPM,
+        accuracy,
+        time: timeTaken,
+      });
     }
     setShowResults(true);
   }, [testStatus]);
@@ -204,7 +207,16 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
     }
 
     setTypedWordList(typed.split(' '));
-    socket.emit('typingProgress', activeLetterIndex + 1);
+    if (socket) {
+      socket.send(
+        JSON.stringify({
+          type: 'typingProgress',
+          roomID: roomID,
+          playerID: username,
+          charsTyped: activeLetterIndex + 1,
+        }),
+      );
+    }
   };
 
   return (
