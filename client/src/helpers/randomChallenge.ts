@@ -19,11 +19,11 @@ export const challengeItems = [
     name: 'Algorithms',
     desc: 'CS is already tough, why bother...',
   },
-  // {
-  //   id: 3,
-  //   name: 'test',
-  //   desc: 'test',
-  // },
+  {
+    id: 3,
+    name: 'test',
+    desc: 'test',
+  },
 ];
 
 export const randomChallenge = (
@@ -31,7 +31,7 @@ export const randomChallenge = (
   excludedChallengeId?: number,
 ) => {
   const currentChallengeType = challengeType.toLowerCase();
-  let challenges: Challenge[];
+  let challenges: Challenge[] = [];
   switch (currentChallengeType) {
     case 'books':
       challenges = books;
@@ -42,35 +42,36 @@ export const randomChallenge = (
     case 'algorithms':
       challenges = algorithms;
       break;
-    // case 'test':
-    //   challenges = [
-    //     {
-    //       id: 0,
-    //       type: 'test',
-    //       title: 'test',
-    //       author: 'test',
-    //       content: 'test',
-    //     },
-    //     {
-    //       id: 1,
-    //       type: 'test2',
-    //       title: 'test2',
-    //       author: 'test2',
-    //       content: 'test2',
-    //     },
-    //     {
-    //       id: 2,
-    //       type: 'test3',
-    //       title: 'test3',
-    //       author: 'test3',
-    //       content: 'test3',
-    //     },
-    //   ];
-    //   break;
+    case 'test':
+      challenges = [
+        {
+          id: 0,
+          type: 'test',
+          title: 'test',
+          author: 'test',
+          content: 'test',
+        },
+        {
+          id: 1,
+          type: 'test2',
+          title: 'test2',
+          author: 'test2',
+          content: 'test2',
+        },
+        {
+          id: 2,
+          type: 'test3',
+          title: 'test3',
+          author: 'test3',
+          content: 'test3',
+        },
+      ];
+      break;
   }
+
   const filteredChallenges = excludedChallengeId
-    ? challenges!.filter((item: Challenge) => item.id !== excludedChallengeId)
-    : challenges!;
+    ? challenges.filter((item: Challenge) => item.id !== excludedChallengeId)
+    : challenges;
   return filteredChallenges[
     Math.floor(Math.random() * filteredChallenges.length)
   ];

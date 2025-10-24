@@ -18,7 +18,16 @@ help:
 
 .PHONY: dev
 dev:
-	@trap 'kill $$(jobs -p)' EXIT; \
+	@echo "🚀 Starting development environment..."
+	@trap 'echo "🛑 Stopping brew postgres & redis services..."; \
+		brew services stop redis postgresql 2>/dev/null || true; \
+		exit' INT TERM EXIT; \
+	make redis-start && \
+	make db-start && \
+	echo "⏳ Waiting for services to be ready..." && \
+	until redis-cli ping > /dev/null 2>&1; do echo "Waiting for Redis..."; sleep 1; done && \
+	until pg_isready -h localhost -p 5432 > /dev/null 2>&1; do echo "Waiting for PostgreSQL..."; sleep 1; done && \
+	echo "✅ All services ready!" && \
 	make server & \
 	make client & \
 	wait
@@ -54,6 +63,16 @@ sqlc:
 	@echo "🗄️  Generating sqlc code..."
 	cd server/db && sqlc generate
 	@echo "✅ Database code generation complete!"
+
+.PHONY: redis-start
+redis-start:
+	@echo "🚀 Starting PostgreSQL service..."
+	@if ! brew services list | grep redis | grep started > /dev/null; then \
+		brew services start redis; \
+		echo "✅ Redis service started"; \
+	else \
+		echo "✅ Redis service already running"; \
+	fi
 
 .PHONY: db-setup
 db-setup: db-start db-create db-schema

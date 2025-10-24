@@ -8,10 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetUserOverviewStats GET /user_overview_stats/:userId
+// GetUserOverviewStats GET /user_overview_stats?userId=1
 func GetUserOverviewStats(q *db.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId := c.Param("userId")
+		userId := c.Query("userId")
 		if userId == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 			return
@@ -25,7 +25,21 @@ func GetUserOverviewStats(q *db.Queries) gin.HandlerFunc {
 
 		stats, err := q.GetOverviewStatsByUserID(c.Request.Context(), int32(userIDInt))
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user overview stats"})
+			// If no stats exist for the user, create default stats
+			defaultStats, createErr := q.CreateUserOverviewStats(c.Request.Context(), db.CreateUserOverviewStatsParams{
+				UserID:           int32(userIDInt),
+				SingleTotalRaces: 0,
+				SingleTotalTime:  0,
+				SingleAvgWpm:     0,
+				MultiTotalRaces:  0,
+				MultiTotalTime:   0,
+				MultiAvgWpm:      0,
+			})
+			if createErr != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user overview stats"})
+				return
+			}
+			c.JSON(http.StatusOK, defaultStats)
 			return
 		}
 
@@ -33,10 +47,10 @@ func GetUserOverviewStats(q *db.Queries) gin.HandlerFunc {
 	}
 }
 
-// CreateUserOverviewStats POST /user_overview_stats/:userId
+// CreateUserOverviewStats POST /user_overview_stats?userId=1
 func CreateUserOverviewStats(q *db.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId := c.Param("userId")
+		userId := c.Query("userId")
 		if userId == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 			return

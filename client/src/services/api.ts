@@ -9,7 +9,6 @@ export const http = () => {
     baseURL,
     headers: {
       'Content-Type': 'application/json',
-      //'Access-Control-Allow-Origin': '*',
     },
   });
   instance.interceptors.request.use(

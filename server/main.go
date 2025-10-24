@@ -28,6 +28,10 @@ func main() {
 		log.Fatal("JWT_SECRET is not set in the environment variables")
 	}
 
+	// Initialize WebSocket hub
+	// hub := NewHub(rdb)
+	// go hub.Run()
+
 	router := gin.Default()
 
 	// Configure CORS
@@ -62,11 +66,13 @@ func main() {
 
 	{
 		protected.GET("/profile", handlers.GetUserProfileHandler(queries))
-		protected.GET("/ws", func(c *gin.Context) {
-			ServeWs(c.Writer, c.Request)
-		})
 		// Add other protected routes here
 	}
+
+	// WebSocket endpoint - no auth required for anonymous multiplayer
+	// router.GET("/ws", func(c *gin.Context) {
+	// 	hub.handleWebsocket(c.Writer, c.Request)
+	// })
 
 	log.Println("Server starting on port 3000...")
 	err := router.Run(":3000")

@@ -42,6 +42,15 @@ func RegisterHandler(q *db.Queries) gin.HandlerFunc {
 			return
 		}
 
+		_, err = q.GetUserByUsername(c.Request.Context(), req.Username)
+		if err == nil {
+			c.JSON(http.StatusConflict, gin.H{"message": "Username already exists"})
+			return
+		} else if !errors.Is(err, sql.ErrNoRows) {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
+		}
+
 		// Hash password
 		passwordHash, err := HashPassword(req.Password)
 		if err != nil {
