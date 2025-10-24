@@ -9,7 +9,7 @@ import (
 func RegisterUserOverviewStatsRoutes(router *gin.RouterGroup, queries *db.Queries) {
 	userOverviewStats := router.Group("/user_overview_stats")
 	{
-		userOverviewStats.GET("/:userId", handlers.GetUserOverviewStats(queries))
-		userOverviewStats.POST("/:userId", handlers.CreateUserOverviewStats(queries))
+		userOverviewStats.GET("", handlers.GetUserOverviewStats(queries))
+		userOverviewStats.POST("", handlers.CreateUserOverviewStats(queries))
 	}
 }

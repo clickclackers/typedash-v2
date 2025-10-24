@@ -15,7 +15,7 @@ import { RiPaletteFill } from 'react-icons/ri';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '/src/hooks/useAuth';
 import CatLogo from '/src/assets/cat.svg';
-import { logoutUser } from '/src/services/services';
+import api from '../services/apiClient';
 import { ThemeProps } from '/src/themes/theme.interface';
 import ThemeModal from '/src/themes/ThemeModal';
 
@@ -35,7 +35,7 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
   const { user, logout, isAuthenticated } = useAuth();
 
   const logoutHandler = () => {
-    logoutUser().then(() => {
+    api.logoutUser().then(() => {
       logout();
       navigate('/');
     });
