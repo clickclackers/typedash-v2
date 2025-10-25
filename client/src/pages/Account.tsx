@@ -1,7 +1,7 @@
 import { Box, Divider, Fade, Spinner } from '@chakra-ui/react';
-import { FC, useEffect, useState } from 'react';
-import api from '../services/apiClient';
+import { FC } from 'react';
 import { useAuth } from '/src/hooks/useAuth';
+import { useUserOverviewStats } from '/src/hooks/useUserOverviewStats';
 
 export interface LoadoutProps {
   id: number;
@@ -10,47 +10,27 @@ export interface LoadoutProps {
   others: string | undefined;
 }
 const Account: FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [stats, setStats] = useState({
-    completed: 0,
-    time: 0,
-    highestWPM: 0,
-    averageWPM: 0,
-  });
   const { user } = useAuth();
+  const { data: stats, isLoading: isLoadingStats } = useUserOverviewStats({
+    userId: user?.id,
+  });
 
-  useEffect(() => {
-    const initialGetUserData = async () => {
-      setIsLoading(true);
-      const res = await api.getUserOverviewStats({
-        userId: user?.id?.toString(),
-      });
-      if (!res) return;
-      const data = res.data;
-      setStats({
-        completed: data.single_total_races,
-        time: data.single_total_time,
-        highestWPM: data.single_avg_wpm,
-        averageWPM: data.multi_avg_wpm,
-      });
-      setIsLoading(false);
-    };
-    if (!user) return;
-    initialGetUserData();
-  }, [user]);
+  if (isLoadingStats || !stats) {
+    return (
+      <div className='flex justify-center items-center'>
+        <Spinner
+          thickness='3px'
+          speed='0.65s'
+          emptyColor='gray.200'
+          color='accent.300'
+          size='lg'
+        />
+      </div>
+    );
+  }
 
-  return isLoading ? (
-    <div className='flex justify-center items-center'>
-      <Spinner
-        thickness='3px'
-        speed='0.65s'
-        emptyColor='gray.200'
-        color='accent.300'
-        size='lg'
-      />
-    </div>
-  ) : (
-    <Fade in={!isLoading} delay={0.3}>
+  return (
+    <Fade in={!isLoadingStats} delay={0.3}>
       <div className='flex flex-col gap-4 h-full'>
         <Box
           bg='bg.secondary'
@@ -68,26 +48,27 @@ const Account: FC = () => {
             <div className='flex flex-col text-left'>
               <div className='text-sm'>tests completed</div>
               <Box color='text.secondary' className='text-2xl font-semibold'>
-                {stats.completed}
+                {stats.single_total_races}
               </Box>
             </div>
             <div className='flex flex-col text-left'>
               <div className='text-sm'>time typed</div>
               <Box color='text.secondary' className='text-2xl font-semibold'>
-                {Math.floor(stats.time / 3600)}h {Math.floor(stats.time / 60)}m{' '}
-                {stats.time % 60}s
+                {Math.floor(stats.single_total_time / 3600)}h{' '}
+                {Math.floor(stats.single_total_time / 60)}m{' '}
+                {stats.single_total_time % 60}s
               </Box>
             </div>
-            <div className='flex flex-col text-left'>
+            {/* <div className='flex flex-col text-left'>
               <div className='text-sm'>highest wpm</div>
               <Box color='text.secondary' className='text-2xl font-semibold'>
-                {stats.highestWPM}
+                {stats.single_highest_wpm}
               </Box>
-            </div>
+            </div> */}
             <div className='flex flex-col text-left'>
               <div className='text-sm'>average wpm</div>
               <Box color='text.secondary' className='text-2xl font-semibold'>
-                {stats.averageWPM.toFixed(2)}
+                {stats.single_avg_wpm.toFixed(2)}
               </Box>
             </div>
           </div>

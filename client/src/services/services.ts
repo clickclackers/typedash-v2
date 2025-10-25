@@ -1,11 +1,11 @@
 // DEPRECATED - Loadouts are no longer supported
 import { createStandaloneToast } from '@chakra-ui/react';
-import http from '/src/services/api';
+import { instance } from '/src/services/api';
 const { toast } = createStandaloneToast();
 
 export const getStatistics = async (params: { user: string | undefined }) => {
   try {
-    const stats = await http().get('/results', { params });
+    const stats = await instance.get('/results', { params });
     return stats;
   } catch (e) {
     console.log(e);
@@ -14,7 +14,7 @@ export const getStatistics = async (params: { user: string | undefined }) => {
 
 export const getLoadouts = async (params: { data: string | undefined }) => {
   try {
-    const res = await http().get('account/loadout', { params });
+    const res = await instance.get('account/loadout', { params });
     return res;
   } catch (e) {
     console.log(e);
@@ -23,7 +23,7 @@ export const getLoadouts = async (params: { data: string | undefined }) => {
 
 export const createLoadout = async (params: any) => {
   try {
-    const res = await http()
+    const res = await instance
       .post('account/loadout/create', params)
       .then(() => {
         toast({
@@ -44,7 +44,7 @@ export const createLoadout = async (params: any) => {
 
 export const updateLoadout = async (params: any) => {
   try {
-    const res = await http()
+    const res = await instance
       .put('account/loadout/update', params)
       .then(() => {
         toast({
@@ -65,7 +65,7 @@ export const updateLoadout = async (params: any) => {
 
 export const deleteLoadout = async (params: { data: number }) => {
   try {
-    const res = await http()
+    const res = await instance
       .delete('account/loadout/delete', { params })
       .then(() => {
         toast({

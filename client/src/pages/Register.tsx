@@ -4,7 +4,7 @@ import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useAuth } from '/src/hooks/useAuth';
-import api from '../services/apiClient';
+import api from '../services/api';
 
 const Register: FC = () => {
   const navigate = useNavigate();
