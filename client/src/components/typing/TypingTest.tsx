@@ -19,7 +19,7 @@ import { VscDebugRestart } from 'react-icons/vsc';
 import { useOutletContext } from 'react-router-dom';
 import { challengeItems, randomChallenge } from '/src/helpers/randomChallenge';
 import useTimer from '/src/helpers/useTimer';
-import http from '/src/services/api';
+import { instance } from '/src/services/api';
 import ProgressBar from '/src/components/typing/ProgressBar';
 import Word from '/src/components/typing/Word';
 import { WordStatus } from '/src/components/typing/wordStatus';
@@ -157,7 +157,7 @@ const TypingTest: FC = () => {
         datetime: new Date().toString(),
         username: user.username,
       };
-      http().post('/results/create', params);
+      instance.post('/results/create', params);
     }
     setShowResults(true);
   }, [testStatus]);

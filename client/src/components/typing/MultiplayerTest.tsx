@@ -3,7 +3,7 @@ import { FC, useEffect, useRef, useState } from 'react';
 import { HiCursorClick } from 'react-icons/hi';
 // import { randomChallenge } from '/src/helpers/randomChallenge';
 import useTimer from '/src/helpers/useTimer';
-import http from '/src/services/api';
+import { instance } from '/src/services/api';
 // import socket from '/src/services/socket';
 import Word from '/src/components/typing/Word';
 import { Challenge } from '/src/components/typing/challenges/challenge.interface';
@@ -127,7 +127,7 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
         datetime: new Date().toString(),
         username: user.username,
       };
-      http().post('/results/create', params);
+      instance.post('/results/create', params);
     } else {
       // Guest users - just log the result locally
       console.log('Guest user result:', {

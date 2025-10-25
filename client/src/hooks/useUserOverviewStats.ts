@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import api from '/src/services/apiClient';
+import api from '/src/services/api';
 
 export const useUserOverviewStats = ({ userId }: { userId: string }) => {
   return useQuery({

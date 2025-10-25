@@ -15,7 +15,7 @@ import { RiPaletteFill } from 'react-icons/ri';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '/src/hooks/useAuth';
 import CatLogo from '/src/assets/cat.svg';
-import api from '../services/apiClient';
+import api from '/src/services/api';
 import { ThemeProps } from '/src/themes/theme.interface';
 import ThemeModal from '/src/themes/ThemeModal';
 
