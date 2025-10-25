@@ -23,17 +23,6 @@ class ApiClient {
     });
   };
 
-  // private handleError = (error: unknown, defaultMessage: string): ApiError => {
-  //   if (error instanceof AxiosError) {
-  //     const message = error.response?.data?.message || defaultMessage;
-  //     this.showToast(defaultMessage, message, 'error');
-  //     return { message, status: error.response?.status };
-  //   }
-  //   const message = error instanceof Error ? error.message : defaultMessage;
-  //   this.showToast(defaultMessage, message, 'error');
-  //   return { message };
-  // };
-
   async loginUser(params: Record<string, any>) {
     try {
       const res = await http()
@@ -110,7 +99,7 @@ class ApiClient {
     }
   }
 
-  async getUserOverviewStats(params: { userId: string | undefined }) {
+  async getUserOverviewStats(params: { userId: string }) {
     try {
       const res = await http().get<StatisticsResponse>('user_overview_stats', {
         params,

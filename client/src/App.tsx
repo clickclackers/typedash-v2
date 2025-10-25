@@ -15,6 +15,9 @@ import Multiplayer from '/src/pages/Multiplayer';
 import Register from '/src/pages/Register';
 import MultiplayerRoom from '/src/pages/MultiplayerRoom';
 import Singleplayer from '/src/pages/Singleplayer';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 function App() {
   const [currentTheme, setCurrentTheme] = useState(
@@ -24,36 +27,38 @@ function App() {
   const mergedTheme = extendTheme(customTheme, { colors: currentTheme.colors });
 
   return (
-    <ChakraProvider theme={mergedTheme}>
-      <AuthProvider>
-        <SocketProvider>
-          <Routes>
-            <Route
-              element={
-                <Layout
-                  currentTheme={currentTheme}
-                  setCurrentTheme={setCurrentTheme}
-                />
-              }
-            >
-              <Route path='/account' element={<Account />} />
-              <Route path='/about' element={<About />} />
-              <Route path='/login' element={<Login />} />
-              <Route path='/register' element={<Register />} />
-              <Route path='/singleplayer' element={<Singleplayer />} />
-              <Route path='/multiplayer'>
-                <Route index={true} element={<Multiplayer />} />
-                <Route path=':roomId' element={<MultiplayerRoom />} />
-              </Route>
+    <QueryClientProvider client={queryClient}>
+      <ChakraProvider theme={mergedTheme}>
+        <AuthProvider>
+          <SocketProvider>
+            <Routes>
               <Route
-                path='*'
-                element={<Navigate to='/singleplayer' replace />}
-              />
-            </Route>
-          </Routes>
-        </SocketProvider>
-      </AuthProvider>
-    </ChakraProvider>
+                element={
+                  <Layout
+                    currentTheme={currentTheme}
+                    setCurrentTheme={setCurrentTheme}
+                  />
+                }
+              >
+                <Route path='/account' element={<Account />} />
+                <Route path='/about' element={<About />} />
+                <Route path='/login' element={<Login />} />
+                <Route path='/register' element={<Register />} />
+                <Route path='/singleplayer' element={<Singleplayer />} />
+                <Route path='/multiplayer'>
+                  <Route index={true} element={<Multiplayer />} />
+                  <Route path=':roomId' element={<MultiplayerRoom />} />
+                </Route>
+                <Route
+                  path='*'
+                  element={<Navigate to='/singleplayer' replace />}
+                />
+              </Route>
+            </Routes>
+          </SocketProvider>
+        </AuthProvider>
+      </ChakraProvider>
+    </QueryClientProvider>
   );
 }
 
