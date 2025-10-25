@@ -122,7 +122,7 @@ class ApiClient {
     }
   }
 
-  async getUserOverviewStats(params: { userId: string }) {
+  async getUserOverviewStats(params: { userId: number }) {
     try {
       const res = await this.instance.get<StatisticsResponse>(
         'user_overview_stats',

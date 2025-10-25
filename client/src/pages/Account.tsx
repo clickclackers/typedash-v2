@@ -12,8 +12,7 @@ export interface LoadoutProps {
 const Account: FC = () => {
   const { user } = useAuth();
   const { data: stats, isLoading: isLoadingStats } = useUserOverviewStats({
-    userId: user?.id?.toString() ?? '',
-    enabled: !!user?.id,
+    userId: user?.id,
   });
 
   if (isLoadingStats || !stats) {
