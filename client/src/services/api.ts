@@ -69,7 +69,7 @@ class ApiClient {
       if (e instanceof AxiosError) {
         this.showToast(
           'Login failed.',
-          `${e.response?.data.message}.`,
+          `${e.response?.data?.message}.`,
           'error',
         );
       }
@@ -93,7 +93,7 @@ class ApiClient {
       if (e instanceof AxiosError) {
         this.showToast(
           'Registration failed.',
-          `${e.response?.data.message}`,
+          `${e.response?.data?.message}`,
           'error',
         );
       }
@@ -115,7 +115,7 @@ class ApiClient {
       if (e instanceof AxiosError) {
         this.showToast(
           'Logout failed.',
-          `${e.response?.data.message}.`,
+          `${e.response?.data?.message}.`,
           'error',
         );
       }
