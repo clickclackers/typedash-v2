@@ -56,22 +56,14 @@ class ApiClient {
       const res = await this.instance
         .post<AuthResponse>('login', params)
         .then((response) => {
-          this.showToast(
-            'Login successful.',
-            'You are now logged in.',
-            'success',
-          );
+          this.showToast('Logged in', '', 'success');
           return response;
         });
       return res;
     } catch (e) {
       console.log(e);
       if (e instanceof AxiosError) {
-        this.showToast(
-          'Login failed.',
-          `${e.response?.data?.message}.`,
-          'error',
-        );
+        this.showToast('Login failed', `${e.response?.data?.message}`, 'error');
       }
     }
   }
@@ -81,18 +73,14 @@ class ApiClient {
       const res = await this.instance
         .post<AuthResponse>('register', params)
         .then((response) => {
-          this.showToast(
-            'Registered successfully.',
-            'Your account has been created.',
-            'success',
-          );
+          this.showToast('Registered successfully!', '', 'success');
           return response;
         });
       return res;
     } catch (e) {
       if (e instanceof AxiosError) {
         this.showToast(
-          'Registration failed.',
+          'Registration failed',
           `${e.response?.data?.message}`,
           'error',
         );
@@ -103,19 +91,15 @@ class ApiClient {
   async logoutUser() {
     try {
       const res = await this.instance.post('logout').then((response) => {
-        this.showToast(
-          'Logout successful.',
-          'You are now logged out.',
-          'success',
-        );
+        this.showToast('You have logged out', '', 'success');
         return response;
       });
       return res;
     } catch (e) {
       if (e instanceof AxiosError) {
         this.showToast(
-          'Logout failed.',
-          `${e.response?.data?.message}.`,
+          'Logout failed',
+          `${e.response?.data?.message}`,
           'error',
         );
       }
@@ -132,7 +116,13 @@ class ApiClient {
       );
       return res;
     } catch (e) {
-      console.log(e);
+      if (e instanceof AxiosError) {
+        this.showToast(
+          'Failed to get stats',
+          `${e.response?.data?.message}`,
+          'error',
+        );
+      }
     }
   }
 }

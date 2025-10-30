@@ -20,6 +20,20 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+const isTokenExpired = (jwt: string) => {
+  try {
+    const [, payloadB64] = jwt.split('.');
+    const payload = JSON.parse(atob(payloadB64));
+    if (!payload?.exp) {
+      return true;
+    }
+    // exp is in seconds; Date.now() is ms
+    return payload.exp * 1000 <= Date.now();
+  } catch {
+    return true;
+  }
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -29,15 +43,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 
-    if (storedToken && storedUser) {
+    if (storedToken && storedUser && !isTokenExpired(storedToken)) {
       try {
         const userData = JSON.parse(storedUser);
         setToken(storedToken);
         setUser(userData);
       } catch (error) {
-        console.error('Failed to parse stored user data:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        console.error(error);
+        logout();
       }
     }
   }, []);
