@@ -50,7 +50,7 @@ const Register: FC = () => {
             .min(6, 'Password must have at least 6 characters'),
           password2: Yup.string()
             .required('Please re-type your password')
-            .oneOf([Yup.ref('password')], 'Passwords does not match'),
+            .oneOf([Yup.ref('password')], 'Passwords do not match'),
         })}
         onSubmit={(values) => registerUserHandler(values)}
       >
