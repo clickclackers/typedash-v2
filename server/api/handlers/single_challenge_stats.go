@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"net/http"
 	"strconv"
 
 	db "github.com/clickclackers/typedash-v2/server/db/sqlc"
@@ -15,70 +16,70 @@ func GetSingleChallengeStats(q *db.Queries) gin.HandlerFunc {
 
 		// Case 1: Filter by both user_id and challenge_id
 		if userId != "" && challengeId != "" {
-			userIDInt, err := strconv.Atoi(userId)
+			userIdInt, err := strconv.Atoi(userId)
 			if err != nil {
-				c.JSON(400, gin.H{"error": "Invalid User ID"})
+				c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid User Id"})
 				return
 			}
 
-			challengeIDInt, err := strconv.Atoi(challengeId)
+			challengeIdInt, err := strconv.Atoi(challengeId)
 			if err != nil {
-				c.JSON(400, gin.H{"error": "Invalid Challenge ID"})
+				c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid Challenge Id"})
 				return
 			}
 
 			stats, err := q.GetSingleStatsByUserIDAndChallengeID(c.Request.Context(), db.GetSingleStatsByUserIDAndChallengeIDParams{
-				UserID:      int32(userIDInt),
-				ChallengeID: int32(challengeIDInt),
+				UserID:      int32(userIdInt),
+				ChallengeID: int32(challengeIdInt),
 			})
 
 			if err != nil {
-				c.JSON(500, gin.H{"error": "Failed to fetch stats"})
+				c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch stats"})
 				return
 			}
 
-			c.JSON(200, stats)
+			c.JSON(http.StatusOK, stats)
 			return
 		}
 
 		// Case 2: Filter by user_id only
 		if userId != "" {
-			userIDInt, err := strconv.Atoi(userId)
+			userIdInt, err := strconv.Atoi(userId)
 			if err != nil {
-				c.JSON(400, gin.H{"error": "Invalid User ID"})
+				c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid User Id"})
 				return
 			}
 
-			stats, err := q.GetSingleStatsByUserID(c.Request.Context(), int32(userIDInt))
+			stats, err := q.GetSingleStatsByUserID(c.Request.Context(), int32(userIdInt))
 			if err != nil {
-				c.JSON(500, gin.H{"error": "Failed to fetch stats"})
+				c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch stats"})
 				return
 			}
 
-			c.JSON(200, stats)
+			c.JSON(http.StatusOK, stats)
 			return
 		}
 
 		// Case 3: Filter by challenge_id only
 		if challengeId != "" {
-			challengeIDInt, err := strconv.Atoi(challengeId)
+			challengeIdInt, err := strconv.Atoi(challengeId)
 			if err != nil {
-				c.JSON(400, gin.H{"error": "Invalid Challenge ID"})
+				c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid Challenge Id"})
 				return
 			}
 
-			stats, err := q.GetSingleStatsByChallengeID(c.Request.Context(), int32(challengeIDInt))
+			stats, err := q.GetSingleStatsByChallengeID(c.Request.Context(), int32(challengeIdInt))
 			if err != nil {
-				c.JSON(500, gin.H{"error": "Failed to fetch stats"})
+				c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch stats"})
 				return
 			}
 
-			c.JSON(200, stats)
+			c.JSON(http.StatusOK, stats)
 			return
 		}
 
 		// Case 4: No query parameters provided
-		c.JSON(400, gin.H{"error": "At least one query parameter (user_id or challenge_id) is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "At least one query parameter (user_id or challenge_id) is required"})
 	}
 }
 
@@ -86,28 +87,28 @@ func GetSingleChallengeStats(q *db.Queries) gin.HandlerFunc {
 func CreateSingleChallengeStats(q *db.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var requestBody struct {
-			UserID      int32 `json:"user_id" binding:"required"`
-			ChallengeID int32 `json:"challenge_id" binding:"required"`
+			UserId      int32 `json:"user_id" binding:"required"`
+			ChallengeId int32 `json:"challenge_id" binding:"required"`
 		}
 
 		// Bind and validate the request body
 		if err := c.ShouldBindJSON(&requestBody); err != nil {
-			c.JSON(400, gin.H{"error": "Invalid or missing user_id and challenge_id in request body"})
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid or missing user_id and challenge_id in request body"})
 			return
 		}
 
 		var stats db.SingleChallengeStat
 		if err := c.ShouldBindJSON(&stats); err != nil {
-			c.JSON(400, gin.H{"error": "Invalid request body"})
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
 			return
 		}
 
 		newStats, err := q.CreateSingleChallengeStats(c.Request.Context(), db.CreateSingleChallengeStatsParams(stats))
 		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to create single challenge stats"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create single challenge stats"})
 			return
 		}
 
-		c.JSON(201, newStats)
+		c.JSON(http.StatusCreated, newStats)
 	}
 }

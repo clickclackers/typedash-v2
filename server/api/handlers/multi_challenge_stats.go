@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"net/http"
 	"strconv"
 
 	db "github.com/clickclackers/typedash-v2/server/db/sqlc"
@@ -15,51 +16,51 @@ func GetMultiChallengeStats(q *db.Queries) gin.HandlerFunc {
 
 		// Case 1: Filter by both user_id and challenge_id
 		if userId != "" && challengeId != "" {
-			userIDInt, err := strconv.Atoi(userId)
+			userIdInt, err := strconv.Atoi(userId)
 			if err != nil {
-				c.JSON(400, gin.H{"error": "Invalid User ID"})
+				c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid User Id"})
 				return
 			}
 
-			challengeIDInt, err := strconv.Atoi(challengeId)
+			challengeIdInt, err := strconv.Atoi(challengeId)
 			if err != nil {
-				c.JSON(400, gin.H{"error": "Invalid Challenge ID"})
+				c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid Challenge Id"})
 				return
 			}
 
 			stats, err := q.GetMultiStatsByUserIDAndChallengeID(c.Request.Context(), db.GetMultiStatsByUserIDAndChallengeIDParams{
-				UserID:      int32(userIDInt),
-				ChallengeID: int32(challengeIDInt),
+				UserID:      int32(userIdInt),
+				ChallengeID: int32(challengeIdInt),
 			})
 
 			if err != nil {
-				c.JSON(500, gin.H{"error": "Failed to fetch stats"})
+				c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch stats"})
 				return
 			}
 
-			c.JSON(200, stats)
+			c.JSON(http.StatusOK, stats)
 			return
 		}
 
 		// Case 2: Filter by user_id only
 		if userId != "" {
-			userIDInt, err := strconv.Atoi(userId)
+			userIdInt, err := strconv.Atoi(userId)
 			if err != nil {
-				c.JSON(400, gin.H{"error": "Invalid User ID"})
+				c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid User Id"})
 				return
 			}
 
-			stats, err := q.GetMultiStatsByUserID(c.Request.Context(), int32(userIDInt))
+			stats, err := q.GetMultiStatsByUserID(c.Request.Context(), int32(userIdInt))
 			if err != nil {
-				c.JSON(500, gin.H{"error": "Failed to fetch stats"})
+				c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch stats"})
 				return
 			}
 
-			c.JSON(200, stats)
+			c.JSON(http.StatusOK, stats)
 			return
 		}
 
-		c.JSON(400, gin.H{"error": "Either user_id or challenge_id must be provided"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Either user_id or challenge_id must be provided"})
 	}
 }
 
@@ -67,28 +68,28 @@ func GetMultiChallengeStats(q *db.Queries) gin.HandlerFunc {
 func CreateMultiChallengeStats(q *db.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var requestBody struct {
-			UserID      int32 `json:"user_id" binding:"required"`
-			ChallengeID int32 `json:"challenge_id" binding:"required"`
+			UserId      int32 `json:"user_id" binding:"required"`
+			ChallengeId int32 `json:"challenge_id" binding:"required"`
 		}
 
 		// Bind and validate the request body
 		if err := c.ShouldBindJSON(&requestBody); err != nil {
-			c.JSON(400, gin.H{"error": "Invalid or missing user_id and challenge_id in request body"})
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid or missing user_id and challenge_id in request body"})
 			return
 		}
 
 		var stats db.MultiChallengeStat
 		if err := c.ShouldBindJSON(&stats); err != nil {
-			c.JSON(400, gin.H{"error": "Invalid request body"})
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
 			return
 		}
 
 		newStats, err := q.CreateMultiChallengeStats(c.Request.Context(), db.CreateMultiChallengeStatsParams(stats))
 		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to create multi challenge stats"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create multi challenge stats"})
 			return
 		}
 
-		c.JSON(201, newStats)
+		c.JSON(http.StatusCreated, newStats)
 	}
 }

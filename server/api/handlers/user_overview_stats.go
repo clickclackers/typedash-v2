@@ -2,44 +2,29 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
 	db "github.com/clickclackers/typedash-v2/server/db/sqlc"
 	"github.com/gin-gonic/gin"
 )
 
-// GetUserOverviewStats GET /user_overview_stats?userId=1
+// GetUserOverviewStats GET /user_overview_stats
 func GetUserOverviewStats(q *db.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId := c.Query("userId")
-		if userId == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
+		userId, exists := c.Get("userID")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "User not authenticated"})
 			return
 		}
 
-		userIDInt, err := strconv.Atoi(userId)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID"})
+		userIdInt, ok := userId.(int32)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Invalid user ID type"})
 			return
 		}
 
-		stats, err := q.GetOverviewStatsByUserID(c.Request.Context(), int32(userIDInt))
+		stats, err := q.GetOverviewStatsByUserID(c.Request.Context(), int32(userIdInt))
 		if err != nil {
-			// If no stats exist for the user, create default stats
-			defaultStats, createErr := q.CreateUserOverviewStats(c.Request.Context(), db.CreateUserOverviewStatsParams{
-				UserID:           int32(userIDInt),
-				SingleTotalRaces: 0,
-				SingleTotalTime:  0,
-				SingleAvgWpm:     0,
-				MultiTotalRaces:  0,
-				MultiTotalTime:   0,
-				MultiAvgWpm:      0,
-			})
-			if createErr != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user overview stats"})
-				return
-			}
-			c.JSON(http.StatusOK, defaultStats)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to get user overview stats"})
 			return
 		}
 
@@ -47,32 +32,32 @@ func GetUserOverviewStats(q *db.Queries) gin.HandlerFunc {
 	}
 }
 
-// CreateUserOverviewStats POST /user_overview_stats?userId=1
+// CreateUserOverviewStats POST /user_overview_stats
 func CreateUserOverviewStats(q *db.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId := c.Query("userId")
-		if userId == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
+		userId, exists := c.Get("userID")
+		if !exists {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "User ID is required"})
 			return
 		}
 
-		userIDInt, err := strconv.Atoi(userId)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID"})
+		userIdInt, ok := userId.(int32)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Invalid user ID type"})
 			return
 		}
 
 		var stats db.UserOverviewStat
 		if err := c.ShouldBindJSON(&stats); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
 			return
 		}
 
-		stats.UserID = int32(userIDInt)
+		stats.UserID = int32(userIdInt)
 
 		newStats, err := q.CreateUserOverviewStats(c.Request.Context(), db.CreateUserOverviewStatsParams(stats))
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user overview stats"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create user overview stats"})
 			return
 		}
 

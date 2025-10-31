@@ -69,6 +69,21 @@ func RegisterHandler(q *db.Queries) gin.HandlerFunc {
 			return
 		}
 
+		// Create default stats
+		_, createErr := q.CreateUserOverviewStats(c.Request.Context(), db.CreateUserOverviewStatsParams{
+			UserID:           int32(user.ID),
+			SingleTotalRaces: 0,
+			SingleTotalTime:  0,
+			SingleAvgWpm:     0,
+			MultiTotalRaces:  0,
+			MultiTotalTime:   0,
+			MultiAvgWpm:      0,
+		})
+		if createErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create user overview stats"})
+			return
+		}
+
 		// Generate JWT token
 		token, err := GenerateToken(user.ID, req.Username, req.Email)
 		if err != nil {
@@ -148,20 +163,20 @@ func LogoutHandler() gin.HandlerFunc {
 // GetUserProfileHandler returns the current user's profile
 func GetUserProfileHandler(q *db.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, exists := c.Get("user_id")
+		userId, exists := c.Get("userId")
 		if !exists {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "User not authenticated"})
 			return
 		}
 
-		// Convert userID to int32
-		userIDInt32, ok := userID.(int32)
+		// Convert userId to int32
+		userIdInt32, ok := userId.(int32)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "Invalid user ID type"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Invalid user Id type"})
 			return
 		}
 
-		user, err := q.GetUser(c.Request.Context(), userIDInt32)
+		user, err := q.GetUser(c.Request.Context(), userIdInt32)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to get user data"})
 			return
@@ -190,9 +205,9 @@ func CheckPasswordHash(password, hash string) bool {
 }
 
 // GenerateToken creates a new JWT token for a user
-func GenerateToken(userID int32, username, email string) (string, error) {
+func GenerateToken(userId int32, username, email string) (string, error) {
 	claims := Claims{
-		UserID:   userID,
+		UserID:   userId,
 		Username: username,
 		Email:    email,
 		RegisteredClaims: jwt.RegisteredClaims{

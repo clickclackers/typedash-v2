@@ -34,13 +34,16 @@ func main() {
 
 	router := gin.Default()
 
-	// Configure CORS
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000", "http://localhost:4173", "https://typedash.songyang.dev", "https://typedash-v2.netlify.app"}
-	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
-	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
-	config.AllowCredentials = true
+	// Configure CORS middleware
+	config := cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000", "http://localhost:4173", "https://typedash.songyang.dev", "https://typedash-v2.netlify.app"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}
 
+	// Apply the middleware
 	router.Use(cors.New(config))
 
 	// Health check endpoint
@@ -66,7 +69,6 @@ func main() {
 
 	{
 		protected.GET("/profile", handlers.GetUserProfileHandler(queries))
-		// Add other protected routes here
 	}
 
 	// WebSocket endpoint - no auth required for anonymous multiplayer

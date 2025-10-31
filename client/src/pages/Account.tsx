@@ -2,7 +2,6 @@ import { Box, Divider, Fade, Spinner } from '@chakra-ui/react';
 import { FC } from 'react';
 import { useAuth } from '/src/hooks/useAuth';
 import { useUserOverviewStats } from '/src/hooks/useUserOverviewStats';
-import toast from '/src/components/toast';
 
 export interface LoadoutProps {
   id: number;
@@ -12,14 +11,7 @@ export interface LoadoutProps {
 }
 const Account: FC = () => {
   const { user } = useAuth();
-  const {
-    data: stats,
-    isLoading: isLoadingStats,
-    isError,
-    error,
-  } = useUserOverviewStats({
-    userId: user?.id,
-  });
+  const { data: stats, isLoading: isLoadingStats } = useUserOverviewStats();
 
   if (isLoadingStats || !stats) {
     return (
@@ -33,18 +25,6 @@ const Account: FC = () => {
         />
       </div>
     );
-  }
-
-  if (isError) {
-    toast({
-      title: 'Failed to get stats',
-      description: error.message,
-      variant: 'solid',
-      status: 'error',
-      position: 'top-right',
-      duration: 5000,
-      isClosable: true,
-    });
   }
 
   return (
