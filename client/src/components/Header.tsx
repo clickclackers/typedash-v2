@@ -36,29 +36,17 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
   const { user, logout, isAuthenticated } = useAuth();
 
   const logoutHandler = () => {
-    api
-      .logoutUser()
-      .then(() => {
-        logout();
-        toast({
-          title: 'Logout successful',
-          variant: 'solid',
-          status: 'success',
-          position: 'top-right',
-          isClosable: true,
-        });
-        navigate('/');
-      })
-      .catch((e) => {
-        toast({
-          title: 'Logout failed',
-          description: e.response?.data?.message,
-          variant: 'solid',
-          status: 'error',
-          position: 'top-right',
-          isClosable: true,
-        });
+    api.logoutUser().then(() => {
+      logout();
+      toast({
+        title: 'Logout successful',
+        variant: 'solid',
+        status: 'success',
+        position: 'top-right',
+        isClosable: true,
       });
+      navigate('/');
+    });
   };
 
   return (

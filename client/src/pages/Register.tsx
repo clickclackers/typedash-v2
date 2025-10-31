@@ -13,31 +13,19 @@ const Register: FC = () => {
   const { login } = useAuth();
 
   const registerUserHandler = (values: RegisterRequest) => {
-    api
-      .registerUser(values)
-      .then((res) => {
-        if (res?.status === 201) {
-          toast({
-            title: 'Registration successful',
-            variant: 'solid',
-            status: 'success',
-            position: 'top-right',
-            isClosable: true,
-          });
-          login(res.data.user, res.data.token);
-          navigate('/');
-        }
-      })
-      .catch((e) => {
+    api.registerUser(values).then((res) => {
+      if (res?.status === 201) {
         toast({
-          title: 'Registration failed',
-          description: e.response?.data?.message,
+          title: 'Registration successful',
           variant: 'solid',
-          status: 'error',
+          status: 'success',
           position: 'top-right',
           isClosable: true,
         });
-      });
+        login(res.data.user, res.data.token);
+        navigate('/');
+      }
+    });
   };
 
   return (

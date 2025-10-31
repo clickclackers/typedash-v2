@@ -19,31 +19,19 @@ export const Login: FC = () => {
   const { login } = useAuth();
 
   const loginUserHandler = (values: LoginRequest) => {
-    api
-      .loginUser(values)
-      .then((res) => {
-        if (res?.status === 200) {
-          toast({
-            title: 'Login successful',
-            variant: 'solid',
-            status: 'success',
-            position: 'top-right',
-            isClosable: true,
-          });
-          login(res.data.user, res.data.token);
-          navigate('/');
-        }
-      })
-      .catch((e) => {
+    api.loginUser(values).then((res) => {
+      if (res?.status === 200) {
         toast({
-          title: 'Login failed',
-          description: e.response?.data?.message,
+          title: 'Login successful',
           variant: 'solid',
-          status: 'error',
+          status: 'success',
           position: 'top-right',
           isClosable: true,
         });
-      });
+        login(res.data.user, res.data.token);
+        navigate('/');
+      }
+    });
   };
 
   return (

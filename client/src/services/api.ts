@@ -6,6 +6,7 @@ import {
   StatisticsResponse,
 } from '/src/services/types';
 import axios from 'axios';
+import toast from '/src/components/toast';
 
 export const baseURL: string = import.meta.env.DEV
   ? 'http://localhost:3000/'
@@ -18,17 +19,29 @@ export const instance = axios.create({
   },
 });
 instance.interceptors.request.use(
-  function (config) {
+  (config) => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers['Authorization'] = 'Bearer ' + token;
     }
     return config;
   },
-  function (error) {
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error),
 );
+
+instance.interceptors.response.use(undefined, (error) => {
+  if (!axios.isCancel(error)) {
+    toast({
+      title: 'Error',
+      description: error?.response?.data?.message ?? 'Please try again later',
+      variant: 'solid',
+      status: 'error',
+      position: 'top-right',
+      isClosable: true,
+    });
+  }
+  return Promise.reject(error);
+});
 
 class ApiClient {
   private instance: AxiosInstance;
@@ -49,10 +62,8 @@ class ApiClient {
     return await this.instance.post('logout');
   }
 
-  async getUserOverviewStats(params: { userId: number }) {
-    return await this.instance.get<StatisticsResponse>('user_overview_stats', {
-      params,
-    });
+  async getUserOverviewStats() {
+    return await this.instance.get<StatisticsResponse>('user_overview_stats');
   }
 }
 
