@@ -9,9 +9,13 @@ export const useUserOverviewStats = ({
   return useQuery({
     queryKey: ['user-overview-stats', userId],
     queryFn: async () => {
-      if (!userId) return null;
+      if (!userId) {
+        throw new Error('Please login');
+      }
       const res = await api.getUserOverviewStats({ userId });
-      if (!res) return null;
+      if (!res) {
+        throw new Error('Failed to get stats');
+      }
       return res.data;
     },
     enabled: !!userId,

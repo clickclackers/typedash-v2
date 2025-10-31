@@ -5,24 +5,45 @@ import {
   FormErrorMessage,
   Input,
 } from '@chakra-ui/react';
-import { Formik, FormikValues } from 'formik';
+import { Formik } from 'formik';
 import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useAuth } from '/src/hooks/useAuth';
 import api from '/src/services/api';
+import toast from '/src/components/toast';
+import { LoginRequest } from '/src/services/types';
 
 export const Login: FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const loginUserHandler = (values: FormikValues) => {
-    api.loginUser(values).then((res) => {
-      if (res?.status === 200) {
-        login(res.data.user, res.data.token);
-        navigate('/');
-      }
-    });
+  const loginUserHandler = (values: LoginRequest) => {
+    api
+      .loginUser(values)
+      .then((res) => {
+        if (res?.status === 200) {
+          toast({
+            title: 'Login successful',
+            variant: 'solid',
+            status: 'success',
+            position: 'top-right',
+            isClosable: true,
+          });
+          login(res.data.user, res.data.token);
+          navigate('/');
+        }
+      })
+      .catch((e) => {
+        toast({
+          title: 'Login failed',
+          description: e.response?.data?.message,
+          variant: 'solid',
+          status: 'error',
+          position: 'top-right',
+          isClosable: true,
+        });
+      });
   };
 
   return (

@@ -1,23 +1,43 @@
 import { Button, FormControl, FormErrorMessage, Input } from '@chakra-ui/react';
-import { Formik, FormikValues } from 'formik';
+import { Formik } from 'formik';
 import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useAuth } from '/src/hooks/useAuth';
-import api from '../services/api';
+import api from '/src/services/api';
+import toast from '/src/components/toast';
+import { RegisterRequest } from '/src/services/types';
 
 const Register: FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const registerUserHandler = (values: FormikValues) => {
-    api.registerUser(values).then((res) => {
-      if (res?.status === 201) {
-        // Auto-login after successful registration
-        login(res.data.user, res.data.token);
-        navigate('/');
-      }
-    });
+  const registerUserHandler = (values: RegisterRequest) => {
+    api
+      .registerUser(values)
+      .then((res) => {
+        if (res?.status === 201) {
+          toast({
+            title: 'Registration successful',
+            variant: 'solid',
+            status: 'success',
+            position: 'top-right',
+            isClosable: true,
+          });
+          login(res.data.user, res.data.token);
+          navigate('/');
+        }
+      })
+      .catch((e) => {
+        toast({
+          title: 'Registration failed',
+          description: e.response?.data?.message,
+          variant: 'solid',
+          status: 'error',
+          position: 'top-right',
+          isClosable: true,
+        });
+      });
   };
 
   return (

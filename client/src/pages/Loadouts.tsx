@@ -5,7 +5,6 @@ import {
   SimpleGrid,
   Tooltip,
   useDisclosure,
-  useToast,
 } from '@chakra-ui/react';
 import { FC, useEffect, useRef, useState } from 'react';
 import { FiEdit } from 'react-icons/fi';
@@ -15,6 +14,7 @@ import DeleteLoadoutDialog from '/src/components/loadouts/DeleteLoadoutDialog';
 import UpdateLoadoutModal from '/src/components/loadouts/UpdateLoadoutModal';
 import { getLoadouts } from '/src/services/services';
 import { LoadoutProps } from '/src/pages/Account';
+import toast from '/src/components/toast';
 
 interface LoadoutsProps {
   user: string | undefined;
@@ -42,7 +42,6 @@ const Loadouts: FC<LoadoutsProps> = ({ user, loadouts, setLoadouts }) => {
   const [loadoutToUpdate, setLoadoutToUpdate] = useState<LoadoutProps>();
   const [loadoutToDeleteId, setLoadoutToDeleteId] = useState<number>();
   const [selectedLoadoutId, setSelectedLoadoutId] = useState<number>();
-  const toast = useToast();
   const maxLoadouts = loadouts.length === 9;
   const noLoadouts = loadouts.length === 0;
 

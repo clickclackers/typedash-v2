@@ -8,7 +8,6 @@ import {
   ModalHeader,
   ModalOverlay,
   useDisclosure,
-  useToast,
 } from '@chakra-ui/react';
 import { FC, useEffect, useState } from 'react';
 import { FaKeyboard } from 'react-icons/fa';
@@ -17,12 +16,12 @@ import { Challenge } from '/src/components/typing/challenges/challenge.interface
 import { challengeItems, randomChallenge } from '/src/helpers/randomChallenge';
 import { baseURL } from '/src/services/api';
 import { useSocket } from '/src/hooks/useSocket';
+import toast from '/src/components/toast';
 
 const Multiplayer: FC = () => {
   const [challenge, setChallenge] = useState<Challenge>();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const toast = useToast();
   const { setSocket } = useSocket();
 
   const getDefaultChallengeType = () => {

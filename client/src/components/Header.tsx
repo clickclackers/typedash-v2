@@ -18,6 +18,7 @@ import CatLogo from '/src/assets/cat.svg';
 import api from '/src/services/api';
 import { ThemeProps } from '/src/themes/theme.interface';
 import ThemeModal from '/src/themes/ThemeModal';
+import toast from '/src/components/toast';
 
 interface HeaderProps {
   currentTheme: ThemeProps;
@@ -35,10 +36,29 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
   const { user, logout, isAuthenticated } = useAuth();
 
   const logoutHandler = () => {
-    api.logoutUser().then(() => {
-      logout();
-      navigate('/');
-    });
+    api
+      .logoutUser()
+      .then(() => {
+        logout();
+        toast({
+          title: 'Logout successful',
+          variant: 'solid',
+          status: 'success',
+          position: 'top-right',
+          isClosable: true,
+        });
+        navigate('/');
+      })
+      .catch((e) => {
+        toast({
+          title: 'Logout failed',
+          description: e.response?.data?.message,
+          variant: 'solid',
+          status: 'error',
+          position: 'top-right',
+          isClosable: true,
+        });
+      });
   };
 
   return (

@@ -1,4 +1,4 @@
-import { Button, Icon, SlideFade, useToast } from '@chakra-ui/react';
+import { Button, Icon, SlideFade } from '@chakra-ui/react';
 import { FC, useEffect, useState } from 'react';
 import {
   TbRosetteNumber1,
@@ -13,6 +13,7 @@ import { Challenge } from '/src/components/typing/challenges/challenge.interface
 import useTimer from '/src/helpers/useTimer';
 import { useAuth } from '/src/hooks/useAuth';
 import { baseURL } from '/src/services/api';
+import toast from '/src/components/toast';
 
 interface Player {
   id: number;
@@ -40,7 +41,6 @@ const MultiplayerRoom: FC = () => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const { user } = useAuth();
   const username = user?.username || 'Guest';
-  const toast = useToast();
   console.log(lettersTyped);
 
   const displayBadges = (position: number) => {
