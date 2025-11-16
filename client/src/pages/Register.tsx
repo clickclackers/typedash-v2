@@ -1,6 +1,6 @@
 import { Button, FormControl, FormErrorMessage, Input } from '@chakra-ui/react';
 import { Formik } from 'formik';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useAuth } from '/src/hooks/useAuth';
@@ -10,7 +10,13 @@ import { RegisterRequest } from '/src/services/types';
 
 const Register: FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const registerUserHandler = (values: RegisterRequest) => {
     api.registerUser(values).then((res) => {

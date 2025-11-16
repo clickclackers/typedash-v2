@@ -6,7 +6,7 @@ import {
   Input,
 } from '@chakra-ui/react';
 import { Formik } from 'formik';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useAuth } from '/src/hooks/useAuth';
@@ -16,7 +16,13 @@ import { LoginRequest } from '/src/services/types';
 
 export const Login: FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const loginUserHandler = (values: LoginRequest) => {
     api.loginUser(values).then((res) => {
