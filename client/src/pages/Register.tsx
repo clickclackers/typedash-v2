@@ -18,8 +18,8 @@ const Register: FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const registerUserHandler = (values: RegisterRequest) => {
-    api.registerUser(values).then((res) => {
+  const registerHandler = (values: RegisterRequest) => {
+    api.register(values).then((res) => {
       if (res?.status === 201) {
         toast({
           title: 'Registration successful',
@@ -58,7 +58,7 @@ const Register: FC = () => {
             .required('Please re-type your password')
             .oneOf([Yup.ref('password')], 'Passwords do not match'),
         })}
-        onSubmit={(values) => registerUserHandler(values)}
+        onSubmit={(values) => registerHandler(values)}
       >
         {({
           handleSubmit,

@@ -24,8 +24,8 @@ export const Login: FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const loginUserHandler = (values: LoginRequest) => {
-    api.loginUser(values).then((res) => {
+  const loginHandler = (values: LoginRequest) => {
+    api.login(values).then((res) => {
       if (res?.status === 200) {
         toast({
           title: 'Login successful',
@@ -53,7 +53,7 @@ export const Login: FC = () => {
             .required('Please enter your email'),
           password: Yup.string().required('Please enter your password'),
         })}
-        onSubmit={(values) => loginUserHandler(values)}
+        onSubmit={(values) => loginHandler(values)}
       >
         {({
           handleSubmit,

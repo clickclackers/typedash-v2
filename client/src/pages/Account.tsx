@@ -1,7 +1,7 @@
 import { Box, Divider, Fade, Spinner } from '@chakra-ui/react';
 import { FC } from 'react';
 import { useAuth } from '/src/hooks/useAuth';
-import { useUserOverviewStats } from '/src/hooks/useUserOverviewStats';
+import { useGetUserOverviewStats } from '../hooks/useGetUserOverviewStats';
 
 export interface LoadoutProps {
   id: number;
@@ -11,7 +11,7 @@ export interface LoadoutProps {
 }
 const Account: FC = () => {
   const { user } = useAuth();
-  const { data: stats, isLoading: isLoadingStats } = useUserOverviewStats();
+  const { data: stats, isLoading: isLoadingStats } = useGetUserOverviewStats();
 
   if (isLoadingStats || !stats) {
     return (

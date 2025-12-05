@@ -50,20 +50,28 @@ class ApiClient {
     this.instance = instance;
   }
 
-  async loginUser(params: LoginRequest) {
+  async login(params: LoginRequest) {
     return await this.instance.post<AuthResponse>('login', params);
   }
 
-  async registerUser(params: RegisterRequest) {
+  async register(params: RegisterRequest) {
     return await this.instance.post<AuthResponse>('register', params);
   }
 
-  async logoutUser() {
+  async logout() {
     return await this.instance.post('logout');
   }
 
   async getUserOverviewStats() {
-    return await this.instance.get<StatisticsResponse>('user_overview_stats');
+    const res = await this.instance.get<StatisticsResponse>(
+      'user_overview_stats',
+    );
+    return res.data;
+  }
+
+  async createSingleplayerResults(params) {
+    const res = await this.instance.post('results', params);
+    return res.data;
   }
 }
 

@@ -68,6 +68,8 @@ const TypingTest: FC = () => {
 
   // generate result once test ends
   const handleTestComplete = () => {
+    pauseTimer();
+    setTimeTaken(DEFAULT_TEST_DURATION - time);
     // WPM formula by MonkeyType:
     // total amount of characters in the correctly typed words (including spaces), divided by 5 and normalised to 60 seconds.
     let correctChars = 0;
@@ -100,7 +102,7 @@ const TypingTest: FC = () => {
         datetime: new Date().toString(),
         username: user.username,
       };
-      instance.post('/results/create', params);
+      // mutate fn
     }
     setShowResults(true);
   };
@@ -286,9 +288,7 @@ const TypingTest: FC = () => {
         typedWordList.at(-1) === wordSet.at(-1)) ||
       time === 0
     ) {
-      pauseTimer();
       handleTestComplete();
-      setTimeTaken(DEFAULT_TEST_DURATION - time);
     }
   }, [typedWordList, wordSet, time]);
 

@@ -42,6 +42,10 @@ client:
 
 .PHONY: install
 install:
+	@echo "🍺 Installing system dependencies via Homebrew..."
+	brew install sqlc pre-commit golangci-lint goimports golang-migrate redis postgresql
+	@echo "🔧 Installing Go development tools..."
+	go install github.com/air-verse/air@latest
 	@echo "🔍 Installing pre-commit hooks..."
 	pre-commit install
 	@echo "📦 Installing Go dependencies..."
@@ -79,7 +83,7 @@ db-setup: db-start db-create db-schema
 	@echo "✅ Database setup complete!"
 	@echo "📝 Set your environment variables:"
 	@echo "   DATABASE_URL=\"postgres://$(shell whoami)@localhost:5432/typedash?sslmode=disable\""
-	@echo "   export JWT_SECRET=\"your-super-secret-jwt-key-change-this-in-production\""
+	@echo "   JWT_SECRET=\"your-super-secret-jwt-key-change-this-in-production\""
 
 .PHONY: db-start
 db-start:

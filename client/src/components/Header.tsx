@@ -36,7 +36,7 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
   const { user, logout, isAuthenticated } = useAuth();
 
   const logoutHandler = () => {
-    api.logoutUser().then(() => {
+    api.logout().then(() => {
       logout();
       toast({
         title: 'Logout successful',
