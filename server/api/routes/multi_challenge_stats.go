@@ -9,7 +9,7 @@ import (
 func MultiplayerChallengeStatsRoutes(router *gin.RouterGroup, queries *db.Queries) {
 	multiplayerChallengeStats := router.Group("/multi_challenge_stats")
 	{
-		multiplayerChallengeStats.GET("/", handlers.GetMultiChallengeStats(queries))
-		multiplayerChallengeStats.POST("/", handlers.CreateMultiChallengeStats(queries))
+		multiplayerChallengeStats.GET("", handlers.GetMultiChallengeStats(queries))
+		multiplayerChallengeStats.POST("", handlers.CreateMultiChallengeStats(queries))
 	}
 }

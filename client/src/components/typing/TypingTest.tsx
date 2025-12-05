@@ -24,8 +24,7 @@ import Word from '/src/components/typing/Word';
 import { WordStatus } from '/src/components/typing/wordStatus';
 import { Challenge } from '/src/components/typing/challenges/challenge.interface';
 import Result from '/src/components/typing/results/Result';
-import { useAuth } from '/src/hooks/useAuth';
-import { useCreateSingleplayerResults } from '../../hooks/useCreateSingleplayerResults';
+import { useCreateSingleplayerResults } from '/src/hooks/useCreateSingleplayerResults';
 
 const DEFAULT_TEST_DURATION = 120;
 const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
@@ -99,7 +98,7 @@ const TypingTest: FC = () => {
       wpm,
       accuracy,
       time_taken: timeTaken,
-      created_at: new Date().toString(),
+      created_at: new Date().toISOString(),
     };
     createSingleplayerResult(params);
     setShowResults(true);

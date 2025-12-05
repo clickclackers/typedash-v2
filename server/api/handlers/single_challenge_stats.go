@@ -87,7 +87,6 @@ func GetSingleChallengeStats(q *db.Queries) gin.HandlerFunc {
 // CreateSingleChallengeStats POST /single_challenge_stats
 func CreateSingleChallengeStats(q *db.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println("inside CreateSingleChallengeStats")
 		userId, exists := c.Get("userID")
 		if !exists {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "User not authenticated"})
@@ -110,6 +109,7 @@ func CreateSingleChallengeStats(q *db.Queries) gin.HandlerFunc {
 
 		newStats, err := q.CreateSingleChallengeStats(c.Request.Context(), db.CreateSingleChallengeStatsParams(stats))
 		if err != nil {
+			fmt.Println("error in CreateSingleChallengeStats", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create single challenge stats"})
 			return
 		}

@@ -9,7 +9,7 @@ import (
 func SingleplayerChallengeStatsRoutes(router *gin.RouterGroup, queries *db.Queries) {
 	singleplayerChallengeStats := router.Group("/single_challenge_stats")
 	{
-		singleplayerChallengeStats.GET("/", handlers.GetSingleChallengeStats(queries))
-		singleplayerChallengeStats.POST("/", handlers.CreateSingleChallengeStats(queries))
+		singleplayerChallengeStats.GET("", handlers.GetSingleChallengeStats(queries))
+		singleplayerChallengeStats.POST("", handlers.CreateSingleChallengeStats(queries))
 	}
 }

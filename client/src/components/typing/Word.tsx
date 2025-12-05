@@ -5,7 +5,7 @@ import { WordStatus } from '/src/components/typing/wordStatus';
 
 interface WordProps {
   word: string;
-  typedWord: string;
+  typedWord: string | undefined;
   status: WordStatus;
 }
 
@@ -23,7 +23,7 @@ const Word: FC<WordProps> = memo(({ word, typedWord, status }) => {
       } else if (
         status === WordStatus.WRONG &&
         typedWord !== word &&
-        i === typedWord.length &&
+        i === typedWord?.length &&
         typedWord.length < word.length
       ) {
         // Highlight the next target character as incorrect for previously submitted wrong words
@@ -39,12 +39,12 @@ const Word: FC<WordProps> = memo(({ word, typedWord, status }) => {
       return <Letter key={i} status={'incorrect'} char={char} />;
     });
   return (
-    <div className={`flex word-active h-8`}>
-      {status === WordStatus.ACTIVE && (
-        <Caret offset={offset[0] * typedWord?.length || offset[1]} />
+    <div className='flex word-active h-8'>
+      {status === WordStatus.ACTIVE && typedWord && (
+        <Caret offset={offset[0] * typedWord.length || offset[1]} />
       )}
       {letters}
-      {typedWord?.length > word.length && wrongLetters}
+      {typedWord && typedWord.length > word.length && wrongLetters}
       &nbsp;
     </div>
   );
