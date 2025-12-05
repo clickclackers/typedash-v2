@@ -46,7 +46,7 @@ instance.interceptors.response.use(undefined, (error) => {
 class ApiClient {
   private instance: AxiosInstance;
 
-  constructor() {
+  constructor(instance: AxiosInstance) {
     this.instance = instance;
   }
 
@@ -67,5 +67,5 @@ class ApiClient {
   }
 }
 
-const api = new ApiClient();
+const api = new ApiClient(instance);
 export default api;
