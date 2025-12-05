@@ -22,7 +22,7 @@ func GetUserOverviewStats(q *db.Queries) gin.HandlerFunc {
 			return
 		}
 
-		stats, err := q.GetOverviewStatsByUserID(c.Request.Context(), int32(userIdInt))
+		stats, err := q.GetOverviewStatsByUserID(c.Request.Context(), userIdInt)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to get user overview stats"})
 			return

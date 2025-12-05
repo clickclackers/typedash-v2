@@ -3,6 +3,7 @@ import {
   AuthResponse,
   LoginRequest,
   RegisterRequest,
+  ResultsRequest,
   StatisticsResponse,
 } from '/src/services/types';
 import axios from 'axios';
@@ -50,29 +51,30 @@ class ApiClient {
     this.instance = instance;
   }
 
-  async login(params: LoginRequest) {
+  login = async (params: LoginRequest) => {
     return await this.instance.post<AuthResponse>('login', params);
-  }
+  };
 
-  async register(params: RegisterRequest) {
+  register = async (params: RegisterRequest) => {
     return await this.instance.post<AuthResponse>('register', params);
-  }
+  };
 
-  async logout() {
+  logout = async () => {
     return await this.instance.post('logout');
-  }
+  };
 
-  async getUserOverviewStats() {
+  getUserOverviewStats = async () => {
     const res = await this.instance.get<StatisticsResponse>(
       'user_overview_stats',
     );
     return res.data;
-  }
+  };
 
-  async createSingleplayerResults(params) {
-    const res = await this.instance.post('results', params);
+  createSingleplayerResults = async (params: ResultsRequest) => {
+    const res = await this.instance.post('single_challenge_stats', params);
+    console.log('response from createSingleplayerResults', res);
     return res.data;
-  }
+  };
 }
 
 const api = new ApiClient(instance);

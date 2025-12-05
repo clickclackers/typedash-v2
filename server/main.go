@@ -62,14 +62,10 @@ func main() {
 	protected := router.Group("/")
 	protected.Use(handlers.AuthMiddleware())
 
-	// Register routes for user overview stats, singleplayer and multiplayer stats
-	routes.RegisterUserOverviewStatsRoutes(protected, queries)
-	routes.RegisterSingleplayerChallengeStatsRoutes(protected, queries)
-	routes.RegisterMultiplayerChallengeStatsRoutes(protected, queries)
-
-	{
-		protected.GET("/profile", handlers.GetUserProfileHandler(queries))
-	}
+	// Routes for user overview stats, singleplayer and multiplayer stats
+	routes.UserOverviewStatsRoutes(protected, queries)
+	routes.SingleplayerChallengeStatsRoutes(protected, queries)
+	routes.MultiplayerChallengeStatsRoutes(protected, queries)
 
 	// WebSocket endpoint - no auth required for anonymous multiplayer
 	// router.GET("/ws", func(c *gin.Context) {

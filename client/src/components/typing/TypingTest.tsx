@@ -19,13 +19,13 @@ import { VscDebugRestart } from 'react-icons/vsc';
 import { useOutletContext } from 'react-router-dom';
 import { challengeItems, randomChallenge } from '/src/helpers/randomChallenge';
 import useTimer from '/src/helpers/useTimer';
-import { instance } from '/src/services/api';
 import ProgressBar from '/src/components/typing/ProgressBar';
 import Word from '/src/components/typing/Word';
 import { WordStatus } from '/src/components/typing/wordStatus';
 import { Challenge } from '/src/components/typing/challenges/challenge.interface';
 import Result from '/src/components/typing/results/Result';
 import { useAuth } from '/src/hooks/useAuth';
+import { useCreateSingleplayerResults } from '../../hooks/useCreateSingleplayerResults';
 
 const DEFAULT_TEST_DURATION = 120;
 const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
@@ -61,10 +61,12 @@ const TypingTest: FC = () => {
   const challengeSwitchRef = useRef<HTMLButtonElement>(null);
   const challengeOptionRef = useRef<Array<HTMLButtonElement | null>>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { user } = useAuth();
   const [challenge, setChallenge] = useState<Challenge>(
     randomChallenge(localStorage.getItem('challenge-type') ?? 'Books'),
   );
+  const { mutate: createSingleplayerResult } = useCreateSingleplayerResults({
+    onSuccess: (data) => {},
+  });
 
   // generate result once test ends
   const handleTestComplete = () => {
@@ -92,18 +94,14 @@ const TypingTest: FC = () => {
       accuracy,
       time: timeTaken,
     });
-    if (user && challenge) {
-      const params = {
-        challenge_id: challenge.id,
-        type: challenge.type,
-        wpm,
-        accuracy,
-        time_taken: timeTaken,
-        datetime: new Date().toString(),
-        username: user.username,
-      };
-      // mutate fn
-    }
+    const params = {
+      challenge_id: challenge.id,
+      wpm,
+      accuracy,
+      time_taken: timeTaken,
+      created_at: new Date().toString(),
+    };
+    createSingleplayerResult(params);
     setShowResults(true);
   };
 

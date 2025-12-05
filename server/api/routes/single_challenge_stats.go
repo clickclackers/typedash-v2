@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterSingleplayerChallengeStatsRoutes(router *gin.RouterGroup, queries *db.Queries) {
-	singleplayerChallengeStats := router.Group("/user_overview_stats")
+func SingleplayerChallengeStatsRoutes(router *gin.RouterGroup, queries *db.Queries) {
+	singleplayerChallengeStats := router.Group("/single_challenge_stats")
 	{
 		singleplayerChallengeStats.GET("/", handlers.GetSingleChallengeStats(queries))
 		singleplayerChallengeStats.POST("/", handlers.CreateSingleChallengeStats(queries))

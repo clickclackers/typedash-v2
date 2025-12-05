@@ -1,6 +1,5 @@
-import { Box, Divider, Fade, Spinner } from '@chakra-ui/react';
+import { Box, Fade, Spinner } from '@chakra-ui/react';
 import { FC } from 'react';
-import { useAuth } from '/src/hooks/useAuth';
 import { useGetUserOverviewStats } from '../hooks/useGetUserOverviewStats';
 
 export interface LoadoutProps {
@@ -10,7 +9,6 @@ export interface LoadoutProps {
   others: string | undefined;
 }
 const Account: FC = () => {
-  const { user } = useAuth();
   const { data: stats, isLoading: isLoadingStats } = useGetUserOverviewStats();
 
   if (isLoadingStats || !stats) {
@@ -34,14 +32,6 @@ const Account: FC = () => {
           bg='bg.secondary'
           className='w-full h-1/5 rounded-md flex justify-center items-center gap-16 p-12'
         >
-          <div className='flex flex-col text-left'>
-            <Box color='text.secondary' className='font-semibold text-2xl'>
-              {user?.username}
-            </Box>
-          </div>
-          <div className='h-4/5'>
-            <Divider orientation='vertical' />
-          </div>
           <div className='flex gap-12'>
             <div className='flex flex-col text-left'>
               <div className='text-sm'>tests completed</div>
