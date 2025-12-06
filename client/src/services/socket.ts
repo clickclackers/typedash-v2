@@ -1,3 +1,4 @@
+// DEPRECATED - Socket.io is no longer used
 import { io } from 'socket.io-client';
 
 const socket = io('', {});

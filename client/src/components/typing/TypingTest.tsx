@@ -9,6 +9,7 @@ import {
   ModalHeader,
   ModalOverlay,
   SlideFade,
+  Spinner,
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
@@ -17,28 +18,26 @@ import { FaKeyboard } from 'react-icons/fa';
 import { HiCursorClick } from 'react-icons/hi';
 import { VscDebugRestart } from 'react-icons/vsc';
 import { useOutletContext } from 'react-router-dom';
-import { challengeItems, randomChallenge } from '/src/helpers/randomChallenge';
-import useTimer from '/src/helpers/useTimer';
+import useTimer from '/src/hooks/useTimer';
 import ProgressBar from '/src/components/typing/ProgressBar';
 import Word from '/src/components/typing/Word';
 import { WordStatus } from '/src/components/typing/wordStatus';
-import { Challenge } from '/src/components/typing/challenges/challenge.interface';
 import Result from '/src/components/typing/results/Result';
-import { useCreateSingleplayerResults } from '/src/hooks/useCreateSingleplayerResults';
+import { useCreateSingleplayerResults } from '/src/hooks/react-query/useCreateSingleplayerResults';
+import { useGetChallengesByCategory } from '/src/hooks/react-query/useGetChallengesByCategory';
+import { challengeItems } from '/src/challenges/randomChallenge';
+import { Challenge } from '/src/services/types';
 
 const DEFAULT_TEST_DURATION = 120;
 const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
 
 const TypingTest: FC = () => {
-  const [wordSet, setWordSet] = useState<string[]>([]);
-  const [letterSet, setLetterSet] = useState<string[]>([]);
   const [typedWordList, setTypedWordList] = useState<string[]>(['']);
   const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [totalStrokes, setTotalStrokes] = useState(0);
   const [mistypedCount, setMistypedCount] = useState(0);
   const [activeLetterIndex, setActiveLetterIndex] = useState(0);
   const [isTestStarted, setIsTestStarted] = useState(false);
-  const [timeTaken, setTimeTaken] = useState(0);
   const [wrongLettersInWord, setWrongLettersInWord] = useState(0);
   const [isFocused, setIsFocused] = useState(true);
   const [showResults, setShowResults] = useState(false);
@@ -60,17 +59,22 @@ const TypingTest: FC = () => {
   const challengeSwitchRef = useRef<HTMLButtonElement>(null);
   const challengeOptionRef = useRef<Array<HTMLButtonElement | null>>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [challenge, setChallenge] = useState<Challenge>(
-    randomChallenge(localStorage.getItem('challenge-type') ?? 'Books'),
+  const [category, setCategory] = useState(
+    localStorage.getItem('challenge-category') ?? 'Books',
   );
-  const { mutate: createSingleplayerResult } = useCreateSingleplayerResults({
-    onSuccess: (data) => {},
-  });
+  const { mutate: createSingleplayerResult } = useCreateSingleplayerResults({});
+  const { data: challengesData, isLoading: isLoadingChallenges } =
+    useGetChallengesByCategory({
+      category,
+    });
+  const [challenge, setChallenge] = useState<Challenge | undefined>();
+  const letterSet = challenge?.text.split('') ?? [];
+  const wordSet = challenge?.text.split(' ') ?? [];
 
   // generate result once test ends
   const handleTestComplete = () => {
     pauseTimer();
-    setTimeTaken(DEFAULT_TEST_DURATION - time);
+    const timeTaken = DEFAULT_TEST_DURATION - time;
     // WPM formula by MonkeyType:
     // total amount of characters in the correctly typed words (including spaces), divided by 5 and normalised to 60 seconds.
     let correctChars = 0;
@@ -94,7 +98,7 @@ const TypingTest: FC = () => {
       time: timeTaken,
     });
     const params = {
-      challenge_id: challenge.id,
+      challenge_id: challenge?.id ?? 0,
       wpm,
       accuracy,
       time_taken: timeTaken,
@@ -107,13 +111,12 @@ const TypingTest: FC = () => {
   const restartTest = () => {
     resetTimer();
     setIsTestStarted(false);
-    setTypedWordList(['']);
     setActiveWordIndex(0);
     setMistypedCount(0);
     setActiveLetterIndex(0);
-    setTimeTaken(0);
     setWrongLettersInWord(0);
     setWrongLetters([]);
+    setTypedWordList(['']);
     setResult({
       wpm: 0,
       accuracy: 0,
@@ -124,7 +127,12 @@ const TypingTest: FC = () => {
     if (inputRef.current) {
       inputRef.current.value = '';
     }
-    setChallenge(randomChallenge(challenge.type, challenge.id));
+    // TODO: filter out challenges that have been done in this session so they don't repeat
+    setChallenge(
+      challengesData?.challenges[
+        Math.round(Math.random() * (challengesData.challenges.length - 1))
+      ],
+    );
   };
 
   const focusOnInput = () => {
@@ -137,18 +145,13 @@ const TypingTest: FC = () => {
       e.preventDefault();
       restartRef.current?.focus();
     }
-    // inputRef.current?.focus();
   };
 
   const preventCrtlA = (event: KeyboardEvent) => {
     // Check if the user presses either Ctrl (for Windows/Linux) or Command (for macOS) key
     const isCtrlKey = event.ctrlKey || event.metaKey;
-
-    // Check if the user presses the 'A' key
     const isAKey = event.key === 'a' || event.keyCode === 65;
-
     if (isCtrlKey && isAKey) {
-      // Prevent the default behavior (selecting all text)
       event.preventDefault();
     }
   };
@@ -231,10 +234,10 @@ const TypingTest: FC = () => {
   const handleChallengeTypeSwitch = (
     e: React.MouseEvent<HTMLButtonElement>,
   ) => {
-    const challengeType = e.currentTarget.value;
-    setChallenge(randomChallenge(challengeType));
+    const category = e.currentTarget.value;
+    setCategory(category);
     onClose();
-    localStorage.setItem('challenge-type', challengeType);
+    localStorage.setItem('challenge-category', category);
   };
 
   // prevent ctrl A and backspace to delete all words
@@ -247,11 +250,13 @@ const TypingTest: FC = () => {
   }, []);
 
   useEffect(() => {
-    if (challenge) {
-      setLetterSet(challenge.content.split(''));
-      setWordSet(challenge.content.split(' '));
-    }
-  }, [challenge]);
+    // random challenge
+    setChallenge(
+      challengesData?.challenges[
+        Math.round(Math.random() * (challengesData.challenges.length - 1))
+      ],
+    );
+  }, [challengesData]);
 
   useEffect(() => {
     const handleClickAway = (e: MouseEvent) => {
@@ -287,7 +292,23 @@ const TypingTest: FC = () => {
     ) {
       handleTestComplete();
     }
-  }, [typedWordList, wordSet, time]);
+  }, [typedWordList, time]);
+
+  if (isLoadingChallenges || !challenge) {
+    return (
+      <div className='flex justify-center items-center'>
+        <Spinner
+          thickness='3px'
+          speed='0.65s'
+          emptyColor='gray.200'
+          color='accent.300'
+          size='lg'
+        />
+      </div>
+    );
+  }
+
+  console.log(time);
 
   return (
     <>
@@ -342,7 +363,7 @@ const TypingTest: FC = () => {
                     onClick={onOpen}
                     colorScheme='primary'
                   >
-                    {challenge.type}
+                    {challenge.category}
                   </Button>
                 )}
               </div>
@@ -383,7 +404,6 @@ const TypingTest: FC = () => {
           ) : (
             <Result
               result={result}
-              showResults={showResults}
               challenge={challenge}
               timerRanOut={time === 0}
             />
@@ -414,12 +434,12 @@ const TypingTest: FC = () => {
         <ModalContent>
           <ModalHeader>Challenge Type</ModalHeader>
           <ModalBody className='flex flex-col gap-2'>
-            {challengeItems.map((type, i) => (
+            {challengeItems?.map((type, i) => (
               <Button
                 key={i}
                 ref={(el) => (challengeOptionRef.current[i] = el)}
                 leftIcon={
-                  challenge.type === type.name ? <CheckIcon /> : <div />
+                  challenge.category === type.name ? <CheckIcon /> : <div />
                 }
                 onClick={handleChallengeTypeSwitch}
                 value={type.name}

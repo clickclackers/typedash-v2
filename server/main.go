@@ -66,6 +66,7 @@ func main() {
 	routes.UserOverviewStatsRoutes(protected, queries)
 	routes.SingleplayerChallengeStatsRoutes(protected, queries)
 	routes.MultiplayerChallengeStatsRoutes(protected, queries)
+	routes.ChallengesRoutes(protected, queries)
 
 	// WebSocket endpoint - no auth required for anonymous multiplayer
 	// router.GET("/ws", func(c *gin.Context) {

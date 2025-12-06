@@ -12,8 +12,11 @@ import {
 import { FC, useEffect, useState } from 'react';
 import { FaKeyboard } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { Challenge } from '/src/components/typing/challenges/challenge.interface';
-import { challengeItems, randomChallenge } from '/src/helpers/randomChallenge';
+import { Challenge } from '../challenges/challenge.interface';
+import {
+  challengeItems,
+  randomChallenge,
+} from '/src/challenges/randomChallenge';
 import { baseURL } from '/src/services/api';
 import { useSocket } from '/src/hooks/useSocket';
 import toast from '/src/components/toast';

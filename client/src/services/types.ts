@@ -39,3 +39,16 @@ export interface ResultsRequest {
   time_taken: number;
   created_at: string;
 }
+
+export interface ChallengesResponse {
+  challenges: Challenge[];
+}
+
+export interface Challenge {
+  id: number;
+  title: string;
+  category: string;
+  author: string;
+  text: string;
+  text_hash: string;
+}

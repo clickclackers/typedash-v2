@@ -5,6 +5,7 @@ import {
   RegisterRequest,
   ResultsRequest,
   StatisticsResponse,
+  ChallengesResponse,
 } from '/src/services/types';
 import axios from 'axios';
 import toast from '/src/components/toast';
@@ -34,7 +35,7 @@ instance.interceptors.response.use(undefined, (error) => {
   if (!axios.isCancel(error)) {
     toast({
       title: 'Error',
-      description: error?.response?.data?.message ?? 'Please try again later',
+      description: error?.response?.statusText ?? 'Please try again later',
       variant: 'solid',
       status: 'error',
       position: 'top-right',
@@ -50,6 +51,8 @@ class ApiClient {
   constructor(instance: AxiosInstance) {
     this.instance = instance;
   }
+
+  // const declaration is used instead of function declaration to maintain reference to the correct 'this'
 
   login = async (params: LoginRequest) => {
     return await this.instance.post<AuthResponse>('login', params);
@@ -72,10 +75,17 @@ class ApiClient {
 
   createSingleplayerResults = async (params: ResultsRequest) => {
     const res = await this.instance.post('single_challenge_stats', params);
-    console.log('response from createSingleplayerResults', res);
+    return res.data;
+  };
+
+  getChallengesByCategory = async (params: { category: string }) => {
+    const res = await this.instance.get<ChallengesResponse>('challenges', {
+      params,
+    });
     return res.data;
   };
 }
 
 const api = new ApiClient(instance);
+
 export default api;
