@@ -14,12 +14,17 @@ Deployment link: <https://typedash.songyang.dev>
 
 ## Push database schema changes
 
-We use `go-migrate` CLI to generate migrations, and `sqlc` to generate type-safe queries from the migrations
+We use `go-migrate` CLI to generate migrations, and `sqlc` to generate type-safe queries from the migrations. Manual is found at `migrate -help`
 
-e.g. `migrate create -ext sql -dir server/db/migrations -seq add_users_table`
+### To update schema
 
-<!-- https://medium.com/gravel-engineering/using-sqlc-for-orm-alternative-in-golang-ft-go-migrate-pgx-b9e35ec623b2 -->
+1. `migrate create -ext sql -dir server/db/migrations -seq <migration_name>`
+2. Write up and down migrations, ensuring idempotency (refer to the [tutorial](https://github.com/golang-migrate/migrate/blob/master/database/postgres/TUTORIAL.md))
+3. `make sqlc` to generate queries
+4. `make db-schema` to run migrations
 
-1. After making changes to db/queries or generating a new migration, run
+### To update queries
+
+1. Update db/queries/\*
 2. `make sqlc` to generate queries
 3. `make db-schema` to run migrations
