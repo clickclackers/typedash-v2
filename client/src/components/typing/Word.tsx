@@ -38,11 +38,10 @@ const Word: FC<WordProps> = memo(({ word, typedWord, status }) => {
     .map((char, i) => {
       return <Letter key={i} status={'incorrect'} char={char} />;
     });
+  const caretOffset = offset[0] * (typedWord?.length ?? 0) || offset[1];
   return (
     <div className='flex word-active h-8'>
-      {status === WordStatus.ACTIVE && typedWord && (
-        <Caret offset={offset[0] * typedWord.length || offset[1]} />
-      )}
+      {status === WordStatus.ACTIVE && <Caret offset={caretOffset} />}
       {letters}
       {typedWord && typedWord.length > word.length && wrongLetters}
       &nbsp;

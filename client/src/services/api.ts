@@ -35,7 +35,7 @@ instance.interceptors.response.use(undefined, (error) => {
   if (!axios.isCancel(error)) {
     toast({
       title: 'Error',
-      description: error?.response?.statusText ?? 'Please try again later',
+      description: error?.response?.data?.message ?? 'Please try again later',
       variant: 'solid',
       status: 'error',
       position: 'top-right',

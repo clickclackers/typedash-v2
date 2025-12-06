@@ -53,10 +53,11 @@ func main() {
 		})
 	})
 
-	// Authentication routes
 	router.POST("/register", handlers.RegisterHandler(queries))
 	router.POST("/login", handlers.LoginHandler(queries))
 	router.POST("/logout", handlers.LogoutHandler())
+
+	routes.ChallengesRoutes(router.Group("/"), queries)
 
 	// Protected routes
 	protected := router.Group("/")
@@ -66,9 +67,8 @@ func main() {
 	routes.UserOverviewStatsRoutes(protected, queries)
 	routes.SingleplayerChallengeStatsRoutes(protected, queries)
 	routes.MultiplayerChallengeStatsRoutes(protected, queries)
-	routes.ChallengesRoutes(protected, queries)
 
-	// WebSocket endpoint - no auth required for anonymous multiplayer
+	// WebSocket endpoint - no auth to allow anonymous multiplayer
 	// router.GET("/ws", func(c *gin.Context) {
 	// 	hub.handleWebsocket(c.Writer, c.Request)
 	// })

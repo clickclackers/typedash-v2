@@ -1,5 +1,5 @@
 import { Box, Fade, Spinner } from '@chakra-ui/react';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { useGetUserOverviewStats } from '../hooks/react-query/useGetUserOverviewStats';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,10 +17,11 @@ const Account: FC = () => {
     error,
   } = useGetUserOverviewStats();
 
-  if (error?.status === 401) {
-    navigate('/login');
-    return null;
-  }
+  useEffect(() => {
+    if (error?.status === 401) {
+      navigate('/login');
+    }
+  }, [error, navigate]);
 
   if (isLoadingStats || !stats) {
     return (

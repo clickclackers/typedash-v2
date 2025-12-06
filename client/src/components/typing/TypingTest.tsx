@@ -73,6 +73,7 @@ const TypingTest: FC = () => {
 
   // generate result once test ends
   const handleTestComplete = () => {
+    setIsTestStarted(false);
     pauseTimer();
     const timeTaken = DEFAULT_TEST_DURATION - time;
     // WPM formula by MonkeyType:
@@ -130,7 +131,7 @@ const TypingTest: FC = () => {
     // TODO: filter out challenges that have been done in this session so they don't repeat
     setChallenge(
       challengesData?.challenges[
-        Math.round(Math.random() * (challengesData.challenges.length - 1))
+        Math.floor(Math.random() * challengesData.challenges.length)
       ],
     );
   };
@@ -253,7 +254,7 @@ const TypingTest: FC = () => {
     // random challenge
     setChallenge(
       challengesData?.challenges[
-        Math.round(Math.random() * (challengesData.challenges.length - 1))
+        Math.floor(Math.random() * challengesData.challenges.length)
       ],
     );
   }, [challengesData]);
@@ -285,6 +286,9 @@ const TypingTest: FC = () => {
 
   // if finished word set or timer has ran out, stop the test
   useEffect(() => {
+    if (!isTestStarted) {
+      return;
+    }
     if (
       (typedWordList.length >= wordSet.length &&
         typedWordList.at(-1) === wordSet.at(-1)) ||
@@ -292,7 +296,7 @@ const TypingTest: FC = () => {
     ) {
       handleTestComplete();
     }
-  }, [typedWordList, time]);
+  }, [typedWordList, time, wordSet, isTestStarted]);
 
   if (isLoadingChallenges || !challenge) {
     return (
@@ -307,8 +311,6 @@ const TypingTest: FC = () => {
       </div>
     );
   }
-
-  console.log(time);
 
   return (
     <>
