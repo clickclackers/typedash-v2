@@ -1,0 +1,6 @@
+# .dockerignore
+.git
+client
+node_modules
+*.log
+.DS_Store
