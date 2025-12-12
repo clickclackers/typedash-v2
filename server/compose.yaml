@@ -1,4 +1,19 @@
 services:
+  server:
+    # Production-like image using the multi-stage Dockerfile (no live reload)
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      # This DSN points at the Postgres container defined below (hostname: db)
+      DATABASE_URL: postgres://typedash:typedash@db:5432/typedash?sslmode=disable
+      JWT_SECRET: dev-secret-change-me
+    depends_on:
+      db:
+        condition: service_healthy
+
   server-dev:
     # Development server with Air live reload; mounts source from host
     build:
