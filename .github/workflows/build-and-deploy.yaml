@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature/singleplayer-crud
     # Only rebuild when server / Go module / workflow changes
     paths:
       - "server/**"
