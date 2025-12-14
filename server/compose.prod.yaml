@@ -6,16 +6,11 @@ services:
     ports:
       - "3000:3000"
     environment:
-      JWT_SECRET: /run/secrets/jwt_secret
-      POSTGRES_USER: /run/secrets/postgres_user
-      POSTGRES_PASSWORD: /run/secrets/postgres_password
-      POSTGRES_DB: /run/secrets/postgres_db
+      JWT_SECRET: ${JWT_SECRET}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
       GIN_MODE: release
-    secrets:
-      - jwt_secret
-      - postgres_user
-      - postgres_password
-      - postgres_db
     depends_on:
       db:
         condition: service_healthy
@@ -25,13 +20,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: /run/secrets/postgres_user
-      POSTGRES_PASSWORD: /run/secrets/postgres_password
-      POSTGRES_DB: /run/secrets/postgres_db
-    secrets:
-      - postgres_user
-      - postgres_password
-      - postgres_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
@@ -39,16 +30,6 @@ services:
       retries: 10
     volumes:
       - db_data:/var/lib/postgresql/data
-
-secrets:
-  postgres_user:
-    environment: "POSTGRES_USER"
-  postgres_password:
-    environment: "POSTGRES_PASSWORD"
-  postgres_db:
-    environment: "POSTGRES_DB"
-  jwt_secret:
-    environment: "JWT_SECRET"
 
 volumes:
   db_data: {}
