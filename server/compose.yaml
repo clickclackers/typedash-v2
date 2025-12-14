@@ -1,0 +1,38 @@
+services:
+  server-dev:
+    # Development server with Air live reload; mounts source from host
+    build:
+      context: ..
+      dockerfile: server/Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      POSTGRES_USER: typedash
+      POSTGRES_PASSWORD: typedash
+      POSTGRES_DB: typedash
+      JWT_SECRET: dev-secret-change-me
+    volumes:
+      - ..:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: typedash
+      POSTGRES_PASSWORD: typedash
+      POSTGRES_DB: typedash
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data: {}

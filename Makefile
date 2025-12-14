@@ -19,8 +19,8 @@ help:
 .PHONY: dev
 dev:
 	@echo "🚀 Starting development environment..."
-	@trap 'echo "🛑 Stopping brew postgres & redis services..."; \
-		brew services stop redis postgresql 2>/dev/null || true; \
+	@trap 'echo "🛑 Stopping docker services..."; \
+		docker compose -f server/compose.yaml down 2>/dev/null || true; \
 		exit' INT TERM EXIT; \
 	make redis-start && \
 	make db-start && \
@@ -34,7 +34,7 @@ dev:
 
 .PHONY: server
 server:
-	cd server && air
+	docker compose -f server/compose.yaml up db server-dev
 
 .PHONY: client
 client:

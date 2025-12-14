@@ -1,15 +1,15 @@
-name: Build and publish server image
+name: Build and Deploy Server
 
 on:
   push:
     branches:
       - main
-    # Only rebuild when server / Go module / workflow changes (tweak as needed)
+    # Only rebuild when server / Go module / workflow changes
     paths:
       - "server/**"
       - "go.mod"
       - "go.sum"
-      - ".github/workflows/deploy.yaml"
+      - ".github/workflows/build-and-deploy.yaml"
   workflow_dispatch:
 
 permissions:
@@ -55,3 +55,22 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Copy compose.prod.yaml to Droplet
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.DROPLET_KEY }}
+          source: "server/compose.prod.yaml"
+          target: "/tmp"
+          strip_components: 1
+
+      - name: Deploy to Droplet
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.DROPLET_KEY }}
+          script: |
+            docker compose -f /tmp/compose.prod.yaml up -d

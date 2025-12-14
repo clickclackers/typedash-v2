@@ -14,10 +14,19 @@ var queries *db.Queries
 
 // InitDB initializes the database connection and sqlc queries
 func InitDB() error {
-	dsn := os.Getenv("DATABASE_URL")
-	if dsn == "" {
-		return fmt.Errorf("DATABASE_URL is not set in the environment variables")
+	postgresUser := os.Getenv("POSTGRES_USER")
+	if postgresUser == "" {
+		return fmt.Errorf("POSTGRES_USER is not set in the environment variables")
 	}
+	postgresPassword := os.Getenv("POSTGRES_PASSWORD")
+	if postgresPassword == "" {
+		return fmt.Errorf("POSTGRES_PASSWORD is not set in the environment variables")
+	}
+	postgresDb := os.Getenv("POSTGRES_DB")
+	if postgresDb == "" {
+		return fmt.Errorf("POSTGRES_DB is not set in the environment variables")
+	}
+	dsn := fmt.Sprintf("postgres://%s:%s@db:5432/%s", postgresUser, postgresPassword, postgresDb)
 
 	pool, err := pgxpool.New(context.Background(), dsn)
 	if err != nil {
