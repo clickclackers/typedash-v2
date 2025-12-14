@@ -11,7 +11,7 @@ import axios from 'axios';
 import toast from '/src/components/toast';
 
 export const baseURL: string = import.meta.env.DEV
-  ? 'http://localhost:3000/'
+  ? 'http://localhost:3000'
   : (import.meta.env.VITE_API_URL as string);
 
 export const instance = axios.create({
@@ -55,31 +55,31 @@ class ApiClient {
   // const declaration is used instead of function declaration to maintain reference to the correct 'this'
 
   login = async (params: LoginRequest) => {
-    return await this.instance.post<AuthResponse>('login', params);
+    return await this.instance.post<AuthResponse>('/login', params);
   };
 
   register = async (params: RegisterRequest) => {
-    return await this.instance.post<AuthResponse>('register', params);
+    return await this.instance.post<AuthResponse>('/register', params);
   };
 
   logout = async () => {
-    return await this.instance.post('logout');
+    return await this.instance.post('/logout');
   };
 
   getUserOverviewStats = async () => {
     const res = await this.instance.get<StatisticsResponse>(
-      'user_overview_stats',
+      '/user_overview_stats',
     );
     return res.data;
   };
 
   createSingleplayerResults = async (params: ResultsRequest) => {
-    const res = await this.instance.post('single_challenge_stats', params);
+    const res = await this.instance.post('/single_challenge_stats', params);
     return res.data;
   };
 
   getChallengesByCategory = async (params: { category: string }) => {
-    const res = await this.instance.get<ChallengesResponse>('challenges', {
+    const res = await this.instance.get<ChallengesResponse>('/challenges', {
       params,
     });
     return res.data;
