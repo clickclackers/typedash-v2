@@ -23,10 +23,6 @@ services:
     expose:
       - "3000"
     environment:
-      JWT_SECRET: /run/secrets/jwt_secret
-      POSTGRES_USER: /run/secrets/postgres_user
-      POSTGRES_PASSWORD: /run/secrets/postgres_password
-      POSTGRES_DB: /run/secrets/postgres_db
       GIN_MODE: release
     secrets:
       - jwt_secret
@@ -42,15 +38,19 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: /run/secrets/postgres_user
-      POSTGRES_PASSWORD: /run/secrets/postgres_password
-      POSTGRES_DB: /run/secrets/postgres_db
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
     secrets:
       - postgres_user
       - postgres_password
       - postgres_db
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $(cat /run/secrets/postgres_user) -d $(cat /run/secrets/postgres_db)",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -59,13 +59,13 @@ services:
 
 secrets:
   postgres_user:
-    environment: "POSTGRES_USER"
+    file: ./secrets/postgres_user
   postgres_password:
-    environment: "POSTGRES_PASSWORD"
+    file: ./secrets/postgres_password
   postgres_db:
-    environment: "POSTGRES_DB"
+    file: ./secrets/postgres_db
   jwt_secret:
-    environment: "JWT_SECRET"
+    file: ./secrets/jwt_secret
 
 volumes:
   db_data: {}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/clickclackers/typedash-v2/server/api/handlers"
 	"github.com/clickclackers/typedash-v2/server/api/routes"
@@ -15,17 +14,12 @@ import (
 func main() {
 	// Load .env file
 	if err := godotenv.Load("../.env"); err != nil {
-		log.Println("Warning: .env file not found, using system environment variables")
+		log.Println("Warning: .env file not found. This is normal in production as we are using Docker secrets.")
 	}
 
 	// Initialize database
 	if err := InitDB(); err != nil {
 		log.Fatal("Failed to initialize database:", err)
-	}
-
-	// Set JWT secret if not provided
-	if os.Getenv("JWT_SECRET") == "" {
-		log.Fatal("JWT_SECRET is not set in the environment variables")
 	}
 
 	// Initialize WebSocket hub
@@ -36,7 +30,7 @@ func main() {
 
 	// Configure CORS middleware
 	config := cors.Config{
-		AllowOrigins:     []string{"https://typedash.songyang.dev", "https://typedash-v2.netlify.app"},
+		AllowOrigins:     []string{"https://typedash.songyang.dev", "https://typedash-v2.netlify.app", "http://127.0.0.1:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},

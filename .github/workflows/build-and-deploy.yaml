@@ -74,5 +74,10 @@ jobs:
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_KEY }}
           script: |
-            JWT_SECRET=${{ secrets.JWT_SECRET }} POSTGRES_USER=${{ secrets.POSTGRES_USER }} POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
+            mkdir -p ~/typedash/secrets
+            echo "${{ secrets.JWT_SECRET }}" > ~/typedash/secrets/jwt_secret && \
+            echo "${{ secrets.POSTGRES_USER }}" > ~/typedash/secrets/postgres_user && \
+            echo "${{ secrets.POSTGRES_PASSWORD }}" > ~/typedash/secrets/postgres_password && \
+            echo "${{ secrets.POSTGRES_DB }}" > ~/typedash/secrets/postgres_db && \
+            chmod 600 ~/typedash/secrets/* && \
             docker compose -f ~/typedash/compose.prod.yaml up -d

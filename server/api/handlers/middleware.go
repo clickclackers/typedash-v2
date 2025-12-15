@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -9,7 +10,19 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+var jwtSecret []byte
+
+func init() {
+	if os.Getenv("IS_LOCAL_DEV") == "true" {
+		jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+	} else {
+		secretBytes, err := os.ReadFile("/run/secrets/jwt_secret")
+		if err != nil {
+			log.Fatal("Failed to read JWT_SECRET:", err)
+		}
+		jwtSecret = []byte(strings.TrimSpace(string(secretBytes)))
+	}
+}
 
 type Claims struct {
 	UserID   int32  `json:"user_id"`
