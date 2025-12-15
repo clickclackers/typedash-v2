@@ -34,6 +34,8 @@ services:
         condition: service_healthy
   db:
     image: postgres:16
+    ports:
+      - "127.0.0.1:5432:5432"
     restart: unless-stopped
     environment:
       POSTGRES_USER_FILE: /run/secrets/postgres_user
