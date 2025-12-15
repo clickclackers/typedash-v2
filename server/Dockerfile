@@ -48,6 +48,6 @@ COPY --from=builder /out/server /app/server
 # Run in release mode inside the container
 ENV GIN_MODE=release
 
-EXPOSE 443
+EXPOSE 3000
 
 ENTRYPOINT ["/app/server"]

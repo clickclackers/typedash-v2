@@ -57,14 +57,14 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Copy compose.prod.yaml to Droplet
+      - name: Copy compose.prod.yaml and Caddyfile to Droplet
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.DROPLET_HOST }}
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_KEY }}
-          source: "server/compose.prod.yaml"
-          target: "/tmp"
+          source: "server/compose.prod.yaml,server/Caddyfile"
+          target: "~/typedash"
           strip_components: 1
 
       - name: Deploy to Droplet
@@ -78,4 +78,4 @@ jobs:
             export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
             export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-            docker compose -f /tmp/compose.prod.yaml up -d
+            docker compose -f ~/typedash/compose.prod.yaml up -d
