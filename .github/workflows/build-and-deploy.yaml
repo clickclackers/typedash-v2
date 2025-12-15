@@ -80,4 +80,4 @@ jobs:
             echo "${{ secrets.POSTGRES_PASSWORD }}" > ~/typedash/secrets/postgres_password
             echo "${{ secrets.POSTGRES_DB }}" > ~/typedash/secrets/postgres_db
             chmod 666 ~/typedash/secrets/*
-            cd ~/typedash && docker compose -f compose.prod.yaml up -d
+            cd ~/typedash && docker compose -f compose.prod.yaml up -d --pull always
