@@ -10,9 +10,9 @@ api.songyang.dev {
     # Basic request logging to file inside the container (persisted via volumes)
     log {
         output file /var/log/caddy/access.log {
-            roll_size_mb 5
-            roll_keep 2
-            roll_local_time true
+            roll_size 10MiB
+            roll_keep 10
+            roll_local_time
         }
     }
 }
