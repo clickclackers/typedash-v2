@@ -29,7 +29,7 @@ func main() {
 
 	// Configure CORS middleware
 	config := cors.Config{
-		AllowOrigins:     []string{"https://typedash.songyang.dev", "https://typedash-v2.netlify.app", "http://127.0.0.1:5173"},
+		AllowOrigins:     []string{"https://typedash.songyang.dev", "https://typedash-v2.netlify.app"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
