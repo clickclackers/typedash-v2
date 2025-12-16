@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -109,7 +109,7 @@ func CreateSingleChallengeStats(q *db.Queries) gin.HandlerFunc {
 
 		newStats, err := q.CreateSingleChallengeStats(c.Request.Context(), db.CreateSingleChallengeStatsParams(stats))
 		if err != nil {
-			fmt.Println("error in CreateSingleChallengeStats", err)
+			log.Printf("error in CreateSingleChallengeStats: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create single challenge stats"})
 			return
 		}
