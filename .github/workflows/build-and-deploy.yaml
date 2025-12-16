@@ -98,5 +98,5 @@ jobs:
 
             cd ~/typedash && docker compose -f compose.prod.yaml up -d --pull always
 
-            # Run database migrations
-            migrate -path ~/typedash/db/migrations -database "postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}" up
+            # Run database migrations (sslmode=disable is required for golang-migrate to work)
+            migrate -path ~/typedash/db/migrations -database "postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}?sslmode=disable" up
