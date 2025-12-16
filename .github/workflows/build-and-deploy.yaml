@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature/singleplayer-crud
     # Only rebuild when server / Go module / workflow changes
     paths:
       - "server/**"
@@ -42,7 +41,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest,enable=true
+            type=raw,value=latest,enable={{is_default_branch}}
             type=sha,format=short
 
       - name: Set up Docker Buildx
