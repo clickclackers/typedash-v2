@@ -12,7 +12,7 @@ import { CgSmile } from 'react-icons/cg';
 import { FaInfo } from 'react-icons/fa';
 import { FiLogIn, FiLogOut } from 'react-icons/fi';
 import { RiPaletteFill } from 'react-icons/ri';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '/src/hooks/useAuth';
 import CatLogo from '/src/assets/cat.svg';
 import api from '/src/services/api';
@@ -36,7 +36,7 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
   const { user, logout, isAuthenticated } = useAuth();
 
   const logoutHandler = () => {
-    api.logoutUser().then(() => {
+    api.logout().then(() => {
       logout();
       toast({
         title: 'Logout successful',
@@ -56,9 +56,9 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
           {!isMobile && (
             <img src={CatLogo} className='h-14 w-14' alt='Cat Logo' />
           )}
-          <Link to={`/`}>
-            <h1 className='font-bold text-lg md:text-2xl'>TypeDash</h1>
-          </Link>
+          <h1 className='font-bold text-lg md:text-2xl select-none'>
+            TypeDash
+          </h1>
         </Box>
         <div className='flex gap-2'>
           <Tooltip

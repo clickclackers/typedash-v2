@@ -14,7 +14,7 @@ const ProgressBar: FC<ProgressBarProps> = ({ lettersTyped, totalLetters }) => {
       max={totalLetters}
       colorScheme='accent'
       sx={{
-        '& > div:first-child': {
+        '& > div:first-of-type': {
           transitionProperty: 'width',
         },
       }}

@@ -1,0 +1,18 @@
+# Caddy will obtain and renew TLS automatically
+
+api.songyang.dev {
+    # Forward all traffic to the app container
+    reverse_proxy server:3000
+
+    # Enable compression
+    encode zstd gzip
+
+    # Basic request logging to file inside the container (persisted via volumes)
+    log {
+        output file /var/log/caddy/access.log {
+            roll_size 10MiB
+            roll_keep 10
+            roll_local_time
+        }
+    }
+}

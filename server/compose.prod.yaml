@@ -1,15 +1,28 @@
 services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      db:
+        condition: service_healthy
+      server:
+        condition: service_started
+    volumes:
+      # Mount the repo's Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Persist Caddy certificates and config
+      - caddy_data:/data
+      - caddy_config:/config
+
   server:
-    # Pull image from GHCR
     # Set RELEASE_TAG in CI to pin a tag/SHA.
     image: ghcr.io/clickclackers/typedash-v2:${RELEASE_TAG:-latest}
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
-      JWT_SECRET: /run/secrets/jwt_secret
-      POSTGRES_USER: /run/secrets/postgres_user
-      POSTGRES_PASSWORD: /run/secrets/postgres_password
-      POSTGRES_DB: /run/secrets/postgres_db
       GIN_MODE: release
     secrets:
       - jwt_secret
@@ -21,19 +34,23 @@ services:
         condition: service_healthy
   db:
     image: postgres:16
-    restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: /run/secrets/postgres_user
-      POSTGRES_PASSWORD: /run/secrets/postgres_password
-      POSTGRES_DB: /run/secrets/postgres_db
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
     secrets:
       - postgres_user
       - postgres_password
       - postgres_db
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $(cat /run/secrets/postgres_user) -d $(cat /run/secrets/postgres_db)",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -42,13 +59,15 @@ services:
 
 secrets:
   postgres_user:
-    environment: "POSTGRES_USER"
+    file: ./secrets/postgres_user
   postgres_password:
-    environment: "POSTGRES_PASSWORD"
+    file: ./secrets/postgres_password
   postgres_db:
-    environment: "POSTGRES_DB"
+    file: ./secrets/postgres_db
   jwt_secret:
-    environment: "JWT_SECRET"
+    file: ./secrets/jwt_secret
 
 volumes:
   db_data: {}
+  caddy_data: {}
+  caddy_config: {}

@@ -1,4 +1,4 @@
-import { Button, Icon, SlideFade } from '@chakra-ui/react';
+import { Button, Icon, SlideFade, Spinner } from '@chakra-ui/react';
 import { FC, useEffect, useState } from 'react';
 import {
   TbRosetteNumber1,
@@ -9,8 +9,8 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import MultiplayerTest from '/src/components/typing/MultiplayerTest';
 import ProgressBar from '/src/components/typing/ProgressBar';
-import { Challenge } from '/src/components/typing/challenges/challenge.interface';
-import useTimer from '/src/helpers/useTimer';
+import { Challenge } from '/src/services/types';
+import useTimer from '../hooks/useTimer';
 import { useAuth } from '/src/hooks/useAuth';
 import { baseURL } from '/src/services/api';
 import toast from '/src/components/toast';
@@ -196,6 +196,20 @@ const MultiplayerRoom: FC = () => {
     }
   }, [numReady, numPlayers, socket, roomID, username]);
 
+  if (!chosenChallenge) {
+    return (
+      <div className='flex justify-center items-center'>
+        <Spinner
+          thickness='3px'
+          speed='0.65s'
+          emptyColor='gray.200'
+          color='accent.300'
+          size='lg'
+        />
+      </div>
+    );
+  }
+
   return (
     <div className='flex flex-col justify-between'>
       <div className='flex flex-col gap-4'>
@@ -211,9 +225,7 @@ const MultiplayerRoom: FC = () => {
                 <SlideFade in={time === 0}>
                   <ProgressBar
                     lettersTyped={typingProgresses[player.id]}
-                    totalLetters={
-                      chosenChallenge?.content.split('').length || 0
-                    }
+                    totalLetters={chosenChallenge?.text.split('').length || 0}
                   />
                 </SlideFade>
               </div>

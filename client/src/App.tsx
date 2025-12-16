@@ -9,7 +9,7 @@ import { AuthProvider } from '/src/context/AuthContext';
 import { SocketProvider } from '/src/context/SocketContext';
 import About from '/src/pages/About';
 import Account from '/src/pages/Account';
-import Layout from '/src/Layout';
+import Layout from './components/Layout';
 import Login from '/src/pages/Login';
 import Multiplayer from '/src/pages/Multiplayer';
 import Register from '/src/pages/Register';
@@ -17,7 +17,13 @@ import MultiplayerRoom from '/src/pages/MultiplayerRoom';
 import Singleplayer from '/src/pages/Singleplayer';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
 
 function App() {
   const [currentTheme, setCurrentTheme] = useState(

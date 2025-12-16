@@ -1,0 +1,25 @@
+########################
+# Dev image with Air live-reload
+########################
+FROM golang:1.24-alpine
+
+WORKDIR /app
+
+# Install git (often needed for go module fetching)
+RUN apk add --no-cache git
+
+# Prime module cache
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Install Air for live reload
+ARG AIR_VERSION=v1.62.0
+RUN go install github.com/air-verse/air@${AIR_VERSION}
+
+# Work inside the server module
+WORKDIR /app/server
+
+# By default Air looks for .air.toml or falls back to sensible defaults
+CMD ["air"]
+
+

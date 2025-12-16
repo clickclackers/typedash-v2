@@ -1,7 +1,7 @@
-import { Box, Divider, Fade, Spinner } from '@chakra-ui/react';
-import { FC } from 'react';
-import { useAuth } from '/src/hooks/useAuth';
-import { useUserOverviewStats } from '/src/hooks/useUserOverviewStats';
+import { Box, Fade, Spinner } from '@chakra-ui/react';
+import { FC, useEffect } from 'react';
+import { useGetUserOverviewStats } from '../hooks/react-query/useGetUserOverviewStats';
+import { useNavigate } from 'react-router-dom';
 
 export interface LoadoutProps {
   id: number;
@@ -10,8 +10,18 @@ export interface LoadoutProps {
   others: string | undefined;
 }
 const Account: FC = () => {
-  const { user } = useAuth();
-  const { data: stats, isLoading: isLoadingStats } = useUserOverviewStats();
+  const navigate = useNavigate();
+  const {
+    data: stats,
+    isLoading: isLoadingStats,
+    error,
+  } = useGetUserOverviewStats();
+
+  useEffect(() => {
+    if (error?.status === 401) {
+      navigate('/login');
+    }
+  }, [error, navigate]);
 
   if (isLoadingStats || !stats) {
     return (
@@ -34,14 +44,6 @@ const Account: FC = () => {
           bg='bg.secondary'
           className='w-full h-1/5 rounded-md flex justify-center items-center gap-16 p-12'
         >
-          <div className='flex flex-col text-left'>
-            <Box color='text.secondary' className='font-semibold text-2xl'>
-              {user?.username}
-            </Box>
-          </div>
-          <div className='h-4/5'>
-            <Divider orientation='vertical' />
-          </div>
           <div className='flex gap-12'>
             <div className='flex flex-col text-left'>
               <div className='text-sm'>tests completed</div>

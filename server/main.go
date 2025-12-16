@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/clickclackers/typedash-v2/server/api/handlers"
 	"github.com/clickclackers/typedash-v2/server/api/routes"
@@ -14,18 +13,12 @@ import (
 
 func main() {
 	// Load .env file
-	if err := godotenv.Load(); err != nil {
-		log.Println("Warning: .env file not found, using system environment variables")
+	if err := godotenv.Load("../.env"); err != nil {
+		log.Println("Warning: .env file not found. This is normal in production as we are using Docker secrets.")
 	}
 
-	// Initialize database
 	if err := InitDB(); err != nil {
 		log.Fatal("Failed to initialize database:", err)
-	}
-
-	// Set JWT secret if not provided
-	if os.Getenv("JWT_SECRET") == "" {
-		log.Fatal("JWT_SECRET is not set in the environment variables")
 	}
 
 	// Initialize WebSocket hub
@@ -36,7 +29,7 @@ func main() {
 
 	// Configure CORS middleware
 	config := cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000", "http://localhost:4173", "https://typedash.songyang.dev", "https://typedash-v2.netlify.app"},
+		AllowOrigins:     []string{"https://typedash.songyang.dev", "https://typedash-v2.netlify.app"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -53,25 +46,22 @@ func main() {
 		})
 	})
 
-	// Authentication routes
 	router.POST("/register", handlers.RegisterHandler(queries))
 	router.POST("/login", handlers.LoginHandler(queries))
 	router.POST("/logout", handlers.LogoutHandler())
+
+	routes.ChallengesRoutes(router.Group("/"), queries)
 
 	// Protected routes
 	protected := router.Group("/")
 	protected.Use(handlers.AuthMiddleware())
 
-	// Register routes for user overview stats, singleplayer and multiplayer stats
-	routes.RegisterUserOverviewStatsRoutes(protected, queries)
-	routes.RegisterSingleplayerChallengeStatsRoutes(protected, queries)
-	routes.RegisterMultiplayerChallengeStatsRoutes(protected, queries)
+	// Routes for user overview stats, singleplayer and multiplayer stats
+	routes.UserOverviewStatsRoutes(protected, queries)
+	routes.SingleplayerChallengeStatsRoutes(protected, queries)
+	routes.MultiplayerChallengeStatsRoutes(protected, queries)
 
-	{
-		protected.GET("/profile", handlers.GetUserProfileHandler(queries))
-	}
-
-	// WebSocket endpoint - no auth required for anonymous multiplayer
+	// WebSocket endpoint - no auth to allow anonymous multiplayer
 	// router.GET("/ws", func(c *gin.Context) {
 	// 	hub.handleWebsocket(c.Writer, c.Request)
 	// })

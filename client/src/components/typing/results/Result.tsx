@@ -1,6 +1,6 @@
 import { Box, Fade } from '@chakra-ui/react';
 import { FC } from 'react';
-import { Challenge } from '/src/components/typing/challenges/challenge.interface';
+import { Challenge } from '/src/services/types';
 
 interface ResultProps {
   result: {
@@ -8,19 +8,13 @@ interface ResultProps {
     accuracy: number;
     time: number;
   };
-  showResults: boolean;
-  challenge: Challenge | undefined;
+  challenge: Challenge;
   timerRanOut: boolean;
 }
 
-const Result: FC<ResultProps> = ({
-  result,
-  showResults,
-  challenge,
-  timerRanOut,
-}) => {
+const Result: FC<ResultProps> = ({ result, challenge, timerRanOut }) => {
   return (
-    <Fade in={showResults} className='w-3/4'>
+    <Fade in={true} className='w-3/4'>
       <div className='flex justify-between pb-12'>
         <div className='text-left'>
           <Box color='accent.200' className='text-4xl'>

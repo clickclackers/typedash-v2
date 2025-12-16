@@ -24,11 +24,31 @@ export interface AuthResponse {
 }
 
 export interface StatisticsResponse {
-  user_id: number;
   single_total_races: number;
   single_total_time: number;
   single_avg_wpm: number;
   multi_total_races: number;
   multi_total_time: number;
   multi_avg_wpm: number;
+}
+
+export interface ResultsRequest {
+  challenge_id: number;
+  wpm: number;
+  accuracy: number;
+  time_taken: number;
+  created_at: string;
+}
+
+export interface ChallengesResponse {
+  challenges: Challenge[];
+}
+
+export interface Challenge {
+  id: number;
+  title: string;
+  category: string;
+  author: string;
+  text: string;
+  text_hash: string;
 }

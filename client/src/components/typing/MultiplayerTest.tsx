@@ -1,12 +1,12 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Spinner } from '@chakra-ui/react';
 import { FC, useEffect, useRef, useState } from 'react';
 import { HiCursorClick } from 'react-icons/hi';
 // import { randomChallenge } from '/src/helpers/randomChallenge';
-import useTimer from '/src/helpers/useTimer';
+import useTimer from '../../hooks/useTimer';
 import { instance } from '/src/services/api';
 // import socket from '/src/services/socket';
 import Word from '/src/components/typing/Word';
-import { Challenge } from '/src/components/typing/challenges/challenge.interface';
+import { Challenge } from '/src/services/types';
 import Result from '/src/components/typing/results/Result';
 import { useAuth } from '/src/hooks/useAuth';
 import { WordStatus } from './wordStatus';
@@ -17,7 +17,7 @@ interface MultiplayerTestProps {
   socket: WebSocket | null;
   roomID: string;
   username: string;
-  challenge?: Challenge;
+  challenge: Challenge;
 }
 
 const MultiplayerTest: FC<MultiplayerTestProps> = ({
@@ -29,8 +29,6 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
   challenge: propChallenge,
 }) => {
   const [challenge, setChallenge] = useState<Challenge>();
-  const [wordSet, setWordSet] = useState<string[]>([]);
-  const [letterSet, setLetterSet] = useState<string[]>([]);
   const [typedWordList, setTypedWordList] = useState<string[]>(['']);
   const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [totalStrokes, setTotalStrokes] = useState(0);
@@ -53,6 +51,8 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const restartRef = useRef<HTMLButtonElement>(null);
   const { user } = useAuth();
+  const letterSet = challenge?.text.split('') ?? [];
+  const wordSet = challenge?.text.split(' ') ?? [];
 
   // Remove socket event listeners since we're handling them in the parent component
   // The challenge will be passed down from the parent Room component
@@ -60,8 +60,6 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
   useEffect(() => {
     if (propChallenge) {
       setChallenge(propChallenge);
-      setLetterSet(propChallenge.content.split(''));
-      setWordSet(propChallenge.content.split(' '));
     }
   }, [propChallenge]);
 
@@ -120,7 +118,7 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
     if (user) {
       const params = {
         challenge_id: challenge?.id,
-        type: challenge?.type,
+        type: challenge?.category,
         wpm: WPM,
         accuracy,
         time_taken: timeTaken,
@@ -219,6 +217,20 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
     }
   };
 
+  if (!challenge) {
+    return (
+      <div className='flex justify-center items-center'>
+        <Spinner
+          thickness='3px'
+          speed='0.65s'
+          emptyColor='gray.200'
+          color='accent.300'
+          size='lg'
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className={
@@ -288,7 +300,6 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
         ) : (
           <Result
             result={result}
-            showResults={showResults}
             challenge={challenge}
             timerRanOut={time === 0}
           />

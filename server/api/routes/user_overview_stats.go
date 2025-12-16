@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterUserOverviewStatsRoutes(router *gin.RouterGroup, queries *db.Queries) {
+func UserOverviewStatsRoutes(router *gin.RouterGroup, queries *db.Queries) {
 	userOverviewStats := router.Group("/user_overview_stats")
 	{
 		userOverviewStats.GET("", handlers.GetUserOverviewStats(queries))
