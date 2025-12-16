@@ -2,14 +2,16 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/daf7afaa-f590-4244-b8ea-b57ae6fd1352/deploy-status)](https://app.netlify.com/projects/typedash-v2/deploys)
 
-Deployment link: <https://typedash.songyang.dev>
+Production URL: <https://typedash.songyang.dev>
 
 ## Getting started
 
+Ensure you have Docker installed, it is used for the backend.
+
 1. `make install` (installs all system dependencies and tools)
 2. Add `export PATH="$HOME/go/bin:$PATH"` to `~/.zshrc` for pre-commit and Go tools
-3. `make db-setup`
-4. Set env as directed by the previous step.
+3. `make db-migrate`
+4. `make db-seed`
 5. `make dev`
 
 ## Push database schema changes
@@ -21,10 +23,10 @@ We use `go-migrate` CLI to generate migrations, and `sqlc` to generate type-safe
 1. `migrate create -ext sql -dir server/db/migrations -seq <migration_name>`
 2. Write up and down migrations, ensuring idempotency (refer to the [tutorial](https://github.com/golang-migrate/migrate/blob/master/database/postgres/TUTORIAL.md))
 3. `make sqlc` to generate queries
-4. `make db-schema` to run migrations
+4. `make db-migrate` to run migrations
 
 ### To update queries
 
 1. Update db/queries/\*
 2. `make sqlc` to generate queries
-3. `make db-schema` to run migrations
+3. `make db-migrate` to run migrations
