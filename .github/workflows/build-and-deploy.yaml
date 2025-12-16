@@ -63,16 +63,28 @@ jobs:
           host: ${{ secrets.DROPLET_HOST }}
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_KEY }}
+          fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
           source: "server/compose.prod.yaml,server/Caddyfile"
           target: "~/typedash"
           strip_components: 1
+      - name: Copy database migrations to Droplet
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.DROPLET_KEY }}
+          fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
+          source: "server/db/migrations"
+          target: "~/typedash/db/migrations"
+          strip_components: 1
 
-      - name: Deploy to Droplet
+      - name: Deploy and run migrations on Droplet
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DROPLET_HOST }}
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_KEY }}
+          fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
           script: |
             mkdir -p ~/typedash/secrets
             echo "${{ secrets.JWT_SECRET }}" > ~/typedash/secrets/jwt_secret
@@ -80,4 +92,11 @@ jobs:
             echo "${{ secrets.POSTGRES_PASSWORD }}" > ~/typedash/secrets/postgres_password
             echo "${{ secrets.POSTGRES_DB }}" > ~/typedash/secrets/postgres_db
             chmod 666 ~/typedash/secrets/*
+
+            set -e
+            trap 'echo "Error on line $LINENO"; exit 1' ERR
+
             cd ~/typedash && docker compose -f compose.prod.yaml up -d --pull always
+
+            # Run database migrations
+            migrate -path ~/typedash/db/migrations -database "postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}" up
