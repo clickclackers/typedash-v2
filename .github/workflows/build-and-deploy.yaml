@@ -63,7 +63,7 @@ jobs:
           host: ${{ secrets.DROPLET_HOST }}
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_KEY }}
-          fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
+          # fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
           source: "server/compose.prod.yaml,server/Caddyfile"
           target: "~/typedash"
           strip_components: 1
@@ -73,7 +73,7 @@ jobs:
           host: ${{ secrets.DROPLET_HOST }}
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_KEY }}
-          fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
+          # fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
           source: "server/db/migrations"
           target: "~/typedash/db/migrations"
           strip_components: 1
@@ -84,7 +84,7 @@ jobs:
           host: ${{ secrets.DROPLET_HOST }}
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_KEY }}
-          fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
+          # fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
           script: |
             mkdir -p ~/typedash/secrets
             echo "${{ secrets.JWT_SECRET }}" > ~/typedash/secrets/jwt_secret
