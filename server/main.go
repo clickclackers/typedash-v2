@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/clickclackers/typedash-v2/server/api/handlers"
 	"github.com/clickclackers/typedash-v2/server/api/routes"
@@ -10,6 +11,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
+
+func getAllowedOrigins() []string {
+	if os.Getenv("IS_LOCAL_DEV") == "true" {
+		return []string{"http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"}
+	}
+	return []string{"https://typedash.songyang.dev", "https://typedash-v2.netlify.app"}
+}
 
 func main() {
 	// Load .env file
@@ -29,7 +37,7 @@ func main() {
 
 	// Configure CORS middleware
 	config := cors.Config{
-		AllowOrigins:     []string{"https://typedash.songyang.dev", "https://typedash-v2.netlify.app"},
+		AllowOrigins:     getAllowedOrigins(),
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
