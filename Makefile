@@ -17,7 +17,7 @@ help:
 dev:
 	@echo "🚀 Starting development environment..."
 	@trap 'echo "🛑 Stopping docker services..."; \
-		docker compose -f server/compose.yaml down 2>/dev/null || true; \
+		docker compose -f server/compose.dev.yaml down 2>/dev/null || true; \
 		exit' INT TERM EXIT; \
 	make server & \
 	make client & \
@@ -25,7 +25,7 @@ dev:
 
 .PHONY: server
 server:
-	docker compose -f server/compose.yaml up db server-dev
+	docker compose -f server/compose.dev.yaml up db server-dev
 
 .PHONY: client
 client:

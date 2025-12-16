@@ -1,0 +1,35 @@
+########################
+# Build stage
+########################
+FROM golang:1.24-alpine AS builder
+
+WORKDIR /app
+
+# Cache Go dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy full module (server imports from module root)
+COPY . .
+
+WORKDIR /app/server
+
+# Build static Linux binary for distroless runtime
+RUN CGO_ENABLED=0 GOOS=linux go build -o /out/server .
+
+########################
+# Runtime stage
+########################
+FROM gcr.io/distroless/base-debian12
+
+WORKDIR /app
+
+# Copy compiled binary from builder
+COPY --from=builder /out/server /app/server
+
+# Run in release mode inside the container
+ENV GIN_MODE=release
+
+EXPOSE 3000
+
+ENTRYPOINT ["/app/server"]
