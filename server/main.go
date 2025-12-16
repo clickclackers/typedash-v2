@@ -17,7 +17,6 @@ func main() {
 		log.Println("Warning: .env file not found. This is normal in production as we are using Docker secrets.")
 	}
 
-	// Initialize database
 	if err := InitDB(); err != nil {
 		log.Fatal("Failed to initialize database:", err)
 	}
