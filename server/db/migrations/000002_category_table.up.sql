@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+ALTER TABLE challenges 
+  DROP COLUMN IF EXISTS category,
+  DROP COLUMN IF EXISTS text_hash;
+  
+ALTER TABLE challenges ADD COLUMN category_id INTEGER NOT NULL REFERENCES categories(id);

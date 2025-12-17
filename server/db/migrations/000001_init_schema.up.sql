@@ -1,5 +1,5 @@
 -- USERS
-CREATE TABLE users
+CREATE TABLE IF NOT EXISTS users
 (
     id            SERIAL PRIMARY KEY,
     username      VARCHAR NOT NULL UNIQUE,
@@ -9,7 +9,7 @@ CREATE TABLE users
 );
 
 -- CHALLENGES
-CREATE TABLE challenges
+CREATE TABLE IF NOT EXISTS challenges
 (
     id        SERIAL PRIMARY KEY,
     title     VARCHAR(255) NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE challenges
 );
 
 -- USER OVERVIEW STATS
-CREATE TABLE user_overview_stats
+CREATE TABLE IF NOT EXISTS user_overview_stats
 (
     user_id            INTEGER PRIMARY KEY REFERENCES users (id),
     single_total_races INTEGER NOT NULL DEFAULT 0,
@@ -32,7 +32,7 @@ CREATE TABLE user_overview_stats
 );
 
 -- SINGLEPLAYER CHALLENGE STATS
-CREATE TABLE single_challenge_stats
+CREATE TABLE IF NOT EXISTS single_challenge_stats
 (
     user_id      INTEGER NOT NULL REFERENCES users (id),
     challenge_id INTEGER NOT NULL REFERENCES challenges (id),
@@ -44,7 +44,7 @@ CREATE TABLE single_challenge_stats
 );
 
 -- MULTIPLAYER CHALLENGE STATS
-CREATE TABLE multi_challenge_stats
+CREATE TABLE IF NOT EXISTS multi_challenge_stats
 (
     session_id   VARCHAR(255) NOT NULL,
     user_id      INTEGER NOT NULL REFERENCES users (id),

@@ -21,7 +21,6 @@ dev:
 	make server & \
 	for i in $$(seq 1 30); do \
 		if curl -s http://localhost:3000/healthz >/dev/null 2>&1; then \
-			echo "✅ Server is ready!"; \
 			break; \
 		fi; \
 		if [ $$i -eq 30 ]; then \
@@ -56,7 +55,6 @@ install:
 	cd server && go mod tidy
 	@echo "📦 Installing pnpm dependencies..."
 	cd client && pnpm install
-	@echo "✅ All dependencies installed!"
 
 .PHONY: test
 test:
@@ -64,25 +62,18 @@ test:
 	cd server && go test ./...
 	@echo "🧪 Running React tests..."
 	cd client && pnpm test
-	@echo "✅ All tests complete!"
 
 .PHONY: sqlc
 sqlc:
-	@echo "🗄️  Generating sqlc code..."
 	cd server/db && sqlc generate
-	@echo "✅ Database code generation complete!"
 
 .PHONY: db-migrate
 db-migrate:
-	@echo "📋 Applying database migrations..."
 	migrate -path server/db/migrations -database "postgres://typedash:typedash@localhost:5432/typedash?sslmode=disable" up
-	@echo "✅ Migrations applied successfully !"
 
 .PHONY: db-seed
 db-seed:
-	@echo "🌱 Seeding..."
-	psql "postgres://typedash:typedash@localhost:5432/typedash?sslmode=disable" -f server/db/seeds/*.sql
-	@echo "✅ Seeded successfully!"
+	psql "postgres://typedash:typedash@localhost:5432/typedash?sslmode=disable" -f server/db/seed.sql
 
 .PHONY: lint
 lint:
@@ -90,4 +81,3 @@ lint:
 	cd server && go vet ./...
 	@echo "🔍 Linting React code..."
 	cd client && pnpm lint
-	@echo "✅ Linting complete!"
