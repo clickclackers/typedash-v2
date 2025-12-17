@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	db "github.com/clickclackers/typedash-v2/server/db/sqlc"
+	db "github.com/clickclackers/typedash-v2/db/sqlc"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

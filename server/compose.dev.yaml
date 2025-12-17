@@ -1,9 +1,9 @@
 services:
-  server-dev:
+  server:
     # Development server with Air live reload; mounts source from host
     build:
-      context: ..
-      dockerfile: server/Dockerfile.dev
+      context: .
+      dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
     environment:
@@ -13,7 +13,7 @@ services:
       POSTGRES_DB: typedash
       JWT_SECRET: dev-secret-change-me
     volumes:
-      - ..:/app
+      - .:/app
     depends_on:
       db:
         condition: service_healthy

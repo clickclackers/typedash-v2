@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/clickclackers/typedash-v2/server/api/handlers"
-	db "github.com/clickclackers/typedash-v2/server/db/sqlc"
+	"github.com/clickclackers/typedash-v2/api/handlers"
+	db "github.com/clickclackers/typedash-v2/db/sqlc"
 	"github.com/gin-gonic/gin"
 )
 

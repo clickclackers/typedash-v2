@@ -16,8 +16,8 @@ RUN go mod download
 ARG AIR_VERSION=v1.62.0
 RUN go install github.com/air-verse/air@${AIR_VERSION}
 
-# Work inside the server module
-WORKDIR /app/server
+# Copy source code
+COPY . .
 
 # By default Air looks for .air.toml or falls back to sensible defaults
 CMD ["air"]

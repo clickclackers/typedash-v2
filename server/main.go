@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/clickclackers/typedash-v2/server/api/handlers"
-	"github.com/clickclackers/typedash-v2/server/api/routes"
+	"github.com/clickclackers/typedash-v2/api/handlers"
+	"github.com/clickclackers/typedash-v2/api/routes"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -20,9 +20,10 @@ func getAllowedOrigins() []string {
 }
 
 func main() {
-	// Load .env file
-	if err := godotenv.Load("../.env"); err != nil {
-		log.Println("Warning: .env file not found. This is normal in production as we are using Docker secrets.")
+	if os.Getenv("IS_LOCAL_DEV") == "true" {
+		if err := godotenv.Load("../.env"); err != nil {
+			log.Println("Local Development Warning: .env file not found.")
+		}
 	}
 
 	if err := InitDB(); err != nil {

@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	db "github.com/clickclackers/typedash-v2/server/db/sqlc"
+	db "github.com/clickclackers/typedash-v2/db/sqlc"
 	"github.com/gin-gonic/gin"
 )
 

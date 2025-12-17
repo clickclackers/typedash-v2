@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	db "github.com/clickclackers/typedash-v2/server/db/sqlc"
+	db "github.com/clickclackers/typedash-v2/db/sqlc"
 	"github.com/gin-gonic/gin"
 )
 

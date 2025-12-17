@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	db "github.com/clickclackers/typedash-v2/server/db/sqlc"
+	db "github.com/clickclackers/typedash-v2/db/sqlc"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"

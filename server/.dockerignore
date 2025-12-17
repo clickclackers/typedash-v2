@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+
+# Logs
+*.log
+tmp/
+
+# OS
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Build artifacts
+server
+tmp/
+
+# Documentation
+README.md
+LICENSE
+
+# Development files
+Makefile
+*.md
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Docker
+docker-compose*.yaml
+compose*.yaml
+Dockerfile*
+.dockerignore
+
+# Other
+droplet.conf
+Caddyfile

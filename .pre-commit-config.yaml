@@ -1,20 +1,37 @@
 repos:
-  - repo: https://github.com/dnephin/pre-commit-golang
-    rev: v0.5.1
-    hooks:
-      - id: go-fmt
-      - id: go-imports
-      - id: golangci-lint
-
   - repo: local
     hooks:
-      - id: go-vet
-        name: go vet
-        entry: go vet ./...
+      - id: go-fmt
+        name: go fmt
+        entry: bash -c 'cd server && go fmt ./...'
         language: system
         types: [go]
+        files: ^server/
         pass_filenames: false
-        exclude: ^$
+
+      - id: go-imports
+        name: go imports
+        entry: bash -c 'cd server && goimports -w .'
+        language: system
+        types: [go]
+        files: ^server/
+        pass_filenames: false
+
+      - id: golangci-lint
+        name: golangci-lint
+        entry: bash -c 'cd server && golangci-lint run ./...'
+        language: system
+        types: [go]
+        files: ^server/
+        pass_filenames: false
+
+      - id: go-vet
+        name: go vet
+        entry: bash -c 'cd server && go vet ./...'
+        language: system
+        types: [go]
+        files: ^server/
+        pass_filenames: false
 
   - repo: local
     hooks:

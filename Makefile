@@ -25,7 +25,7 @@ dev:
 
 .PHONY: server
 server:
-	docker compose -f server/compose.dev.yaml up db server-dev
+	docker compose -f server/compose.dev.yaml up
 
 .PHONY: client
 client:
@@ -34,7 +34,7 @@ client:
 .PHONY: install
 install:
 	@echo "🍺 Installing system dependencies via Homebrew..."
-	brew install sqlc pre-commit golangci-lint goimports golang-migrate redis postgresql
+	brew install sqlc pre-commit golangci-lint goimports golang-migrate
 	@echo "🔧 Installing Go development tools..."
 	@AIR_VERSION=$${AIR_VERSION:-v1.62.0}; \
 		echo "Installing air $$AIR_VERSION..."; \
@@ -42,7 +42,7 @@ install:
 	@echo "🔍 Installing pre-commit hooks..."
 	pre-commit install
 	@echo "📦 Installing Go dependencies..."
-	go mod tidy
+	cd server && go mod tidy
 	@echo "📦 Installing pnpm dependencies..."
 	cd client && pnpm install
 	@echo "✅ All dependencies installed!"
@@ -60,16 +60,6 @@ sqlc:
 	@echo "🗄️  Generating sqlc code..."
 	cd server/db && sqlc generate
 	@echo "✅ Database code generation complete!"
-
-.PHONY: redis-start
-redis-start:
-	@echo "🚀 Starting PostgreSQL service..."
-	@if ! brew services list | grep redis | grep started > /dev/null; then \
-		brew services start redis; \
-		echo "✅ Redis service started"; \
-	else \
-		echo "✅ Redis service already running"; \
-	fi
 
 .PHONY: db-migrate
 db-migrate:
