@@ -3,12 +3,12 @@ import api from '/src/services/api';
 import queryKeys from './queryKeys';
 
 export const useGetChallengesByCategory = ({
-  category,
+  categoryId,
 }: {
-  category: string;
+  categoryId: number;
 }) => {
   return useQuery({
-    queryKey: queryKeys.challengesByCategory({ category }),
-    queryFn: () => api.getChallengesByCategory({ category }),
+    queryKey: queryKeys.challengesByCategory({ categoryId }),
+    queryFn: () => api.getChallengesByCategory({ categoryId }),
   });
 };

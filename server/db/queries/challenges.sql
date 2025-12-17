@@ -6,4 +6,5 @@ WHERE id = $1;
 -- name: GetChallengesByCategory :many
 SELECT *
 FROM challenges
-WHERE category = $1;
+JOIN categories ON challenges.category_id = categories.id
+WHERE categories.id = $1;

@@ -1,10 +1,11 @@
 const queryKeys = {
   userOverviewStats: ['user-overview-stats'],
   singleplayerResults: ['singleplayer-results'],
-  challengesByCategory: ({ category }: { category: string }) => [
+  challengesByCategory: ({ categoryId }: { categoryId: number }) => [
     'challenges-by-category',
-    category,
+    categoryId,
   ],
+  categories: ['categories'],
 };
 
 export default queryKeys;

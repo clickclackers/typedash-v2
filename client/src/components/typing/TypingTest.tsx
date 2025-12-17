@@ -25,13 +25,14 @@ import { WordStatus } from '/src/components/typing/wordStatus';
 import Result from '/src/components/typing/results/Result';
 import { useCreateSingleplayerResults } from '/src/hooks/react-query/useCreateSingleplayerResults';
 import { useGetChallengesByCategory } from '/src/hooks/react-query/useGetChallengesByCategory';
-import { challengeItems } from '/src/challenges/randomChallenge';
 import { Challenge } from '/src/services/types';
+import { useGetCategories } from '/src/hooks/react-query/useGetCategories';
 
 const DEFAULT_TEST_DURATION = 120;
 const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
 
 const TypingTest: FC = () => {
+  const { data: categoriesData } = useGetCategories();
   const [typedWordList, setTypedWordList] = useState<string[]>(['']);
   const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [totalStrokes, setTotalStrokes] = useState(0);
@@ -59,13 +60,14 @@ const TypingTest: FC = () => {
   const challengeSwitchRef = useRef<HTMLButtonElement>(null);
   const challengeOptionRef = useRef<Array<HTMLButtonElement | null>>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [category, setCategory] = useState(
-    localStorage.getItem('challenge-category') ?? 'Books',
-  );
+  const [categoryId, setCategoryId] = useState(() => {
+    const stored = localStorage.getItem('challenge-category');
+    return stored ? Number(stored) : 1;
+  });
   const { mutate: createSingleplayerResult } = useCreateSingleplayerResults({});
   const { data: challengesData, isLoading: isLoadingChallenges } =
     useGetChallengesByCategory({
-      category,
+      categoryId,
     });
   const [challenge, setChallenge] = useState<Challenge | undefined>();
   const letterSet = challenge?.text.split('') ?? [];
@@ -235,10 +237,10 @@ const TypingTest: FC = () => {
   const handleChallengeTypeSwitch = (
     e: React.MouseEvent<HTMLButtonElement>,
   ) => {
-    const category = e.currentTarget.value;
-    setCategory(category);
+    const categoryId = e.currentTarget.value;
+    setCategoryId(Number(categoryId));
     onClose();
-    localStorage.setItem('challenge-category', category);
+    localStorage.setItem('challenge-category', categoryId);
   };
 
   // prevent ctrl A and backspace to delete all words
@@ -365,7 +367,7 @@ const TypingTest: FC = () => {
                     onClick={onOpen}
                     colorScheme='primary'
                   >
-                    {challenge.category}
+                    {challenge.name}
                   </Button>
                 )}
               </div>
@@ -436,19 +438,19 @@ const TypingTest: FC = () => {
         <ModalContent>
           <ModalHeader>Challenge Type</ModalHeader>
           <ModalBody className='flex flex-col gap-2'>
-            {challengeItems?.map((type, i) => (
+            {categoriesData?.categories.map((category, i) => (
               <Button
-                key={i}
+                key={category.id}
                 ref={(el) => (challengeOptionRef.current[i] = el)}
                 leftIcon={
-                  challenge.category === type.name ? <CheckIcon /> : <div />
+                  challenge.category === category.name ? <CheckIcon /> : <div />
                 }
                 onClick={handleChallengeTypeSwitch}
-                value={type.name}
+                value={category.id}
               >
                 <div className='w-full flex justify-between'>
-                  <div>{type.name}</div>
-                  <div>{type.desc}</div>
+                  <div>{category.name}</div>
+                  {/* <div>{category.desc}</div> */}
                 </div>
               </Button>
             ))}

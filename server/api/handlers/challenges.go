@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	db "github.com/clickclackers/typedash-v2/db/sqlc"
 	"github.com/gin-gonic/gin"
@@ -10,8 +11,13 @@ import (
 // GetChallengesByCategory GET /challenges
 func GetChallengesByCategory(q *db.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		category := c.Query("category")
-		challenges, err := q.GetChallengesByCategory(c.Request.Context(), category)
+		categoryId := c.Query("categoryId")
+		categoryIdInt, err := strconv.Atoi(categoryId)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid categoryId"})
+			return
+		}
+		challenges, err := q.GetChallengesByCategory(c.Request.Context(), int32(categoryIdInt))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch challenges"})
 			return

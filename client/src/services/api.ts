@@ -6,6 +6,7 @@ import {
   ResultsRequest,
   StatisticsResponse,
   ChallengesResponse,
+  CategoriesResponse,
 } from '/src/services/types';
 import axios from 'axios';
 import toast from '/src/components/toast';
@@ -78,10 +79,15 @@ class ApiClient {
     return res.data;
   };
 
-  getChallengesByCategory = async (params: { category: string }) => {
+  getChallengesByCategory = async (params: { categoryId: number }) => {
     const res = await this.instance.get<ChallengesResponse>('/challenges', {
       params,
     });
+    return res.data;
+  };
+
+  getCategories = async () => {
+    const res = await this.instance.get<CategoriesResponse>('/categories');
     return res.data;
   };
 }

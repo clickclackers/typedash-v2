@@ -60,6 +60,7 @@ func main() {
 	router.POST("/logout", handlers.LogoutHandler())
 
 	routes.ChallengesRoutes(router.Group("/"), queries)
+	routes.CategoriesRoutes(router.Group("/"), queries)
 
 	// Protected routes
 	protected := router.Group("/")

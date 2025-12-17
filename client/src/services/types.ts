@@ -50,5 +50,9 @@ export interface Challenge {
   category: string;
   author: string;
   text: string;
-  text_hash: string;
+  name: string;
+}
+
+export interface CategoriesResponse {
+  categories: { id: number; name: string }[];
 }
