@@ -15,11 +15,22 @@ help:
 
 .PHONY: dev
 dev:
-	@echo "🚀 Starting development environment..."
-	@trap 'echo "🛑 Stopping docker services..."; \
+	@trap ' \
 		docker compose -f server/compose.dev.yaml down 2>/dev/null || true; \
 		exit' INT TERM EXIT; \
 	make server & \
+	for i in $$(seq 1 30); do \
+		if curl -s http://localhost:3000/healthz >/dev/null 2>&1; then \
+			echo "✅ Server is ready!"; \
+			break; \
+		fi; \
+		if [ $$i -eq 30 ]; then \
+			echo "❌ Server failed to start within 30 seconds"; \
+			docker compose -f server/compose.dev.yaml down 2>/dev/null || true; \
+			exit 1; \
+		fi; \
+		sleep 1; \
+	done; \
 	make client & \
 	wait
 
