@@ -13,7 +13,7 @@ import (
 
 var queries *db.Queries
 
-// getSecret reads a value from Docker secrets file or falls back to environment variable.
+// getSecret reads a value from Docker secrets file
 // Docker secrets are mounted at /run/secrets/<secret_name>.
 func getSecret(secretName string) string {
 	secretPath := "/run/secrets/" + secretName
