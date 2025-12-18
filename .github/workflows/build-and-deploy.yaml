@@ -55,24 +55,14 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Copy compose.prod.yaml and Caddyfile to Droplet
+      - name: Copy compose, Caddyfile, migrations, and seed files to Droplet
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.DROPLET_HOST }}
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_KEY }}
           # fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
-          source: "server/compose.prod.yaml,server/Caddyfile"
-          target: "~/typedash"
-          strip_components: 1
-      - name: Copy database migrations to Droplet
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.DROPLET_HOST }}
-          username: ${{ secrets.DROPLET_USERNAME }}
-          key: ${{ secrets.DROPLET_KEY }}
-          # fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
-          source: "server/db/migrations,server/db/seed.sql"
+          source: "server/compose.prod.yaml,server/Caddyfile,server/db/migrations,server/db/seed.sql"
           target: "~/typedash"
           strip_components: 1
 
