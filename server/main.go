@@ -9,7 +9,6 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func getAllowedOrigins() []string {
@@ -20,12 +19,6 @@ func getAllowedOrigins() []string {
 }
 
 func main() {
-	if os.Getenv("IS_LOCAL_DEV") == "true" {
-		if err := godotenv.Load("../.env"); err != nil {
-			log.Println("Local Development Warning: .env file not found.")
-		}
-	}
-
 	if err := InitDB(); err != nil {
 		log.Fatal("Failed to initialize database:", err)
 	}
@@ -59,8 +52,8 @@ func main() {
 	router.POST("/login", handlers.LoginHandler(queries))
 	router.POST("/logout", handlers.LogoutHandler())
 
-	routes.ChallengesRoutes(router.Group("/"), queries)
-	routes.CategoriesRoutes(router.Group("/"), queries)
+	router.GET("/challenges", handlers.GetChallengesByCategory(queries))
+	router.GET("/categories", handlers.GetCategories(queries))
 
 	// Protected routes
 	protected := router.Group("/")

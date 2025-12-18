@@ -19,12 +19,12 @@ dev:
 		docker compose -f server/compose.dev.yaml down 2>/dev/null || true; \
 		exit' INT TERM EXIT; \
 	make server & \
-	for i in $$(seq 1 30); do \
+	for i in $$(seq 1 60); do \
 		if curl -s http://localhost:3000/healthz >/dev/null 2>&1; then \
 			break; \
 		fi; \
-		if [ $$i -eq 30 ]; then \
-			echo "❌ Server failed to start within 30 seconds"; \
+		if [ $$i -eq 60 ]; then \
+			echo "❌ Server failed to start within 60 seconds"; \
 			docker compose -f server/compose.dev.yaml down 2>/dev/null || true; \
 			exit 1; \
 		fi; \
@@ -73,7 +73,8 @@ db-migrate:
 
 .PHONY: db-seed
 db-seed:
-	psql "postgres://typedash:typedash@localhost:5432/typedash?sslmode=disable" -f server/db/seed.sql
+	docker compose -f server/compose.dev.yaml up -d db
+	docker compose -f server/compose.dev.yaml exec -T db psql -U typedash -d typedash < server/db/seed.sql
 
 .PHONY: lint
 lint:
