@@ -72,9 +72,9 @@ jobs:
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_KEY }}
           # fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
-          source: "server/db/migrations"
-          target: "~/typedash/db/migrations"
-          strip_components: 3
+          source: "server/db/migrations,server/db/seed.sql"
+          target: "~/typedash"
+          strip_components: 1
 
       # UNCOMMENT TO UPDATE SECRETS
       # - name: Set secrets on Droplet
