@@ -30,3 +30,7 @@ We use `go-migrate` CLI to generate migrations, and `sqlc` to generate type-safe
 1. Update db/queries/\*
 2. `make sqlc` to generate queries
 3. `make db-migrate` to run migrations
+
+### To seed prod db
+
+`docker compose -f ~/typedash/compose.prod.yaml exec -T db psql -U typedash -d typedash < ~/typedash/db/seed.sql`
