@@ -11,9 +11,10 @@ services:
       server:
         condition: service_started
     volumes:
-      # Mount the repo's Caddyfile
+      # Mount Caddyfile
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       # Persist Caddy certificates and config
+      - ./caddy/certs:/etc/caddy/certs:ro
       - caddy_data:/data
       - caddy_config:/config
 

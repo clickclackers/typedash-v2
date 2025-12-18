@@ -1,7 +1,6 @@
-# Caddy will obtain and renew TLS automatically
-
 api.songyang.dev {
-    # Forward all traffic to the app container
+    tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
+
     reverse_proxy server:3000
 
     # Enable compression
