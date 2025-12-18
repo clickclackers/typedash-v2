@@ -450,7 +450,7 @@ const TypingTest: FC = () => {
               >
                 <div className='w-full flex justify-between'>
                   <div>{category.name}</div>
-                  {/* <div>{category.desc}</div> */}
+                  <div>{category.description}</div>
                 </div>
               </Button>
             ))}

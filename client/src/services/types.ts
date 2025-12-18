@@ -54,5 +54,11 @@ export interface Challenge {
 }
 
 export interface CategoriesResponse {
-  categories: { id: number; name: string }[];
+  categories: Category[];
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  description: string;
 }

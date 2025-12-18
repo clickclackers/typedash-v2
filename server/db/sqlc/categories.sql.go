@@ -10,7 +10,7 @@ import (
 )
 
 const getAllCategories = `-- name: GetAllCategories :many
-SELECT id, name
+SELECT id, name, description
 FROM categories
 `
 
@@ -23,7 +23,7 @@ func (q *Queries) GetAllCategories(ctx context.Context) ([]Category, error) {
 	var items []Category
 	for rows.Next() {
 		var i Category
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name, &i.Description); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

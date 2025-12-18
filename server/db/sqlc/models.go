@@ -9,8 +9,9 @@ import (
 )
 
 type Category struct {
-	ID   int32  `json:"id"`
-	Name string `json:"name"`
+	ID          int32  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 type Challenge struct {

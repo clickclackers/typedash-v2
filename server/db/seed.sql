@@ -1,11 +1,12 @@
 BEGIN;
 
 -- Categories
-INSERT INTO categories (id, name)
+INSERT INTO categories (id, name, description)
 VALUES
-    (1, 'Books'),
-    (2, 'Songs'),
-    (3, 'Algorithms');
+    (1, 'Books', 'Reveal your inner bookworm!'),
+    (2, 'Songs', 'From oldies to modern songs!'),
+    (3, 'Algorithms', 'CS is already tough, why bother...')
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description;
 
 
 -- Challenges
