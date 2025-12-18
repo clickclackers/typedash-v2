@@ -29,21 +29,25 @@ func (q *Queries) GetChallengeByID(ctx context.Context, id int32) (Challenge, er
 }
 
 const getChallengesByCategory = `-- name: GetChallengesByCategory :many
-SELECT challenges.id, title, author, text, category_id, categories.id, name, description
+SELECT 
+  challenges.id AS id,
+  challenges.title AS title,
+  challenges.author AS author,
+  challenges.text AS text,
+  categories.name AS category,
+  categories.id AS category_id
 FROM challenges
 JOIN categories ON challenges.category_id = categories.id
 WHERE categories.id = $1
 `
 
 type GetChallengesByCategoryRow struct {
-	ID          int32  `json:"id"`
-	Title       string `json:"title"`
-	Author      string `json:"author"`
-	Text        string `json:"text"`
-	CategoryID  int32  `json:"category_id"`
-	ID_2        int32  `json:"id_2"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	ID         int32  `json:"id"`
+	Title      string `json:"title"`
+	Author     string `json:"author"`
+	Text       string `json:"text"`
+	Category   string `json:"category"`
+	CategoryID int32  `json:"category_id"`
 }
 
 func (q *Queries) GetChallengesByCategory(ctx context.Context, id int32) ([]GetChallengesByCategoryRow, error) {
@@ -60,10 +64,8 @@ func (q *Queries) GetChallengesByCategory(ctx context.Context, id int32) ([]GetC
 			&i.Title,
 			&i.Author,
 			&i.Text,
+			&i.Category,
 			&i.CategoryID,
-			&i.ID_2,
-			&i.Name,
-			&i.Description,
 		); err != nil {
 			return nil, err
 		}

@@ -47,10 +47,10 @@ export interface ChallengesResponse {
 export interface Challenge {
   id: number;
   title: string;
-  category: string;
   author: string;
   text: string;
-  name: string;
+  category: string;
+  category_id: number;
 }
 
 export interface CategoriesResponse {

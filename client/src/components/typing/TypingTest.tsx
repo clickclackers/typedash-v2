@@ -371,7 +371,7 @@ const TypingTest: FC = () => {
                     onClick={onOpen}
                     colorScheme='primary'
                   >
-                    {challenge.name}
+                    {challenge.category}
                   </Button>
                 )}
               </div>
