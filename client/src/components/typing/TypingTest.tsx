@@ -27,6 +27,7 @@ import { useCreateSingleplayerResults } from '/src/hooks/react-query/useCreateSi
 import { useGetChallengesByCategory } from '/src/hooks/react-query/useGetChallengesByCategory';
 import { Challenge } from '/src/services/types';
 import { useGetCategories } from '/src/hooks/react-query/useGetCategories';
+import { useAuth } from '/src/hooks/useAuth';
 
 const DEFAULT_TEST_DURATION = 120;
 const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
@@ -64,6 +65,7 @@ const TypingTest: FC = () => {
     const stored = localStorage.getItem('challenge-category');
     return stored ? Number(stored) : 1;
   });
+  const { isAuthenticated } = useAuth();
   const { mutate: createSingleplayerResult } = useCreateSingleplayerResults({});
   const { data: challengesData, isLoading: isLoadingChallenges } =
     useGetChallengesByCategory({
@@ -75,6 +77,9 @@ const TypingTest: FC = () => {
 
   // generate result once test ends
   const handleTestComplete = () => {
+    if (!isTestStarted) {
+      return;
+    }
     setIsTestStarted(false);
     pauseTimer();
     const timeTaken = DEFAULT_TEST_DURATION - time;
@@ -107,7 +112,9 @@ const TypingTest: FC = () => {
       time_taken: timeTaken,
       created_at: new Date().toISOString(),
     };
-    createSingleplayerResult(params);
+    if (isAuthenticated) {
+      createSingleplayerResult(params);
+    }
     setShowResults(true);
   };
 
@@ -288,9 +295,6 @@ const TypingTest: FC = () => {
 
   // if finished word set or timer has ran out, stop the test
   useEffect(() => {
-    if (!isTestStarted) {
-      return;
-    }
     if (
       (typedWordList.length >= wordSet.length &&
         typedWordList.at(-1) === wordSet.at(-1)) ||
@@ -298,7 +302,7 @@ const TypingTest: FC = () => {
     ) {
       handleTestComplete();
     }
-  }, [typedWordList, time, wordSet, isTestStarted]);
+  }, [typedWordList, time, wordSet]);
 
   if (isLoadingChallenges || !challenge) {
     return (
