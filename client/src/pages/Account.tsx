@@ -2,6 +2,7 @@ import { Box, Fade, Spinner } from '@chakra-ui/react';
 import { FC, useEffect } from 'react';
 import { useGetUserOverviewStats } from '../hooks/react-query/useGetUserOverviewStats';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '/src/hooks/useAuth';
 
 export interface LoadoutProps {
   id: number;
@@ -16,12 +17,14 @@ const Account: FC = () => {
     isLoading: isLoadingStats,
     error,
   } = useGetUserOverviewStats();
+  const { onLogout } = useAuth();
 
   useEffect(() => {
     if (error?.status === 401) {
+      onLogout();
       navigate('/login');
     }
-  }, [error, navigate]);
+  }, [error, navigate, onLogout]);
 
   if (isLoadingStats || !stats) {
     return (
