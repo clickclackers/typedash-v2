@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"os"
 	"time"
 
 	db "github.com/clickclackers/typedash-v2/db/sqlc"
@@ -11,6 +12,21 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
+
+// setAuthCookie sets an HTTP-only cookie with proper security attributes
+func setAuthCookie(c *gin.Context, token string, maxAge int) {
+	isLocalDev := os.Getenv("IS_LOCAL_DEV") == "true"
+	cookie := &http.Cookie{
+		Name:     "auth_token",
+		Value:    token,
+		Path:     "/",
+		MaxAge:   maxAge,
+		HttpOnly: true,
+		Secure:   !isLocalDev,
+		SameSite: http.SameSiteLaxMode,
+	}
+	http.SetCookie(c.Writer, cookie)
+}
 
 type RegisterRequest struct {
 	Username string `json:"username" binding:"required,min=3,max=20"`
@@ -91,9 +107,11 @@ func RegisterHandler(q *db.Queries) gin.HandlerFunc {
 			return
 		}
 
+		// Set HTTP-only cookie
+		setAuthCookie(c, token, 7*24*60*60) // 7 days in seconds
+
 		c.JSON(http.StatusCreated, gin.H{
 			"message": "User registered successfully",
-			"token":   token,
 			"user": gin.H{
 				"id":       user.ID,
 				"username": req.Username,
@@ -136,9 +154,11 @@ func LoginHandler(q *db.Queries) gin.HandlerFunc {
 			return
 		}
 
+		// Set HTTP-only cookie
+		setAuthCookie(c, token, 7*24*60*60) // 7 days in seconds
+
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Login successful",
-			"token":   token,
 			"user": gin.H{
 				"id":       user.ID,
 				"username": user.Username,
@@ -151,9 +171,8 @@ func LoginHandler(q *db.Queries) gin.HandlerFunc {
 // LogoutHandler handles user logout
 func LogoutHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// In a stateless JWT system, logout is typically handled client-side
-		// by removing the token. However, we can implement a token blacklist
-		// or simply return a success message.
+		// Clear the auth cookie
+		setAuthCookie(c, "", -1) // Expire immediately
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Logout successful",
 		})
@@ -163,7 +182,7 @@ func LogoutHandler() gin.HandlerFunc {
 // GetUserProfileHandler returns the current user's profile
 func GetUserProfileHandler(q *db.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId, exists := c.Get("userId")
+		userId, exists := c.Get("userID")
 		if !exists {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "User not authenticated"})
 			return

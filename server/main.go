@@ -59,6 +59,9 @@ func main() {
 	protected := router.Group("/")
 	protected.Use(handlers.AuthMiddleware())
 
+	// User profile route
+	protected.GET("/user", handlers.GetUserProfileHandler(queries))
+
 	// Routes for user overview stats, singleplayer and multiplayer stats
 	routes.UserOverviewStatsRoutes(protected, queries)
 	routes.SingleplayerChallengeStatsRoutes(protected, queries)

@@ -7,12 +7,13 @@ import {
   StatisticsResponse,
   ChallengesResponse,
   CategoriesResponse,
+  UserProfileResponse,
 } from '/src/services/types';
 import axios from 'axios';
 import toast from '/src/components/toast';
 
 export const baseURL: string = import.meta.env.DEV
-  ? 'http://localhost:3000'
+  ? '/api' // Use Vite proxy in development for same-origin requests
   : 'https://api.songyang.dev';
 
 export const instance = axios.create({
@@ -20,28 +21,24 @@ export const instance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Send cookies with requests
 });
-instance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers['Authorization'] = 'Bearer ' + token;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
 
 instance.interceptors.response.use(undefined, (error) => {
   if (!axios.isCancel(error)) {
-    toast({
-      title: 'Error',
-      description: error?.response?.data?.message ?? 'Please try again later',
-      variant: 'solid',
-      status: 'error',
-      position: 'top-right',
-      isClosable: true,
-    });
+    // Don't show toast for 401 Unauthorized errors - these are expected
+    // when checking authentication status (e.g., on page load)
+    const status = error?.response?.status;
+    if (status !== 401) {
+      toast({
+        title: 'Error',
+        description: error?.response?.data?.message ?? 'Please try again later',
+        variant: 'solid',
+        status: 'error',
+        position: 'top-right',
+        isClosable: true,
+      });
+    }
   }
   return Promise.reject(error);
 });
@@ -88,6 +85,11 @@ class ApiClient {
 
   getCategories = async () => {
     const res = await this.instance.get<CategoriesResponse>('/categories');
+    return res.data;
+  };
+
+  getUserProfile = async () => {
+    const res = await this.instance.get<UserProfileResponse>('/user');
     return res.data;
   };
 }

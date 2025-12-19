@@ -34,17 +34,10 @@ type Claims struct {
 // AuthMiddleware validates JWT tokens and sets user info in context
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "Authorization header required"})
-			c.Abort()
-			return
-		}
-
-		// Extract token from "Bearer <token>"
-		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		if tokenString == authHeader {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid authorization header format"})
+		// Try to get token from cookie first
+		tokenString, err := c.Cookie("auth_token")
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Authentication required"})
 			c.Abort()
 			return
 		}

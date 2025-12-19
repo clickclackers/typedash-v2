@@ -19,7 +19,10 @@ export interface LoginRequest {
 // API response types
 export interface AuthResponse {
   message: string;
-  token: string;
+  user: User;
+}
+
+export interface UserProfileResponse {
   user: User;
 }
 

@@ -34,7 +34,7 @@ export const Login: FC = () => {
           position: 'top-right',
           isClosable: true,
         });
-        login(res.data.user, res.data.token);
+        login(res.data.user);
         navigate('/');
       }
     });
