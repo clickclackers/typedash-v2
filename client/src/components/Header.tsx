@@ -14,8 +14,8 @@ import { FiLogIn, FiLogOut } from 'react-icons/fi';
 import { RiPaletteFill } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '/src/hooks/useAuth';
+import { useLogout } from '/src/hooks/react-query/useLogout';
 import CatLogo from '/src/assets/cat.svg';
-import api from '/src/services/api';
 import { ThemeProps } from '/src/themes/theme.interface';
 import ThemeModal from '/src/themes/ThemeModal';
 import toast from '/src/components/toast';
@@ -33,11 +33,10 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
     onClose: onThemeClose,
   } = useDisclosure();
   const [isMobile] = useMediaQuery('(max-width: 767px)');
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, onLogout, isAuthenticated } = useAuth();
 
-  const logoutHandler = () => {
-    api.logout().then(() => {
-      logout();
+  const { mutate: logout, isPending: isLogoutPending } = useLogout({
+    onSuccess: () => {
       toast({
         title: 'Logout successful',
         variant: 'solid',
@@ -45,9 +44,10 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
         position: 'top-right',
         isClosable: true,
       });
+      onLogout();
       navigate('/');
-    });
-  };
+    },
+  });
 
   return (
     <div className='flex justify-between items-center'>
@@ -157,12 +157,13 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
               className='font-mono'
             >
               <IconButton
-                onClick={logoutHandler}
+                onClick={() => logout()}
                 variant='ghost'
                 color='text.primary'
                 _hover={{ color: 'text.secondary' }}
                 aria-label='Login tooltip'
                 icon={<FiLogOut size={25} />}
+                isLoading={isLogoutPending}
               />
             </Tooltip>
           </div>

@@ -6,6 +6,9 @@ const queryKeys = {
     categoryId,
   ],
   categories: ['categories'],
+  login: ['login'],
+  register: ['register'],
+  logout: ['logout'],
 };
 
 export default queryKeys;

@@ -4,35 +4,32 @@ import { FC, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useAuth } from '/src/hooks/useAuth';
-import api from '/src/services/api';
+import { useRegister } from '/src/hooks/react-query/useRegister';
 import toast from '/src/components/toast';
-import { RegisterRequest } from '/src/services/types';
 
 const Register: FC = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { onLogin, isAuthenticated } = useAuth();
+
+  const { mutate: register, isPending: isRegisterPending } = useRegister({
+    onSuccess: (data) => {
+      toast({
+        title: 'Registration successful',
+        variant: 'solid',
+        status: 'success',
+        position: 'top-right',
+        isClosable: true,
+      });
+      onLogin(data.user);
+      navigate('/');
+    },
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/');
     }
   }, [isAuthenticated, navigate]);
-
-  const registerHandler = (values: RegisterRequest) => {
-    api.register(values).then((res) => {
-      if (res?.status === 201) {
-        toast({
-          title: 'Registration successful',
-          variant: 'solid',
-          status: 'success',
-          position: 'top-right',
-          isClosable: true,
-        });
-        login(res.data.user);
-        navigate('/');
-      }
-    });
-  };
 
   return (
     <div className='flex flex-col justify-center items-center gap-6'>
@@ -58,7 +55,7 @@ const Register: FC = () => {
             .required('Please re-type your password')
             .oneOf([Yup.ref('password')], 'Passwords do not match'),
         })}
-        onSubmit={(values) => registerHandler(values)}
+        onSubmit={(values) => register(values)}
       >
         {({
           handleSubmit,
@@ -163,6 +160,7 @@ const Register: FC = () => {
         variant='link'
         color='text.primary'
         onClick={() => navigate('/login')}
+        isLoading={isRegisterPending}
       >
         back to login
       </Button>

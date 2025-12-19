@@ -9,10 +9,9 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (userData: User) => void;
-  logout: () => void;
+  onLogin: (userData: User) => void;
+  onLogout: () => void;
   isAuthenticated: boolean;
-  isLoading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -23,7 +22,6 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check authentication by fetching user profile
@@ -40,8 +38,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // User is not authenticated or token expired
         setUser(null);
         localStorage.removeItem('user');
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -61,28 +57,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = (userData: User) => {
+  const onLogin = (userData: User) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const logout = async () => {
-    try {
-      await api.logout();
-    } catch (error) {
-      // Continue with logout even if API call fails
-      console.error('Logout API call failed:', error);
-    }
+  const onLogout = () => {
     setUser(null);
     localStorage.removeItem('user');
   };
 
   const value: AuthContextType = {
     user,
-    login,
-    logout,
+    onLogin,
+    onLogout,
     isAuthenticated: !!user,
-    isLoading,
   };
 
   return React.createElement(AuthContext.Provider, { value }, children);

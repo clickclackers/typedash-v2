@@ -10,35 +10,32 @@ import { FC, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useAuth } from '/src/hooks/useAuth';
-import api from '/src/services/api';
+import { useLogin } from '/src/hooks/react-query/useLogin';
 import toast from '/src/components/toast';
-import { LoginRequest } from '/src/services/types';
 
 export const Login: FC = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { onLogin, isAuthenticated } = useAuth();
+
+  const { mutate: login, isPending: isLoginPending } = useLogin({
+    onSuccess: (data) => {
+      toast({
+        title: 'Login successful',
+        variant: 'solid',
+        status: 'success',
+        position: 'top-right',
+        isClosable: true,
+      });
+      onLogin(data.user);
+      navigate('/');
+    },
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/');
     }
   }, [isAuthenticated, navigate]);
-
-  const loginHandler = (values: LoginRequest) => {
-    api.login(values).then((res) => {
-      if (res?.status === 200) {
-        toast({
-          title: 'Login successful',
-          variant: 'solid',
-          status: 'success',
-          position: 'top-right',
-          isClosable: true,
-        });
-        login(res.data.user);
-        navigate('/');
-      }
-    });
-  };
 
   return (
     <Box className='flex flex-col justify-center items-center gap-6'>
@@ -53,7 +50,7 @@ export const Login: FC = () => {
             .required('Please enter your email'),
           password: Yup.string().required('Please enter your password'),
         })}
-        onSubmit={(values) => loginHandler(values)}
+        onSubmit={(values) => login(values)}
       >
         {({
           handleSubmit,
@@ -109,7 +106,12 @@ export const Login: FC = () => {
                 </FormErrorMessage>
               </FormControl>
             </div>
-            <Button type='submit' variant='ghost' color='text.primary'>
+            <Button
+              type='submit'
+              variant='ghost'
+              color='text.primary'
+              isLoading={isLoginPending}
+            >
               sign in
             </Button>
           </form>
