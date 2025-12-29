@@ -10,7 +10,9 @@ export const useLogin = ({
 }) => {
   return useMutation({
     mutationKey: queryKeys.login,
-    mutationFn: (params: LoginRequest) => api.login(params),
+    mutationFn: async (params: LoginRequest) => {
+      return await api.post<AuthResponse>('/login', params);
+    },
     onSuccess: (response) => {
       if (response?.data?.user) {
         onSuccess?.(response.data);

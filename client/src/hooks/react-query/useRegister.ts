@@ -10,7 +10,9 @@ export const useRegister = ({
 }) => {
   return useMutation({
     mutationKey: queryKeys.register,
-    mutationFn: (params: RegisterRequest) => api.register(params),
+    mutationFn: async (params: RegisterRequest) => {
+      return await api.post<AuthResponse>('/register', params);
+    },
     onSuccess: (response) => {
       if (response?.data?.user) {
         onSuccess?.(response.data);

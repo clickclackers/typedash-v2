@@ -5,7 +5,9 @@ import queryKeys from './queryKeys';
 export const useLogout = ({ onSuccess }: { onSuccess?: () => void }) => {
   return useMutation({
     mutationKey: queryKeys.logout,
-    mutationFn: () => api.logout(),
+    mutationFn: async () => {
+      return await api.post('/logout');
+    },
     onSuccess: () => {
       onSuccess?.();
     },

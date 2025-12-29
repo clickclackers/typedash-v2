@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import api from '/src/services/api';
 import queryKeys from './queryKeys';
+import { ResultsRequest } from '/src/services/types';
 
 export const useCreateSingleplayerResults = ({
   onSuccess,
@@ -9,7 +10,10 @@ export const useCreateSingleplayerResults = ({
 }) => {
   return useMutation({
     mutationKey: queryKeys.singleplayerResults,
-    mutationFn: api.createSingleplayerResults,
+    mutationFn: async (params: ResultsRequest) => {
+      const res = await api.post('/single_challenge_stats', { params });
+      return res.data;
+    },
     onSuccess(data) {
       onSuccess?.(data);
     },

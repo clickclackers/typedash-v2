@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import api from '/src/services/api';
+import { UserProfileResponse } from '../services/types';
 
 interface User {
   id: number;
@@ -28,11 +29,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // This will use the HTTP-only cookie automatically
     const checkAuth = async () => {
       try {
-        const response = await api.getUserProfile();
-        if (response?.user) {
-          setUser(response.user);
+        const response = await api.get<UserProfileResponse>('/user');
+        if (response?.data?.user) {
+          setUser(response.data.user);
           // Store user data in localStorage for quick access (not sensitive)
-          localStorage.setItem('user', JSON.stringify(response.user));
+          localStorage.setItem('user', JSON.stringify(response.data.user));
         }
       } catch (error) {
         // User is not authenticated or token expired

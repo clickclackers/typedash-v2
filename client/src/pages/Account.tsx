@@ -3,6 +3,7 @@ import { FC, useEffect } from 'react';
 import { useGetUserOverviewStats } from '../hooks/react-query/useGetUserOverviewStats';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '/src/hooks/useAuth';
+import { formatDuration } from '/src/utils/formatDuration';
 
 export interface LoadoutProps {
   id: number;
@@ -42,41 +43,44 @@ const Account: FC = () => {
 
   return (
     <Fade in={!isLoadingStats} delay={0.3}>
-      <div className='flex flex-col gap-4 h-full'>
+      <Box className='flex flex-col gap-4 h-full'>
         <Box
           bg='bg.secondary'
-          className='w-full h-1/5 rounded-md flex justify-center items-center gap-16 p-12'
+          className='mt-6 rounded-md flex flex-row justify-center items-center gap-16 p-12 relative'
         >
-          <div className='flex gap-12'>
-            <div className='flex flex-col text-left'>
-              <div className='text-sm'>tests completed</div>
-              <Box color='text.secondary' className='text-2xl font-semibold'>
-                {stats.single_total_races}
-              </Box>
-            </div>
-            <div className='flex flex-col text-left'>
-              <div className='text-sm'>time typed</div>
-              <Box color='text.secondary' className='text-2xl font-semibold'>
-                {Math.floor(stats.single_total_time / 3600)}h{' '}
-                {Math.floor(stats.single_total_time / 60)}m{' '}
-                {stats.single_total_time % 60}s
-              </Box>
-            </div>
-            {/* <div className='flex flex-col text-left'>
-              <div className='text-sm'>highest wpm</div>
-              <Box color='text.secondary' className='text-2xl font-semibold'>
-                {stats.single_highest_wpm}
-              </Box>
-            </div> */}
-            <div className='flex flex-col text-left'>
-              <div className='text-sm'>average wpm</div>
-              <Box color='text.secondary' className='text-2xl font-semibold'>
-                {stats.single_avg_wpm.toFixed(2)}
-              </Box>
-            </div>
+          <Box className='absolute top-0 left-0 py-2 px-4 font-medium'>
+            singleplayer
+          </Box>
+          <div className='flex flex-col text-left'>
+            <div className='text-sm'>tests completed</div>
+            <Box color='text.secondary' className='text-2xl font-semibold'>
+              {stats.single_total_races}
+            </Box>
+          </div>
+          <div className='flex flex-col text-left'>
+            <div className='text-sm'>time typed</div>
+            <Box color='text.secondary' className='text-2xl font-semibold'>
+              {formatDuration(stats.single_total_time)}
+            </Box>
+          </div>
+          <div className='flex flex-col text-left'>
+            <div className='text-sm'>average wpm</div>
+            <Box color='text.secondary' className='text-2xl font-semibold'>
+              {stats.single_avg_wpm.toFixed(2)}
+            </Box>
           </div>
         </Box>
-      </div>
+
+        <Box
+          bg='bg.secondary'
+          className='mt-4 rounded-md flex flex-row justify-center items-center gap-16 p-12 relative'
+        >
+          <Box className='absolute top-0 left-0 py-2 px-4 font-medium'>
+            multiplayer
+          </Box>
+          coming soon...
+        </Box>
+      </Box>
     </Fade>
   );
 };
