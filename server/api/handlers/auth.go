@@ -81,7 +81,7 @@ func RegisterHandler(q *db.Queries, pool *pgxpool.Pool) gin.HandlerFunc {
 		tx, err := pool.Begin(context)
 		if err != nil {
 			log.Printf("error beginning tx: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create single challenge stats"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to begin registration transaction"})
 			return
 		}
 		defer func() { _ = tx.Rollback(context) }()
