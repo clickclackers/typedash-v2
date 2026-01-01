@@ -12,6 +12,7 @@ import (
 )
 
 var queries *db.Queries
+var pool *pgxpool.Pool
 
 // getSecret reads a value from Docker secrets file
 // Docker secrets are mounted at /run/secrets/<secret_name>.
@@ -52,7 +53,8 @@ func InitDB() error {
 
 	dsn := fmt.Sprintf("postgres://%s:%s@db:5432/%s", postgresUser, postgresPassword, postgresDb)
 
-	pool, err := pgxpool.New(context.Background(), dsn)
+	var err error
+	pool, err = pgxpool.New(context.Background(), dsn)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}

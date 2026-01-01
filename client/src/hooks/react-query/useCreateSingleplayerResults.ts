@@ -11,7 +11,8 @@ export const useCreateSingleplayerResults = ({
   return useMutation({
     mutationKey: queryKeys.singleplayerResults,
     mutationFn: async (params: ResultsRequest) => {
-      const res = await api.post('/single_challenge_stats', { params });
+      console.log(params);
+      const res = await api.post('/results_single', params);
       return res.data;
     },
     onSuccess(data) {

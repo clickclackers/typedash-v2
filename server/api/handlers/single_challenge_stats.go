@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -81,39 +80,5 @@ func GetSingleChallengeStats(q *db.Queries) gin.HandlerFunc {
 
 		// Case 4: No query parameters provided
 		c.JSON(http.StatusBadRequest, gin.H{"message": "At least one query parameter (user_id or challenge_id) is required"})
-	}
-}
-
-// CreateSingleChallengeStats POST /single_challenge_stats
-func CreateSingleChallengeStats(q *db.Queries) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		userId, exists := c.Get("userID")
-		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "User not authenticated"})
-			return
-		}
-
-		userIdInt, ok := userId.(int32)
-		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "Invalid user ID type"})
-			return
-		}
-
-		var stats db.SingleChallengeStat
-		if err := c.ShouldBindJSON(&stats); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
-			return
-		}
-
-		stats.UserID = userIdInt
-
-		newStats, err := q.CreateSingleChallengeStats(c.Request.Context(), db.CreateSingleChallengeStatsParams(stats))
-		if err != nil {
-			log.Printf("error in CreateSingleChallengeStats: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create single challenge stats"})
-			return
-		}
-
-		c.JSON(http.StatusCreated, newStats)
 	}
 }

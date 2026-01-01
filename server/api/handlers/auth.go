@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"errors"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -10,6 +11,7 @@ import (
 	db "github.com/clickclackers/typedash-v2/db/sqlc"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -40,7 +42,7 @@ type LoginRequest struct {
 }
 
 // RegisterHandler handles user registration
-func RegisterHandler(q *db.Queries) gin.HandlerFunc {
+func RegisterHandler(q *db.Queries, pool *pgxpool.Pool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req RegisterRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
@@ -74,8 +76,20 @@ func RegisterHandler(q *db.Queries) gin.HandlerFunc {
 			return
 		}
 
+		context := c.Request.Context()
+
+		tx, err := pool.Begin(context)
+		if err != nil {
+			log.Printf("error beginning tx: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create single challenge stats"})
+			return
+		}
+		defer func() { _ = tx.Rollback(context) }()
+
+		qtx := q.WithTx(tx)
+
 		// Create user
-		user, err := q.CreateUser(c.Request.Context(), db.CreateUserParams{
+		user, err := qtx.CreateUser(context, db.CreateUserParams{
 			Username:     req.Username,
 			Email:        req.Email,
 			PasswordHash: passwordHash,
@@ -86,7 +100,7 @@ func RegisterHandler(q *db.Queries) gin.HandlerFunc {
 		}
 
 		// Create default stats
-		_, createErr := q.CreateUserOverviewStats(c.Request.Context(), db.CreateUserOverviewStatsParams{
+		_, err = qtx.CreateUserOverviewStats(context, db.CreateUserOverviewStatsParams{
 			UserID:           int32(user.ID),
 			SingleTotalRaces: 0,
 			SingleTotalTime:  0,
@@ -95,8 +109,14 @@ func RegisterHandler(q *db.Queries) gin.HandlerFunc {
 			MultiTotalTime:   0,
 			MultiAvgWpm:      0,
 		})
-		if createErr != nil {
+		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create user overview stats"})
+			return
+		}
+
+		if err := tx.Commit(context); err != nil {
+			log.Printf("error committing tx: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to commit database transaction"})
 			return
 		}
 
