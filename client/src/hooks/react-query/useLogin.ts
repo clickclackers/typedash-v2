@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import api from '/src/services/api';
 import { LoginRequest, AuthResponse } from '/src/services/types';
 import queryKeys from './queryKeys';
+import toast from '/src/components/toast';
 
 export const useLogin = ({
   onSuccess,
@@ -17,6 +18,16 @@ export const useLogin = ({
       if (response?.data?.user) {
         onSuccess?.(response.data);
       }
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.response?.data?.message ?? 'Please try again later',
+        variant: 'solid',
+        status: 'error',
+        position: 'top-right',
+        isClosable: true,
+      });
     },
   });
 };

@@ -2,6 +2,6 @@ import type { AxiosError } from 'axios';
 
 declare module '@tanstack/react-query' {
   interface Register {
-    defaultError: AxiosError;
+    defaultError: AxiosError<{ message?: string }>;
   }
 }
