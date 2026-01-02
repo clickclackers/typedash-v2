@@ -125,8 +125,6 @@ const TypingTest: FC = () => {
     );
   };
 
-  console.log(showRefocusOverlay);
-
   const focusOnInput = () => {
     setShowRefocusOverlay(false);
     inputRef.current?.focus();
