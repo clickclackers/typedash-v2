@@ -147,7 +147,6 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
       e.preventDefault();
       restartRef.current?.focus();
     }
-    // inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

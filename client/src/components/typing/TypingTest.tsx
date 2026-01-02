@@ -254,6 +254,12 @@ const TypingTest: FC = () => {
     }
   }, [typedWordList, time, wordSet]);
 
+  useEffect(() => {
+    return () => {
+      debouncedShowRefocusOverlay.cancel();
+    };
+  }, [debouncedShowRefocusOverlay]);
+
   if (isLoadingChallenges || !challenge) {
     return (
       <div className='flex justify-center items-center'>
