@@ -9,8 +9,8 @@ import { Formik } from 'formik';
 import { FC, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
-import { useAuth } from '/src/hooks/useAuth';
-import { useLogin } from '/src/hooks/react-query/useLogin';
+import useAuth from '/src/hooks/useAuth';
+import useLogin from '/src/hooks/react-query/useLogin';
 import toast from '/src/components/toast';
 
 export const Login: FC = () => {

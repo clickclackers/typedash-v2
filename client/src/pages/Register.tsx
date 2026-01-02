@@ -3,8 +3,8 @@ import { Formik } from 'formik';
 import { FC, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
-import { useAuth } from '/src/hooks/useAuth';
-import { useRegister } from '/src/hooks/react-query/useRegister';
+import useAuth from '/src/hooks/useAuth';
+import useRegister from '/src/hooks/react-query/useRegister';
 import toast from '/src/components/toast';
 
 const Register: FC = () => {

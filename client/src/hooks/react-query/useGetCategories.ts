@@ -3,7 +3,7 @@ import api from '/src/services/api';
 import queryKeys from './queryKeys';
 import { CategoriesResponse } from '/src/services/types';
 
-export const useGetCategories = () => {
+export default function useGetCategories() {
   return useQuery({
     queryKey: queryKeys.categories,
     queryFn: async () => {
@@ -11,4 +11,4 @@ export const useGetCategories = () => {
       return res.data;
     },
   });
-};
+}
