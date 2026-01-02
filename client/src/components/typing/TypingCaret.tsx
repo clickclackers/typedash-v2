@@ -20,6 +20,7 @@ function measureMonospaceCharWidthPx(container: HTMLElement) {
   return Number.isFinite(width) && width > 0 ? width : DEFAULT_CHAR_WIDTH_PX;
 }
 
+// WARNING: Vibe coded component
 export default function TypingCaret({
   containerRef,
   activeWordIndex,
@@ -57,7 +58,6 @@ export default function TypingCaret({
     const caretHeight = caretEl.getBoundingClientRect().height || 0;
     const charWidth = charWidthRef.current || DEFAULT_CHAR_WIDTH_PX;
 
-    // Use offsetLeft/offsetTop to avoid scroll/viewport math and reduce jitter.
     const x =
       target.offsetLeft +
       (typedLen > 0 ? charWidth * typedLen : DEFAULT_CARET_START_OFFSET_PX);
