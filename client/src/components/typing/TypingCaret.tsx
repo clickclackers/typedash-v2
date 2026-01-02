@@ -98,7 +98,7 @@ export default function TypingCaret({
       window.removeEventListener('resize', onResize);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [containerRef]);
+  }, []);
 
   return (
     <Box

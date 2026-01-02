@@ -15,14 +15,6 @@ interface WordProps {
   status: WordStatus;
 }
 
-function Letter({ status, char }: { status: string; char: string }) {
-  return (
-    <Box color={`letter.${status}`} className='h-8'>
-      {char}
-    </Box>
-  );
-}
-
 const Word: FC<WordProps> = memo(({ index, word, typedWord, status }) => {
   return (
     <div data-word-index={index} className='flex word-active h-8'>
@@ -48,7 +40,11 @@ const Word: FC<WordProps> = memo(({ index, word, typedWord, status }) => {
             letterStatus = 'incorrect';
           }
         }
-        return <Letter key={i} status={letterStatus} char={char} />;
+        return (
+          <Box key={i} color={`letter.${letterStatus}`} className='h-8'>
+            {char}
+          </Box>
+        );
       })}
       {typedWord &&
         typedWord.length > word.length &&
@@ -56,7 +52,11 @@ const Word: FC<WordProps> = memo(({ index, word, typedWord, status }) => {
           .slice(word.length)
           .split('')
           .map((char, i) => {
-            return <Letter key={i} status={'incorrect'} char={char} />;
+            return (
+              <Box key={i} color='letter.incorrect' className='h-8'>
+                {char}
+              </Box>
+            );
           })}
       &nbsp;
     </div>
