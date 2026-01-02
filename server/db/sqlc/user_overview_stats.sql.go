@@ -68,3 +68,34 @@ func (q *Queries) GetOverviewStatsByUserID(ctx context.Context, userID int32) (U
 	)
 	return i, err
 }
+
+const updateUserOverviewStatsForSingleChallenge = `-- name: UpdateUserOverviewStatsForSingleChallenge :one
+UPDATE user_overview_stats
+SET 
+    single_total_races = single_total_races + 1,
+    single_total_time = single_total_time + $2,
+    single_avg_wpm = ((single_avg_wpm * single_total_races) + $3) / (single_total_races + 1)
+WHERE user_id = $1
+RETURNING user_id, single_total_races, single_total_time, single_avg_wpm, multi_total_races, multi_total_time, multi_avg_wpm
+`
+
+type UpdateUserOverviewStatsForSingleChallengeParams struct {
+	UserID          int32 `json:"user_id"`
+	SingleTotalTime int32 `json:"single_total_time"`
+	SingleAvgWpm    int32 `json:"single_avg_wpm"`
+}
+
+func (q *Queries) UpdateUserOverviewStatsForSingleChallenge(ctx context.Context, arg UpdateUserOverviewStatsForSingleChallengeParams) (UserOverviewStat, error) {
+	row := q.db.QueryRow(ctx, updateUserOverviewStatsForSingleChallenge, arg.UserID, arg.SingleTotalTime, arg.SingleAvgWpm)
+	var i UserOverviewStat
+	err := row.Scan(
+		&i.UserID,
+		&i.SingleTotalRaces,
+		&i.SingleTotalTime,
+		&i.SingleAvgWpm,
+		&i.MultiTotalRaces,
+		&i.MultiTotalTime,
+		&i.MultiAvgWpm,
+	)
+	return i, err
+}

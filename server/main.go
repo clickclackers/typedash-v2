@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/clickclackers/typedash-v2/api/handlers"
-	"github.com/clickclackers/typedash-v2/api/routes"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -48,7 +47,7 @@ func main() {
 		})
 	})
 
-	router.POST("/register", handlers.RegisterHandler(queries))
+	router.POST("/register", handlers.RegisterHandler(queries, pool))
 	router.POST("/login", handlers.LoginHandler(queries))
 	router.POST("/logout", handlers.LogoutHandler())
 
@@ -59,13 +58,15 @@ func main() {
 	protected := router.Group("/")
 	protected.Use(handlers.AuthMiddleware())
 
-	// User profile route
+	// User profile for auth checking (as we are using cookies for auth)
 	protected.GET("/user", handlers.GetUserProfileHandler(queries))
-
-	// Routes for user overview stats, singleplayer and multiplayer stats
-	routes.UserOverviewStatsRoutes(protected, queries)
-	routes.SingleplayerChallengeStatsRoutes(protected, queries)
-	routes.MultiplayerChallengeStatsRoutes(protected, queries)
+	// Challenge stats
+	protected.GET("/user_overview_stats", handlers.GetUserOverviewStats(queries))
+	protected.POST("/user_overview_stats", handlers.CreateUserOverviewStats(queries))
+	protected.GET("/single_challenge_stats", handlers.GetSingleChallengeStats(queries))
+	protected.POST("/results_single", handlers.CreateSingleChallengeResults(queries, pool))
+	protected.GET("/multi_challenge_stats", handlers.GetMultiChallengeStats(queries))
+	protected.POST("/results_multi", handlers.CreateMultiChallengeStats(queries))
 
 	// WebSocket endpoint - no auth to allow anonymous multiplayer
 	// router.GET("/ws", func(c *gin.Context) {
