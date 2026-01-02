@@ -64,11 +64,9 @@ export default function CategorySelect({
         onClick={onOpen}
         colorScheme='primary'
       >
-        {
-          categoriesData?.categories.find(
-            (category) => category.id === categoryId,
-          )?.name
-        }
+        {categoriesData?.categories.find(
+          (category) => category.id === categoryId,
+        )?.name ?? ''}
       </Button>
     </>
   );
