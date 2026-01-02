@@ -1,7 +1,13 @@
 import { FC, memo } from 'react';
 import Caret from '/src/components/typing/Caret';
 import Letter from '/src/components/typing/Letter';
-import { WordStatus } from '/src/components/typing/wordStatus';
+
+export enum WordStatus {
+  IDLE = 'idle',
+  ACTIVE = 'active',
+  COMPLETED = 'completed',
+  WRONG = 'wrong',
+}
 
 interface WordProps {
   word: string;

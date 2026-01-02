@@ -1,39 +1,23 @@
-import { CheckIcon } from '@chakra-ui/icons';
-import {
-  Box,
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  SlideFade,
-  Spinner,
-  Tooltip,
-  useDisclosure,
-} from '@chakra-ui/react';
-import { FC, useEffect, useRef, useState } from 'react';
-import { FaKeyboard } from 'react-icons/fa';
+import { Box, Button, SlideFade, Spinner, Tooltip } from '@chakra-ui/react';
+import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { HiCursorClick } from 'react-icons/hi';
 import { VscDebugRestart } from 'react-icons/vsc';
-import { useOutletContext } from 'react-router-dom';
 import useTimer from '/src/hooks/useTimer';
 import ProgressBar from '/src/components/typing/ProgressBar';
 import Word from '/src/components/typing/Word';
-import { WordStatus } from '/src/components/typing/wordStatus';
-import Result from '/src/components/typing/results/Result';
+import { WordStatus } from '/src/components/typing/Word';
+import Result from '/src/components/typing/Result';
 import { useCreateSingleplayerResults } from '/src/hooks/react-query/useCreateSingleplayerResults';
 import { useGetChallengesByCategory } from '/src/hooks/react-query/useGetChallengesByCategory';
 import { Challenge } from '/src/services/types';
-import { useGetCategories } from '/src/hooks/react-query/useGetCategories';
 import { useAuth } from '/src/hooks/useAuth';
+import CategorySelect from '/src/components/typing/CategorySelect';
+import { debounce } from 'lodash';
 
 const DEFAULT_TEST_DURATION = 120;
 const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
 
 const TypingTest: FC = () => {
-  const { data: categoriesData } = useGetCategories();
   const [typedWordList, setTypedWordList] = useState<string[]>(['']);
   const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [totalStrokes, setTotalStrokes] = useState(0);
@@ -41,7 +25,7 @@ const TypingTest: FC = () => {
   const [activeLetterIndex, setActiveLetterIndex] = useState(0);
   const [isTestStarted, setIsTestStarted] = useState(false);
   const [wrongLettersInWord, setWrongLettersInWord] = useState(0);
-  const [isFocused, setIsFocused] = useState(true);
+  const [showRefocusOverlay, setShowRefocusOverlay] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [wrongLetters, setWrongLetters] = useState<number[]>([]);
   const [result, setResult] = useState({
@@ -52,15 +36,10 @@ const TypingTest: FC = () => {
   const [time, { startTimer, pauseTimer, resetTimer }] = useTimer(
     DEFAULT_TEST_DURATION,
   );
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const [middleContainerRef] = useOutletContext();
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const restartRef = useRef<HTMLButtonElement>(null);
-  const challengeSwitchRef = useRef<HTMLButtonElement>(null);
-  const challengeOptionRef = useRef<Array<HTMLButtonElement | null>>([]);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const [categoryId, setCategoryId] = useState(() => {
     const stored = localStorage.getItem('challenge-category');
     return stored ? Number(stored) : 1;
@@ -72,8 +51,9 @@ const TypingTest: FC = () => {
       categoryId,
     });
   const [challenge, setChallenge] = useState<Challenge | undefined>();
-  const letterSet = challenge?.text.split('') ?? [];
-  const wordSet = challenge?.text.split(' ') ?? [];
+  const challengeText = challenge?.text ?? '';
+  const letterSet = useMemo(() => challengeText.split(''), [challengeText]);
+  const wordSet = useMemo(() => challengeText.split(' '), [challengeText]);
 
   // generate result once test ends
   const handleTestComplete = () => {
@@ -146,7 +126,7 @@ const TypingTest: FC = () => {
   };
 
   const focusOnInput = () => {
-    setIsFocused(true);
+    setShowRefocusOverlay(false);
     inputRef.current?.focus();
   };
 
@@ -241,14 +221,9 @@ const TypingTest: FC = () => {
     setTypedWordList(parts);
   };
 
-  const handleChallengeTypeSwitch = (
-    e: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    const categoryId = e.currentTarget.value;
-    setCategoryId(Number(categoryId));
-    onClose();
-    localStorage.setItem('challenge-category', categoryId);
-  };
+  const debouncedShowRefocusOverlay = debounce(() => {
+    setShowRefocusOverlay(true);
+  }, 1000);
 
   // prevent ctrl A and backspace to delete all words
   useEffect(() => {
@@ -268,31 +243,6 @@ const TypingTest: FC = () => {
     );
   }, [challengesData]);
 
-  useEffect(() => {
-    const handleClickAway = (e: MouseEvent) => {
-      const themeModal = document.querySelector('#chakra-modal-theme-modal');
-      if (showResults) return;
-      if (
-        challengeSwitchRef.current?.contains(e.target as Node) ||
-        challengeOptionRef.current[0]?.contains(e.target as Node) ||
-        challengeOptionRef.current[1]?.contains(e.target as Node) ||
-        challengeOptionRef.current[2]?.contains(e.target as Node) ||
-        themeModal?.contains(e.target as Node)
-      )
-        return;
-      if (
-        middleContainerRef.current &&
-        !middleContainerRef.current.contains(e.target as Node)
-      ) {
-        setTimeout(() => setIsFocused(false), 1000);
-      }
-    };
-    document.addEventListener('mousedown', handleClickAway);
-    return () => {
-      document.removeEventListener('mousedown', handleClickAway);
-    };
-  }, [containerRef]);
-
   // if finished word set or timer has ran out, stop the test
   useEffect(() => {
     if (
@@ -303,6 +253,12 @@ const TypingTest: FC = () => {
       handleTestComplete();
     }
   }, [typedWordList, time, wordSet]);
+
+  useEffect(() => {
+    return () => {
+      debouncedShowRefocusOverlay.cancel();
+    };
+  }, [debouncedShowRefocusOverlay]);
 
   if (isLoadingChallenges || !challenge) {
     return (
@@ -326,9 +282,8 @@ const TypingTest: FC = () => {
         }
         ref={containerRef}
         onKeyDown={handleTab}
-        onClick={focusOnInput}
       >
-        {!isFocused && !showResults && (
+        {showRefocusOverlay && !showResults && (
           <Box
             color='text.secondary'
             onClick={focusOnInput}
@@ -339,7 +294,7 @@ const TypingTest: FC = () => {
         )}
         <div
           className={`flex flex-col justify-center items-center gap-4 h-full overflow-hidden ${
-            !isFocused ? 'blur-sm' : ''
+            showRefocusOverlay ? 'blur-sm' : ''
           } transition w-full`}
         >
           {!showResults ? (
@@ -362,17 +317,10 @@ const TypingTest: FC = () => {
                     <Box color='accent.200'>{time}</Box>
                   </SlideFade>
                 ) : (
-                  <Button
-                    color='text.primary'
-                    ref={challengeSwitchRef}
-                    iconSpacing={3}
-                    leftIcon={<FaKeyboard size={20} />}
-                    variant='ghost'
-                    onClick={onOpen}
-                    colorScheme='primary'
-                  >
-                    {challenge.category}
-                  </Button>
+                  <CategorySelect
+                    categoryId={challenge.category_id}
+                    setCategoryId={setCategoryId}
+                  />
                 )}
               </div>
               <div
@@ -401,6 +349,10 @@ const TypingTest: FC = () => {
                 type='text'
                 onChange={handleKeyPress}
                 onKeyDown={handleKeyDown}
+                onFocus={() => {
+                  setShowRefocusOverlay(false);
+                }}
+                onBlur={debouncedShowRefocusOverlay}
                 onPasteCapture={(e) => e.preventDefault()}
                 ref={inputRef}
                 autoCorrect='off'
@@ -437,31 +389,6 @@ const TypingTest: FC = () => {
           </Tooltip>
         </div>
       </div>
-      <Modal onClose={onClose} isOpen={isOpen} isCentered size='2xl'>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Challenge Type</ModalHeader>
-          <ModalBody className='flex flex-col gap-2'>
-            {categoriesData?.categories.map((category, i) => (
-              <Button
-                key={category.id}
-                ref={(el) => (challengeOptionRef.current[i] = el)}
-                leftIcon={
-                  challenge.category === category.name ? <CheckIcon /> : <div />
-                }
-                onClick={handleChallengeTypeSwitch}
-                value={category.id}
-              >
-                <div className='w-full flex justify-between'>
-                  <div>{category.name}</div>
-                  <div>{category.description}</div>
-                </div>
-              </Button>
-            ))}
-          </ModalBody>
-          <ModalFooter />
-        </ModalContent>
-      </Modal>
     </>
   );
 };

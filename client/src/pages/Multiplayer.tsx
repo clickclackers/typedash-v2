@@ -1,59 +1,28 @@
-import { CheckIcon } from '@chakra-ui/icons';
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  useDisclosure,
-} from '@chakra-ui/react';
-import { FC, useEffect, useState } from 'react';
-import { FaKeyboard } from 'react-icons/fa';
+import { Button } from '@chakra-ui/react';
+import { FC, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Challenge } from '../challenges/challenge.interface';
-import {
-  challengeItems,
-  randomChallenge,
-} from '/src/challenges/randomChallenge';
 import { baseURL } from '/src/services/api';
 import { useSocket } from '/src/hooks/useSocket';
 import toast from '/src/components/toast';
+import CategorySelect from '/src/components/typing/CategorySelect';
 
 const Multiplayer: FC = () => {
-  const [challenge, setChallenge] = useState<Challenge>();
+  const [categoryId, setCategoryId] = useState(1);
   const navigate = useNavigate();
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const { setSocket } = useSocket();
-
-  const getDefaultChallengeType = () => {
-    const storedChallenge = localStorage.getItem('challenge-type');
-    if (storedChallenge !== null) return storedChallenge;
-    else return 'Books';
-  };
-
-  const [challengeType, setChallengeType] = useState(getDefaultChallengeType());
-
-  useEffect(() => {
-    const chosenChallenge = randomChallenge(challengeType);
-    setChallenge(chosenChallenge);
-  }, [challengeType]);
 
   const createRoom = () => {
     const wsUrl = baseURL.replace(/^http/, 'ws').replace(/\/$/, '') + '/ws';
     const newSocket = new WebSocket(wsUrl);
 
     newSocket.onopen = () => {
-      if (challenge) {
-        // Send createRoom message to server
-        newSocket.send(
-          JSON.stringify({
-            type: 'createRoom',
-            challenge: challenge,
-          }),
-        );
-      }
+      // Send createRoom message to server
+      newSocket.send(
+        JSON.stringify({
+          type: 'createRoom',
+          categoryId,
+        }),
+      );
     };
 
     newSocket.onmessage = (event) => {
@@ -93,48 +62,9 @@ const Multiplayer: FC = () => {
     setSocket(newSocket);
   };
 
-  const handleChallengeTypeSwitch = (
-    e: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    setChallengeType(e.currentTarget.value);
-    onClose();
-  };
-
   return (
     <div className='flex flex-col items-center justify-center gap-2'>
-      <Button
-        iconSpacing={3}
-        leftIcon={<FaKeyboard size={20} />}
-        variant='ghost'
-        onClick={onOpen}
-        colorScheme='primary'
-        color='text.primary'
-        className='w-min'
-      >
-        {challengeType}
-      </Button>
-      <Modal onClose={onClose} isOpen={isOpen} isCentered size='2xl'>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Challenge Type</ModalHeader>
-          <ModalBody className='flex flex-col gap-2'>
-            {challengeItems.map((type, i) => (
-              <Button
-                key={i}
-                leftIcon={challengeType === type.name ? <CheckIcon /> : <div />}
-                onClick={handleChallengeTypeSwitch}
-                value={type.name}
-              >
-                <div className='w-full flex justify-between'>
-                  <div>{type.name}</div>
-                  <div>{type.desc}</div>
-                </div>
-              </Button>
-            ))}
-          </ModalBody>
-          <ModalFooter />
-        </ModalContent>
-      </Modal>
+      <CategorySelect categoryId={categoryId} setCategoryId={setCategoryId} />
       <Button
         className='w-min'
         variant='ghost'

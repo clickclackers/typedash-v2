@@ -3,7 +3,7 @@ import { FC, useEffect } from 'react';
 import { useGetUserOverviewStats } from '../hooks/react-query/useGetUserOverviewStats';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '/src/hooks/useAuth';
-import { formatDuration } from '/src/utils/formatDuration';
+import { formatDuration } from '/src/utils/utils';
 
 export interface LoadoutProps {
   id: number;
