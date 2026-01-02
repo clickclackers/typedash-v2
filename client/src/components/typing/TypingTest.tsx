@@ -21,7 +21,7 @@ import { useOutletContext } from 'react-router-dom';
 import useTimer from '/src/hooks/useTimer';
 import ProgressBar from '/src/components/typing/ProgressBar';
 import Word from '/src/components/typing/Word';
-import { WordStatus } from '/src/components/typing/wordStatus';
+import { WordStatus } from '/src/components/typing/Word';
 import Result from '/src/components/typing/results/Result';
 import { useCreateSingleplayerResults } from '/src/hooks/react-query/useCreateSingleplayerResults';
 import { useGetChallengesByCategory } from '/src/hooks/react-query/useGetChallengesByCategory';
@@ -320,6 +320,31 @@ const TypingTest: FC = () => {
 
   return (
     <>
+      <Modal onClose={onClose} isOpen={isOpen} isCentered size='2xl'>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Challenge Type</ModalHeader>
+          <ModalBody className='flex flex-col gap-2'>
+            {categoriesData?.categories.map((category, i) => (
+              <Button
+                key={category.id}
+                ref={(el) => (challengeOptionRef.current[i] = el)}
+                leftIcon={
+                  challenge.category === category.name ? <CheckIcon /> : <div />
+                }
+                onClick={handleChallengeTypeSwitch}
+                value={category.id}
+              >
+                <div className='w-full flex justify-between'>
+                  <div>{category.name}</div>
+                  <div>{category.description}</div>
+                </div>
+              </Button>
+            ))}
+          </ModalBody>
+          <ModalFooter />
+        </ModalContent>
+      </Modal>
       <div
         className={
           'flex flex-col justify-center items-center gap-8 text-xl relative'
@@ -437,31 +462,6 @@ const TypingTest: FC = () => {
           </Tooltip>
         </div>
       </div>
-      <Modal onClose={onClose} isOpen={isOpen} isCentered size='2xl'>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Challenge Type</ModalHeader>
-          <ModalBody className='flex flex-col gap-2'>
-            {categoriesData?.categories.map((category, i) => (
-              <Button
-                key={category.id}
-                ref={(el) => (challengeOptionRef.current[i] = el)}
-                leftIcon={
-                  challenge.category === category.name ? <CheckIcon /> : <div />
-                }
-                onClick={handleChallengeTypeSwitch}
-                value={category.id}
-              >
-                <div className='w-full flex justify-between'>
-                  <div>{category.name}</div>
-                  <div>{category.description}</div>
-                </div>
-              </Button>
-            ))}
-          </ModalBody>
-          <ModalFooter />
-        </ModalContent>
-      </Modal>
     </>
   );
 };

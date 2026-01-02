@@ -9,7 +9,7 @@ import Word from '/src/components/typing/Word';
 import { Challenge } from '/src/services/types';
 import Result from '/src/components/typing/results/Result';
 import { useAuth } from '/src/hooks/useAuth';
-import { WordStatus } from './wordStatus';
+import { WordStatus } from '/src/components/typing/Word';
 
 interface MultiplayerTestProps {
   startTyping: boolean;

@@ -12,17 +12,12 @@ import {
 import { FC, useEffect, useState } from 'react';
 import { FaKeyboard } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { Challenge } from '../challenges/challenge.interface';
-import {
-  challengeItems,
-  randomChallenge,
-} from '/src/challenges/randomChallenge';
 import { baseURL } from '/src/services/api';
 import { useSocket } from '/src/hooks/useSocket';
 import toast from '/src/components/toast';
 
 const Multiplayer: FC = () => {
-  const [challenge, setChallenge] = useState<Challenge>();
+  const [challenge, setChallenge] = useState();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { setSocket } = useSocket();
@@ -35,10 +30,10 @@ const Multiplayer: FC = () => {
 
   const [challengeType, setChallengeType] = useState(getDefaultChallengeType());
 
-  useEffect(() => {
-    const chosenChallenge = randomChallenge(challengeType);
-    setChallenge(chosenChallenge);
-  }, [challengeType]);
+  // useEffect(() => {
+  //   const chosenChallenge = randomChallenge(challengeType);
+  //   setChallenge(chosenChallenge);
+  // }, [challengeType]);
 
   const createRoom = () => {
     const wsUrl = baseURL.replace(/^http/, 'ws').replace(/\/$/, '') + '/ws';
@@ -113,7 +108,7 @@ const Multiplayer: FC = () => {
       >
         {challengeType}
       </Button>
-      <Modal onClose={onClose} isOpen={isOpen} isCentered size='2xl'>
+      {/* <Modal onClose={onClose} isOpen={isOpen} isCentered size='2xl'>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Challenge Type</ModalHeader>
@@ -134,7 +129,7 @@ const Multiplayer: FC = () => {
           </ModalBody>
           <ModalFooter />
         </ModalContent>
-      </Modal>
+      </Modal> */}
       <Button
         className='w-min'
         variant='ghost'
