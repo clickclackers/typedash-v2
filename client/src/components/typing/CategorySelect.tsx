@@ -67,7 +67,7 @@ export default function CategorySelect({
         {
           categoriesData?.categories.find(
             (category) => category.id === categoryId,
-          )?.name
+          )?.name ?? 'Select Category'
         }
       </Button>
     </>
