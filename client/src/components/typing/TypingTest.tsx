@@ -18,7 +18,7 @@ const DEFAULT_TEST_DURATION = 120;
 const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
 
 const TypingTest: FC = () => {
-  const [typedWordList, setTypedWordList] = useState<string[]>(['']);
+  const [typedWordList, setTypedWordList] = useState<string[]>([]);
   const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [totalStrokes, setTotalStrokes] = useState(0);
   const [mistypedCount, setMistypedCount] = useState(0);
@@ -324,7 +324,7 @@ const TypingTest: FC = () => {
                 )}
               </div>
               <div
-                className='flex flex-wrap h-1/2 md:h-1/5 lg:sm:h-1/6 content-start 2xl:gap-y-4 mb-12 w-full select-none'
+                className='flex flex-wrap h-1/2 md:h-1/5 lg:sm:h-1/6 content-start 2xl:gap-y-4 mb-12 w-full select-none font-mono'
                 onClick={focusOnInput}
               >
                 {wordSet.map((word, index) => (
