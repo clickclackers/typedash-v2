@@ -7,7 +7,7 @@ import api from '/src/services/api';
 // import socket from '/src/services/socket';
 import Word from '/src/components/typing/Word';
 import { Challenge } from '/src/services/types';
-import Result from '/src/components/typing/results/Result';
+import Result from './Result';
 import { useAuth } from '/src/hooks/useAuth';
 import { WordStatus } from '/src/components/typing/Word';
 
