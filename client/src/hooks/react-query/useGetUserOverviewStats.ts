@@ -3,7 +3,7 @@ import api from '/src/services/api';
 import queryKeys from './queryKeys';
 import { StatisticsResponse } from '/src/services/types';
 
-export const useGetUserOverviewStats = () => {
+export default function useGetUserOverviewStats() {
   return useQuery({
     queryKey: queryKeys.userOverviewStats,
     queryFn: async () => {
@@ -11,4 +11,4 @@ export const useGetUserOverviewStats = () => {
       return res.data;
     },
   });
-};
+}

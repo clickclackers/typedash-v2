@@ -4,11 +4,11 @@ import { LoginRequest, AuthResponse } from '/src/services/types';
 import queryKeys from './queryKeys';
 import toast from '/src/components/toast';
 
-export const useLogin = ({
+export default function useLogin({
   onSuccess,
 }: {
   onSuccess?: (data: AuthResponse) => void;
-}) => {
+}) {
   return useMutation({
     mutationKey: queryKeys.login,
     mutationFn: async (params: LoginRequest) => {
@@ -30,4 +30,4 @@ export const useLogin = ({
       });
     },
   });
-};
+}

@@ -1,8 +1,8 @@
 import { Box, Fade, Spinner } from '@chakra-ui/react';
 import { FC, useEffect } from 'react';
-import { useGetUserOverviewStats } from '../hooks/react-query/useGetUserOverviewStats';
+import useGetUserOverviewStats from '/src/hooks/react-query/useGetUserOverviewStats';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '/src/hooks/useAuth';
+import useAuth from '/src/hooks/useAuth';
 import { formatDuration } from '/src/utils/utils';
 
 export interface LoadoutProps {

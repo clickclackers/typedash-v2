@@ -1,5 +1,5 @@
 import { Box, Button, SlideFade, Spinner, Tooltip } from '@chakra-ui/react';
-import { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HiCursorClick } from 'react-icons/hi';
 import { VscDebugRestart } from 'react-icons/vsc';
 import useTimer from '/src/hooks/useTimer';
@@ -7,11 +7,12 @@ import ProgressBar from '/src/components/typing/ProgressBar';
 import Word from '/src/components/typing/Word';
 import { WordStatus } from '/src/components/typing/Word';
 import Result from '/src/components/typing/Result';
-import { useCreateSingleplayerResults } from '/src/hooks/react-query/useCreateSingleplayerResults';
-import { useGetChallengesByCategory } from '/src/hooks/react-query/useGetChallengesByCategory';
+import useCreateSingleplayerResults from '/src/hooks/react-query/useCreateSingleplayerResults';
+import useGetChallengesByCategory from '/src/hooks/react-query/useGetChallengesByCategory';
 import { Challenge } from '/src/services/types';
-import { useAuth } from '/src/hooks/useAuth';
+import useAuth from '/src/hooks/useAuth';
 import CategorySelect from '/src/components/typing/CategorySelect';
+import TypingCaret from '/src/components/typing/TypingCaret';
 import { debounce } from 'lodash';
 
 const DEFAULT_TEST_DURATION = 120;
@@ -37,6 +38,7 @@ const TypingTest: FC = () => {
     DEFAULT_TEST_DURATION,
   );
   const containerRef = useRef<HTMLDivElement>(null);
+  const wordsContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const restartRef = useRef<HTMLButtonElement>(null);
 
@@ -56,7 +58,7 @@ const TypingTest: FC = () => {
   const wordSet = useMemo(() => challengeText.split(' '), [challengeText]);
 
   // generate result once test ends
-  const handleTestComplete = () => {
+  const handleTestComplete = useCallback(() => {
     if (!isTestStarted) {
       return;
     }
@@ -96,7 +98,18 @@ const TypingTest: FC = () => {
       createSingleplayerResult(params);
     }
     setShowResults(true);
-  };
+  }, [
+    challenge?.id,
+    createSingleplayerResult,
+    isAuthenticated,
+    isTestStarted,
+    mistypedCount,
+    pauseTimer,
+    time,
+    totalStrokes,
+    typedWordList,
+    wordSet,
+  ]);
 
   const restartTest = () => {
     resetTimer();
@@ -252,7 +265,7 @@ const TypingTest: FC = () => {
     ) {
       handleTestComplete();
     }
-  }, [typedWordList, time, wordSet]);
+  }, [handleTestComplete, time, typedWordList, wordSet]);
 
   useEffect(() => {
     return () => {
@@ -324,12 +337,20 @@ const TypingTest: FC = () => {
                 )}
               </div>
               <div
-                className='flex flex-wrap h-1/2 md:h-1/5 lg:sm:h-1/6 content-start 2xl:gap-y-4 mb-12 w-full select-none font-mono'
+                ref={wordsContainerRef}
+                className='relative flex flex-wrap h-1/2 md:h-1/5 lg:sm:h-1/6 content-start 2xl:gap-y-4 mb-12 w-full select-none font-mono'
                 onClick={focusOnInput}
               >
+                <TypingCaret
+                  containerRef={wordsContainerRef}
+                  activeWordIndex={activeWordIndex}
+                  activeTypedWord={typedWordList[activeWordIndex]}
+                  isVisible={!showResults}
+                />
                 {wordSet.map((word, index) => (
                   <Word
                     key={index}
+                    index={index}
                     word={word}
                     typedWord={typedWordList[index]}
                     status={

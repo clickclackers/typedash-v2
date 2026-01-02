@@ -6,9 +6,10 @@ import useTimer from '/src/hooks/useTimer';
 import api from '/src/services/api';
 // import socket from '/src/services/socket';
 import Word from '/src/components/typing/Word';
+import TypingCaret from '/src/components/typing/TypingCaret';
 import { Challenge } from '/src/services/types';
 import Result from '/src/components/typing/Result';
-import { useAuth } from '/src/hooks/useAuth';
+import useAuth from '/src/hooks/useAuth';
 import { WordStatus } from '/src/components/typing/Word';
 
 interface MultiplayerTestProps {
@@ -48,6 +49,7 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
   const INITIAL_TIME = 120;
   const [time, { startTimer, pauseTimer }] = useTimer(INITIAL_TIME); // default time is 120 seconds
   const containerRef = useRef<HTMLDivElement>(null);
+  const wordsContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const restartRef = useRef<HTMLButtonElement>(null);
   const { user } = useAuth();
@@ -267,12 +269,20 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
               {time}
             </Box>
             <div
-              className='flex flex-wrap h-1/2 md:h-1/5 lg:sm:h-1/6 content-start 2xl:gap-y-4 mb-12'
+              ref={wordsContainerRef}
+              className='relative flex flex-wrap h-1/2 md:h-1/5 lg:sm:h-1/6 content-start 2xl:gap-y-4 mb-12'
               onClick={focusOnInput}
             >
+              <TypingCaret
+                containerRef={wordsContainerRef}
+                activeWordIndex={activeWordIndex}
+                activeTypedWord={typedWordList[activeWordIndex]}
+                isVisible={!showResults}
+              />
               {wordSet.map((word, index) => (
                 <Word
                   key={index}
+                  index={index}
                   word={word}
                   typedWord={typedWordList[index]}
                   status={

@@ -11,7 +11,7 @@ import MultiplayerTest from '/src/components/typing/MultiplayerTest';
 import ProgressBar from '/src/components/typing/ProgressBar';
 import { Challenge } from '/src/services/types';
 import useTimer from '../hooks/useTimer';
-import { useAuth } from '/src/hooks/useAuth';
+import useAuth from '/src/hooks/useAuth';
 import { baseURL } from '/src/services/api';
 import toast from '/src/components/toast';
 

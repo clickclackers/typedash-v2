@@ -25,7 +25,9 @@ const Result: FC<ResultProps> = ({ result, challenge, timerRanOut }) => {
           )}
         </div>
         {timerRanOut && (
-          <div className='text-right text-4xl italic'>incomplete test</div>
+          <div className='text-right text-3xl italic text-red-400'>
+            incomplete test
+          </div>
         )}
       </div>
       <div className='flex justify-between'>

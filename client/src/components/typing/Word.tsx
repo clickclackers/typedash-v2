@@ -1,6 +1,5 @@
+import { Box } from '@chakra-ui/react';
 import { FC, memo } from 'react';
-import Caret from '/src/components/typing/Caret';
-import Letter from '/src/components/typing/Letter';
 
 export enum WordStatus {
   IDLE = 'idle',
@@ -10,46 +9,55 @@ export enum WordStatus {
 }
 
 interface WordProps {
+  index: number;
   word: string;
   typedWord: string | undefined;
   status: WordStatus;
 }
 
-const Word: FC<WordProps> = memo(({ word, typedWord, status }) => {
-  const offset = [12, -3];
-  const letters = word.split('').map((char, i) => {
-    let letterStatus = 'idle';
-    if (status === WordStatus.COMPLETED) {
-      letterStatus = 'correct';
-    } else if (status === WordStatus.ACTIVE || status === WordStatus.WRONG) {
-      if (typedWord?.charAt(i) === char) {
-        letterStatus = 'correct';
-      } else if (typedWord?.charAt(i) !== char && typedWord?.charAt(i)) {
-        letterStatus = 'incorrect';
-      } else if (
-        status === WordStatus.WRONG &&
-        typedWord !== word &&
-        i === typedWord?.length &&
-        typedWord.length < word.length
-      ) {
-        // Highlight the next target character as incorrect for previously submitted wrong words
-        letterStatus = 'incorrect';
-      }
-    }
-    return <Letter key={i} status={letterStatus} char={char} />;
-  });
-  const wrongLetters = typedWord
-    ?.slice(word.length)
-    .split('')
-    .map((char, i) => {
-      return <Letter key={i} status={'incorrect'} char={char} />;
-    });
-  const caretOffset = offset[0] * (typedWord?.length ?? 0) || offset[1];
+function Letter({ status, char }: { status: string; char: string }) {
   return (
-    <div className='flex word-active h-8'>
-      {status === WordStatus.ACTIVE && <Caret offset={caretOffset} />}
-      {letters}
-      {typedWord && typedWord.length > word.length && wrongLetters}
+    <Box color={`letter.${status}`} className='h-8'>
+      {char}
+    </Box>
+  );
+}
+
+const Word: FC<WordProps> = memo(({ index, word, typedWord, status }) => {
+  return (
+    <div data-word-index={index} className='flex word-active h-8'>
+      {word.split('').map((char, i) => {
+        let letterStatus = 'idle';
+        if (status === WordStatus.COMPLETED) {
+          letterStatus = 'correct';
+        } else if (
+          status === WordStatus.ACTIVE ||
+          status === WordStatus.WRONG
+        ) {
+          if (typedWord?.charAt(i) === char) {
+            letterStatus = 'correct';
+          } else if (typedWord?.charAt(i) !== char && typedWord?.charAt(i)) {
+            letterStatus = 'incorrect';
+          } else if (
+            status === WordStatus.WRONG &&
+            typedWord !== word &&
+            i === typedWord?.length &&
+            typedWord.length < word.length
+          ) {
+            // Highlight the next target character as incorrect for previously submitted wrong words
+            letterStatus = 'incorrect';
+          }
+        }
+        return <Letter key={i} status={letterStatus} char={char} />;
+      })}
+      {typedWord &&
+        typedWord.length > word.length &&
+        typedWord
+          .slice(word.length)
+          .split('')
+          .map((char, i) => {
+            return <Letter key={i} status={'incorrect'} char={char} />;
+          })}
       &nbsp;
     </div>
   );

@@ -9,7 +9,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { FaKeyboard } from 'react-icons/fa';
-import { useGetCategories } from '/src/hooks/react-query/useGetCategories';
+import useGetCategories from '/src/hooks/react-query/useGetCategories';
 import { CheckIcon } from '@chakra-ui/icons';
 
 export default function CategorySelect({

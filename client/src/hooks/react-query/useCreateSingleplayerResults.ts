@@ -3,11 +3,11 @@ import api from '/src/services/api';
 import queryKeys from './queryKeys';
 import { ResultsRequest } from '/src/services/types';
 
-export const useCreateSingleplayerResults = ({
+export default function useCreateSingleplayerResults({
   onSuccess,
 }: {
   onSuccess?: (data: unknown) => void;
-}) => {
+}) {
   return useMutation({
     mutationKey: queryKeys.singleplayerResults,
     mutationFn: async (params: ResultsRequest) => {
@@ -18,4 +18,4 @@ export const useCreateSingleplayerResults = ({
       onSuccess?.(data);
     },
   });
-};
+}
