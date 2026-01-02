@@ -12,6 +12,7 @@ import { useGetChallengesByCategory } from '/src/hooks/react-query/useGetChallen
 import { Challenge } from '/src/services/types';
 import { useAuth } from '/src/hooks/useAuth';
 import CategorySelect from '/src/components/typing/CategorySelect';
+import { debounce } from 'lodash';
 
 const DEFAULT_TEST_DURATION = 120;
 const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
@@ -24,7 +25,7 @@ const TypingTest: FC = () => {
   const [activeLetterIndex, setActiveLetterIndex] = useState(0);
   const [isTestStarted, setIsTestStarted] = useState(false);
   const [wrongLettersInWord, setWrongLettersInWord] = useState(0);
-  const [isFocused, setIsFocused] = useState(true);
+  const [showRefocusOverlay, setShowRefocusOverlay] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [wrongLetters, setWrongLetters] = useState<number[]>([]);
   const [result, setResult] = useState({
@@ -124,8 +125,10 @@ const TypingTest: FC = () => {
     );
   };
 
+  console.log(showRefocusOverlay);
+
   const focusOnInput = () => {
-    setIsFocused(true);
+    setShowRefocusOverlay(false);
     inputRef.current?.focus();
   };
 
@@ -220,6 +223,10 @@ const TypingTest: FC = () => {
     setTypedWordList(parts);
   };
 
+  const debouncedShowRefocusOverlay = debounce(() => {
+    setShowRefocusOverlay(true);
+  }, 1000);
+
   // prevent ctrl A and backspace to delete all words
   useEffect(() => {
     document.addEventListener('keydown', preventCrtlA);
@@ -271,9 +278,8 @@ const TypingTest: FC = () => {
         }
         ref={containerRef}
         onKeyDown={handleTab}
-        onClick={focusOnInput}
       >
-        {!isFocused && !showResults && (
+        {showRefocusOverlay && !showResults && (
           <Box
             color='text.secondary'
             onClick={focusOnInput}
@@ -284,7 +290,7 @@ const TypingTest: FC = () => {
         )}
         <div
           className={`flex flex-col justify-center items-center gap-4 h-full overflow-hidden ${
-            !isFocused ? 'blur-sm' : ''
+            showRefocusOverlay ? 'blur-sm' : ''
           } transition w-full`}
         >
           {!showResults ? (
@@ -339,8 +345,10 @@ const TypingTest: FC = () => {
                 type='text'
                 onChange={handleKeyPress}
                 onKeyDown={handleKeyDown}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
+                onFocus={() => {
+                  setShowRefocusOverlay(false);
+                }}
+                onBlur={debouncedShowRefocusOverlay}
                 onPasteCapture={(e) => e.preventDefault()}
                 ref={inputRef}
                 autoCorrect='off'

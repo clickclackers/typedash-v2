@@ -65,28 +65,6 @@ const Multiplayer: FC = () => {
   return (
     <div className='flex flex-col items-center justify-center gap-2'>
       <CategorySelect categoryId={categoryId} setCategoryId={setCategoryId} />
-      {/* <Modal onClose={onClose} isOpen={isOpen} isCentered size='2xl'>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Challenge Type</ModalHeader>
-          <ModalBody className='flex flex-col gap-2'>
-            {challengeItems.map((type, i) => (
-              <Button
-                key={i}
-                leftIcon={challengeType === type.name ? <CheckIcon /> : <div />}
-                onClick={handleChallengeTypeSwitch}
-                value={type.name}
-              >
-                <div className='w-full flex justify-between'>
-                  <div>{type.name}</div>
-                  <div>{type.desc}</div>
-                </div>
-              </Button>
-            ))}
-          </ModalBody>
-          <ModalFooter />
-        </ModalContent>
-      </Modal> */}
       <Button
         className='w-min'
         variant='ghost'
