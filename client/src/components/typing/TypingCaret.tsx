@@ -40,17 +40,11 @@ export default function TypingCaret({
     const caretEl = caretRef.current;
     if (!container || !caretEl) return;
 
-    if (!isVisible) {
-      caretEl.style.opacity = '0';
-      return;
-    }
-
     const target = container.querySelector(
       `[data-word-index="${activeWordIndex}"]`,
     ) as HTMLElement | null;
 
     if (!target) {
-      caretEl.style.opacity = '0';
       return;
     }
 
@@ -63,7 +57,6 @@ export default function TypingCaret({
       (typedLen > 0 ? charWidth * typedLen : DEFAULT_CARET_START_OFFSET_PX);
     const y = target.offsetTop + (target.offsetHeight - caretHeight) / 2;
 
-    caretEl.style.opacity = '1';
     caretEl.style.transform = `translate3d(${x}px, ${y}px, 0)`;
   };
 
@@ -100,6 +93,8 @@ export default function TypingCaret({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const isInitialPosition = activeWordIndex === 0 && !activeTypedWord?.length;
+
   return (
     <Box
       ref={caretRef}
@@ -111,6 +106,9 @@ export default function TypingCaret({
         transform: 'translate3d(0, 0, 0)',
         willChange: 'transform',
         pointerEvents: 'none',
+        opacity: isVisible ? '1' : '0',
+        animation:
+          isVisible && isInitialPosition ? 'blink 1s infinite' : 'none',
       }}
     />
   );

@@ -306,9 +306,7 @@ const TypingTest: FC = () => {
           </Box>
         )}
         <div
-          className={`flex flex-col justify-center items-center gap-4 h-full overflow-hidden ${
-            showRefocusOverlay ? 'blur-sm' : ''
-          } transition w-full`}
+          className={`flex flex-col justify-center items-center gap-4 h-full overflow-hidden transition w-full`}
         >
           {!showResults ? (
             <>
@@ -338,14 +336,16 @@ const TypingTest: FC = () => {
               </div>
               <div
                 ref={wordsContainerRef}
-                className='relative flex flex-wrap h-1/2 md:h-1/5 lg:sm:h-1/6 content-start 2xl:gap-y-4 mb-12 w-full select-none font-mono'
+                className={`relative flex flex-wrap h-1/2 md:h-1/5 lg:sm:h-1/6 content-start gap-y-2 mb-12 w-full select-none font-mono p-2 ${
+                  showRefocusOverlay ? 'blur-sm' : ''
+                }`}
                 onClick={focusOnInput}
               >
                 <TypingCaret
                   containerRef={wordsContainerRef}
                   activeWordIndex={activeWordIndex}
                   activeTypedWord={typedWordList[activeWordIndex]}
-                  isVisible={!showResults}
+                  isVisible={!showResults && !showRefocusOverlay}
                 />
                 {wordSet.map((word, index) => (
                   <Word
