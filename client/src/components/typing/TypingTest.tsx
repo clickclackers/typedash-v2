@@ -1,4 +1,11 @@
-import { Box, Button, SlideFade, Spinner, Tooltip } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Fade,
+  SlideFade,
+  Spinner,
+  Tooltip,
+} from '@chakra-ui/react';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HiCursorClick } from 'react-icons/hi';
 import { VscDebugRestart } from 'react-icons/vsc';
@@ -296,15 +303,16 @@ const TypingTest: FC = () => {
         ref={containerRef}
         onKeyDown={handleTab}
       >
-        {showRefocusOverlay && !showResults && (
+        <Fade in={showRefocusOverlay && !showResults} className='absolute z-10'>
           <Box
             color='text.secondary'
             onClick={focusOnInput}
-            className='flex items-center gap-4 absolute z-10'
+            className='flex flex-row items-center gap-4'
           >
-            <HiCursorClick /> Click here to refocus
+            <HiCursorClick />
+            <span>Click here to refocus</span>
           </Box>
-        )}
+        </Fade>
         <div
           className={`flex flex-col justify-center items-center gap-4 h-full overflow-hidden transition w-full`}
         >
@@ -337,7 +345,7 @@ const TypingTest: FC = () => {
               <div
                 ref={wordsContainerRef}
                 className={`relative flex flex-wrap h-1/2 md:h-1/5 lg:sm:h-1/6 content-start gap-y-2 mb-12 w-full select-none font-mono p-2 ${
-                  showRefocusOverlay ? 'blur-sm' : ''
+                  showRefocusOverlay ? 'blur-transition' : ''
                 }`}
                 onClick={focusOnInput}
               >
