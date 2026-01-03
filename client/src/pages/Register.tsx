@@ -15,10 +15,7 @@ const Register: FC = () => {
     onSuccess: (data) => {
       toast({
         title: 'Registration successful',
-        variant: 'solid',
         status: 'success',
-        position: 'top-right',
-        isClosable: true,
       });
       onLogin(data.user);
       navigate('/');

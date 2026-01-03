@@ -3,7 +3,7 @@ import { FC, useEffect, useRef, useState } from 'react';
 import { HiCursorClick } from 'react-icons/hi';
 // import { randomChallenge } from '/src/helpers/randomChallenge';
 import useTimer from '/src/hooks/useTimer';
-import api from '/src/services/api';
+// import api from '/src/services/api';
 // import socket from '/src/services/socket';
 import Word from '/src/components/typing/Word';
 import TypingCaret from '/src/components/typing/TypingCaret';
@@ -116,25 +116,14 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
         }),
       );
     }
-    // Only save stats for authenticated users
+    // TODO: Save results for authenticated users
     if (user) {
-      const params = {
-        challenge_id: challenge?.id,
-        type: challenge?.category,
-        wpm: WPM,
-        accuracy,
-        time_taken: timeTaken,
-        datetime: new Date().toString(),
-        username: user.username,
-      };
-      api.post('/results/create', params);
-    } else {
-      // Guest users - just log the result locally
-      console.log('Guest user result:', {
-        wpm: WPM,
-        accuracy,
-        time: timeTaken,
-      });
+      // api.post('results_multi', {
+      //   challenge_id: challenge?.id,
+      //   wpm: WPM,
+      //   accuracy,
+      //   time_taken: timeTaken,
+      // });
     }
     setShowResults(true);
   }, [testStatus]);

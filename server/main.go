@@ -22,10 +22,6 @@ func main() {
 		log.Fatal("Failed to initialize database:", err)
 	}
 
-	// Initialize WebSocket hub
-	// hub := NewHub(rdb)
-	// go hub.Run()
-
 	router := gin.Default()
 
 	// Configure CORS middleware
@@ -69,9 +65,9 @@ func main() {
 	protected.POST("/results_multi", handlers.CreateMultiChallengeStats(queries))
 
 	// WebSocket endpoint - no auth to allow anonymous multiplayer
-	// router.GET("/ws", func(c *gin.Context) {
-	// 	hub.handleWebsocket(c.Writer, c.Request)
-	// })
+	router.GET("/ws", func(c *gin.Context) {
+		HandleWebSocket(c.Writer, c.Request)
+	})
 
 	log.Println("Server starting on port 3000...")
 	err := router.Run(":3000")

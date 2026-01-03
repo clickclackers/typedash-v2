@@ -12,11 +12,11 @@ import ProgressBar from '/src/components/typing/ProgressBar';
 import { Challenge } from '/src/services/types';
 import useTimer from '../hooks/useTimer';
 import useAuth from '/src/hooks/useAuth';
-import { baseURL } from '/src/services/api';
 import toast from '/src/components/toast';
+import { useSocket } from '/src/hooks/useSocket';
 
 interface Player {
-  id: number;
+  id: string;
   username: string;
 }
 
@@ -32,16 +32,15 @@ const MultiplayerRoom: FC = () => {
   const [numReady, setNumReady] = useState(0);
   const [time, { startTimer, resetTimer }] = useTimer(5);
   const [gameStarted, setGameStarted] = useState(false);
-  const [chosenChallenge, setChosenChallenge] = useState<Challenge>();
+  const [challenge, setChallenge] = useState<Challenge>();
   const [lettersTyped, setLettersTyped] = useState(0);
   const [typingProgresses, setTypingProgresses] = useState<
-    Record<number, number>
+    Record<string, number>
   >({});
-  const [rankings, setRankings] = useState<Record<number, number>>({});
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [rankings, setRankings] = useState<Record<string, number>>({});
   const { user } = useAuth();
+  const { socket, setSocket } = useSocket();
   const username = user?.username || 'Guest';
-  console.log(lettersTyped);
 
   const displayBadges = (position: number) => {
     const badges = [
@@ -53,36 +52,57 @@ const MultiplayerRoom: FC = () => {
     return badges[position - 1];
   };
 
-  const leaveRoom = () => {
+  const handleClickLeaveRoom = () => {
     if (socket) {
       socket.send(JSON.stringify({ type: 'leaveRoom', roomID }));
       socket.close();
     }
-    navigate('/singleplayer');
+    navigate('/');
   };
 
-  const ready = () => {
+  const handleClickReady = () => {
     if (socket) {
       socket.send(JSON.stringify({ type: 'ready', roomID, username }));
     }
   };
 
   useEffect(() => {
-    const wsUrl = baseURL.replace(/^http/, 'ws').replace(/\/$/, '') + '/ws';
-    const newSocket = new WebSocket(wsUrl);
+    const wsUrl = import.meta.env.DEV
+      ? `ws://${window.location.host}/ws`
+      : 'wss://api.songyang.dev/ws';
+    let newSocket;
+    if (
+      !socket ||
+      socket.readyState === WebSocket.CLOSED ||
+      socket.readyState === WebSocket.CLOSING
+    ) {
+      newSocket = new WebSocket(wsUrl);
+      setSocket(newSocket);
+    } else {
+      newSocket = socket;
+    }
+    // Join the room
+    newSocket.send(
+      JSON.stringify({
+        type: 'joinRoom',
+        roomID: roomID,
+        username: username,
+      }),
+    );
+  }, []);
 
-    newSocket.onopen = () => {
-      // Join the room
-      newSocket.send(
-        JSON.stringify({
-          type: 'joinRoom',
-          roomID: roomID,
-          username: username,
-        }),
-      );
-    };
+  useEffect(() => {
+    if (!socket) {
+      toast({
+        title: 'Error',
+        description: 'Failed to connect to server.',
+        status: 'error',
+      });
+      navigate('/multiplayer');
+      return;
+    }
 
-    newSocket.onmessage = (event) => {
+    socket.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
         console.log('Room message:', message);
@@ -91,12 +111,7 @@ const MultiplayerRoom: FC = () => {
           case 'invalidRoom':
             toast({
               title: 'Room not found.',
-              description: '',
-              variant: 'subtle',
               status: 'error',
-              position: 'top-right',
-              duration: 5000,
-              isClosable: true,
             });
             navigate('/multiplayer');
             break;
@@ -107,9 +122,6 @@ const MultiplayerRoom: FC = () => {
               description: '',
               variant: 'subtle',
               status: 'error',
-              position: 'top-right',
-              duration: 5000,
-              isClosable: true,
             });
             navigate('/multiplayer');
             break;
@@ -118,7 +130,7 @@ const MultiplayerRoom: FC = () => {
             setNumReady(message.ready || 0);
             setNumPlayers(message.players?.length || 0);
             setListOfPlayers(message.players || []);
-            setChosenChallenge(message.challenge);
+            setChallenge(message.challenge);
             break;
 
           case 'playerLeft':
@@ -148,7 +160,7 @@ const MultiplayerRoom: FC = () => {
             break;
 
           case 'restartTest':
-            setChosenChallenge(message.nextChallenge);
+            setChallenge(message.nextChallenge);
             setRankings({});
             setTypingProgresses({});
             break;
@@ -161,21 +173,17 @@ const MultiplayerRoom: FC = () => {
       }
     };
 
-    newSocket.onerror = (error) => {
+    socket.onerror = (error) => {
       console.error('WebSocket error:', error);
       toast({
-        position: 'top-right',
-        title: 'Connection error.',
+        title: 'Error occurred.',
         status: 'error',
-        duration: 5000,
-        isClosable: true,
       });
     };
 
-    setSocket(newSocket);
-
     return () => {
-      newSocket.close();
+      socket.send(JSON.stringify({ type: 'leaveRoom', roomID }));
+      socket.close();
     };
   }, [roomID, username]);
 
@@ -196,7 +204,7 @@ const MultiplayerRoom: FC = () => {
     }
   }, [numReady, numPlayers, socket, roomID, username]);
 
-  if (!chosenChallenge) {
+  if (socket?.readyState === socket?.CONNECTING || !challenge) {
     return (
       <div className='flex justify-center items-center'>
         <Spinner
@@ -225,7 +233,7 @@ const MultiplayerRoom: FC = () => {
                 <SlideFade in={time === 0}>
                   <ProgressBar
                     lettersTyped={typingProgresses[player.id]}
-                    totalLetters={chosenChallenge?.text.split('').length || 0}
+                    totalLetters={challenge?.text.split('').length || 0}
                   />
                 </SlideFade>
               </div>
@@ -245,7 +253,7 @@ const MultiplayerRoom: FC = () => {
         socket={socket}
         roomID={roomID}
         username={username}
-        challenge={chosenChallenge}
+        challenge={challenge}
       />
       {time !== 0 && (
         <div>
@@ -254,14 +262,14 @@ const MultiplayerRoom: FC = () => {
       )}
 
       {numReady !== numPlayers && numPlayers !== 1 && time !== 0 && (
-        <Button onClick={ready} variant='ghost'>
+        <Button onClick={handleClickReady} variant='ghost'>
           ready
         </Button>
       )}
 
       {time !== 0 && <div>{`Game is starting in ${time}`}</div>}
 
-      <Button onClick={leaveRoom} variant='ghost'>
+      <Button onClick={handleClickLeaveRoom} variant='ghost'>
         leave room
       </Button>
 
