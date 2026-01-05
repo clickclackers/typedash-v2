@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	mrand "math/rand"
 	"sync"
 )
 
@@ -318,17 +319,17 @@ func (r *Room) getRankings() map[string]int {
 	return rankings
 }
 
-func (r *Room) reset(newChallenge map[string]interface{}) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.Challenge = newChallenge
-	r.Ready = make(map[string]bool)
-	r.Rankings = make(map[string]int)
-	r.NextRank = 1
-	for client := range r.Clients {
-		client.Progress = 0
-	}
-}
+// func (r *Room) reset(newChallenge map[string]interface{}) {
+// 	r.mu.Lock()
+// 	defer r.mu.Unlock()
+// 	r.Challenge = newChallenge
+// 	r.Ready = make(map[string]bool)
+// 	r.Rankings = make(map[string]int)
+// 	r.NextRank = 1
+// 	for client := range r.Clients {
+// 		client.Progress = 0
+// 	}
+// }
 
 // Database helpers
 
@@ -346,7 +347,7 @@ func getRandomChallenge(categoryID int) (*struct {
 		return nil, fmt.Errorf("no challenges found for category %d", categoryID)
 	}
 
-	idx := rand.Intn(len(challenges))
+	idx := mrand.Intn(len(challenges))
 	return &struct {
 		ID   int32
 		Text string

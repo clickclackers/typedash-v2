@@ -52,7 +52,12 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Client) writePump() {
-	defer c.conn.Close()
+	defer func() {
+		err := c.conn.Close()
+		if err != nil {
+			log.Printf("Error closing connection for client %s: %v", c.ID, err)
+		}
+	}()
 
 	for message := range c.send {
 		c.mu.Lock()
@@ -69,7 +74,10 @@ func (c *Client) writePump() {
 func (c *Client) readPump() {
 	defer func() {
 		HandleLeaveRoom(c)
-		c.conn.Close()
+		err := c.conn.Close()
+		if err != nil {
+			log.Printf("Error closing connection for client %s: %v", c.ID, err)
+		}
 	}()
 
 	for {
