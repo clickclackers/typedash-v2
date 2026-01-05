@@ -17,7 +17,7 @@ interface WordProps {
 
 const Word: FC<WordProps> = memo(({ index, word, typedWord, status }) => {
   return (
-    <div data-word-index={index} className='flex word-active h-8'>
+    <div data-word-index={index} className='flex word-active'>
       {word.split('').map((char, i) => {
         let letterStatus = 'idle';
         if (status === WordStatus.COMPLETED) {
@@ -41,7 +41,7 @@ const Word: FC<WordProps> = memo(({ index, word, typedWord, status }) => {
           }
         }
         return (
-          <Box key={i} color={`letter.${letterStatus}`} className='h-8'>
+          <Box key={i} color={`letter.${letterStatus}`}>
             {char}
           </Box>
         );
@@ -53,7 +53,7 @@ const Word: FC<WordProps> = memo(({ index, word, typedWord, status }) => {
           .split('')
           .map((char, i) => {
             return (
-              <Box key={i} color='letter.incorrect' className='h-8'>
+              <Box key={i} color='letter.incorrect'>
                 {char}
               </Box>
             );
