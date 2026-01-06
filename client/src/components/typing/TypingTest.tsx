@@ -344,7 +344,7 @@ const TypingTest: FC = () => {
               </div>
               <div
                 ref={wordsContainerRef}
-                className={`relative flex flex-wrap h-1/2 md:h-1/5 lg:sm:h-1/6 content-start gap-y-2 mb-12 w-full select-none font-mono p-2 ${
+                className={`relative flex flex-wrap gap-y-2 mb-12 w-full select-none font-mono px-1 ${
                   showRefocusOverlay ? 'blur-transition' : ''
                 }`}
                 onClick={focusOnInput}
