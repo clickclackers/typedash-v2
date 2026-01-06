@@ -1,24 +1,27 @@
-// server/redis.go
 package main
 
-// import (
-// 	"context"
-// 	"os"
+import (
+	"context"
+	"os"
 
-// 	"github.com/redis/go-redis/v9"
-// )
+	"github.com/redis/go-redis/v9"
+)
 
-// // A context for our application (e.g., for Redis operations)
-// var ctx = context.Background()
+// Shared context for Redis operations.
+var ctx = context.Background() //nolint:all
 
-// var redisHost = func() string {
-// 	host := os.Getenv("REDIS_HOST")
-// 	if host == "" {
-// 		host = "localhost:6379"
-// 	}
-// 	return host
-// }()
+var redisHost = func() string { //nolint:all
+	host := os.Getenv("REDIS_HOST")
+	if host == "" {
+		host = "localhost:6379"
+	}
+	return host
+}()
 
-// var rdb = redis.NewClient(&redis.Options{
-// 	Addr: redisHost,
-// })
+func newRedisClient() *redis.Client { //nolint:all
+	return redis.NewClient(&redis.Options{
+		Addr: redisHost,
+	})
+}
+
+var rdb = newRedisClient() //nolint:all

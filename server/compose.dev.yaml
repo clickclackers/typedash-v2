@@ -12,11 +12,14 @@ services:
       POSTGRES_PASSWORD: typedash
       POSTGRES_DB: typedash
       JWT_SECRET: dev-secret-change-me
+      REDIS_HOST: redis:6379
     volumes:
       - .:/app
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   db:
     image: postgres:16
@@ -34,6 +37,17 @@ services:
       retries: 10
     volumes:
       - db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   db_data: {}
