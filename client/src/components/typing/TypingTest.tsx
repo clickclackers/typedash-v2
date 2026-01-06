@@ -382,7 +382,11 @@ const TypingTest: FC = () => {
                   setShowRefocusOverlay(false);
                 }}
                 onBlur={debouncedShowRefocusOverlay}
-                onPasteCapture={(e) => e.preventDefault()}
+                onCopy={(e) => e.preventDefault()}
+                onCut={(e) => e.preventDefault()}
+                onPaste={(e) => e.preventDefault()}
+                onDrop={(e) => e.preventDefault()}
+                onDragOver={(e) => e.preventDefault()}
                 ref={inputRef}
                 autoCorrect='off'
                 autoCapitalize='off'
