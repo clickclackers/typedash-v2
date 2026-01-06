@@ -17,35 +17,33 @@ const Result: FC<ResultProps> = ({ result, challenge, timerRanOut }) => {
     <Fade in={true} className='w-3/4'>
       <div className='flex justify-between pb-12'>
         <div className='text-left'>
-          <Box color='accent.200' className='text-4xl'>
-            {challenge?.title}
+          <Box color='accent.200' className='text-3xl'>
+            {challenge.title}
           </Box>
-          {challenge?.author && (
-            <div className='text-xl'>{`by ${challenge?.author}`}</div>
+          {challenge.author && (
+            <p className='text-xl'>{`by ${challenge.author}`}</p>
           )}
         </div>
         {timerRanOut && (
-          <div className='text-right text-3xl italic text-red-400'>
-            incomplete test
-          </div>
+          <p className='text-right text-2xl text-red-400'>incomplete test</p>
         )}
       </div>
-      <div className='flex justify-between'>
-        <div className='text-left'>
-          <div className='font-bold text-6xl'>wpm</div>
-          <Box color='accent.200' className='font-medium text-4xl'>
+      <div className='flex justify-between gap-x-8'>
+        <p className='text-left'>
+          <p className='font-bold text-5xl'>wpm</p>
+          <Box color='accent.200' className='font-medium text-3xl'>
             {result.wpm}
           </Box>
-        </div>
+        </p>
         <div className='text-left'>
-          <div className='font-bold text-6xl'>accuracy</div>
-          <Box color='accent.200' className='font-medium text-4xl'>
+          <p className='font-bold text-5xl'>accuracy</p>
+          <Box color='accent.200' className='font-medium text-3xl'>
             {`${result.accuracy}%`}
           </Box>
         </div>
         <div className='text-left'>
-          <div className='font-bold text-6xl'>time</div>
-          <Box color='accent.200' className='font-medium text-4xl'>
+          <p className='font-bold text-5xl'>time</p>
+          <Box color='accent.200' className='font-medium text-3xl'>
             {!timerRanOut ? `${result.time}s` : '-'}
           </Box>
         </div>
