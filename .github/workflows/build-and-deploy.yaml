@@ -55,25 +55,23 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Copy compose, Caddyfile, migrations, and seed files to Droplet
+      - name: Copy compose, Caddyfile, migrations, and seed files to OVH VPS 
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.DROPLET_HOST }}
-          username: ${{ secrets.DROPLET_USERNAME }}
-          key: ${{ secrets.DROPLET_KEY }}
-          # fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
+          host: ${{ secrets.OVH_HOST }}
+          username: ${{ secrets.OVH_USERNAME }}
+          key: ${{ secrets.OVH_SSH_KEY }}
           source: "server/compose.prod.yaml,server/Caddyfile,server/db/migrations,server/db/seed.sql"
           target: "~/typedash"
           strip_components: 1
 
       # UNCOMMENT TO UPDATE SECRETS
-      # - name: Set secrets on Droplet
+      # - name: Set secrets on OVH VPS
       #   uses: appleboy/ssh-action@master
       #   with:
-      #     host: ${{ secrets.DROPLET_HOST }}
-      #     username: ${{ secrets.DROPLET_USERNAME }}
-      #     key: ${{ secrets.DROPLET_KEY }}
-      #     # fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
+      #     host: ${{ secrets.OVH_HOST }}
+      #     username: ${{ secrets.OVH_USERNAME }}
+      #     key: ${{ secrets.OVH_SSH_KEY }}
       #     script: |
       #       mkdir -p ~/typedash/secrets
       #       echo "${{ secrets.JWT_SECRET }}" > ~/typedash/secrets/jwt_secret
@@ -82,26 +80,24 @@ jobs:
       #       echo "${{ secrets.POSTGRES_DB }}" > ~/typedash/secrets/postgres_db
       #       chmod 666 ~/typedash/secrets/*
 
-      - name: Deploy on Droplet
+      - name: Deploy on OVH VPS
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.DROPLET_HOST }}
-          username: ${{ secrets.DROPLET_USERNAME }}
-          key: ${{ secrets.DROPLET_KEY }}
-          # fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
+          host: ${{ secrets.OVH_HOST }}
+          username: ${{ secrets.OVH_USERNAME }}
+          key: ${{ secrets.OVH_SSH_KEY }}
           script: |
             set -e
             trap 'echo "Error on line $LINENO"; exit 1' ERR
 
             cd ~/typedash && docker compose -f compose.prod.yaml up -d --pull always
 
-      - name: Run migrations on Droplet
+      - name: Run migrations on OVH VPS
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.DROPLET_HOST }}
-          username: ${{ secrets.DROPLET_USERNAME }}
-          key: ${{ secrets.DROPLET_KEY }}
-          # fingerprint: ${{ secrets.DROPLET_FINGERPRINT }}
+          host: ${{ secrets.OVH_HOST }}
+          username: ${{ secrets.OVH_USERNAME }}
+          key: ${{ secrets.OVH_SSH_KEY }}
           script: |
             set -e
             trap 'echo "Error on line $LINENO"; exit 1' ERR
