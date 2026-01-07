@@ -40,15 +40,19 @@ const Multiplayer: FC = () => {
         const message = JSON.parse(event.data);
         // Handle room creation response
         if (message.type === 'roomCreated') {
-          const roomID = message.roomID;
-          navigate(`/multiplayer/${roomID}`);
+          navigate(`/multiplayer/${message.roomID}`, {
+            state: {
+              challenge: message.challenge,
+              players: message.players,
+            },
+          });
         }
       } catch (error: any) {
         toast({
-          description: error?.message || 'Error, please try again later',
+          description: error?.message || 'Error creating room',
           status: 'error',
         });
-        console.error('Error parsing message:', error);
+        console.error('Error creating room:', error);
       }
     };
 
@@ -56,7 +60,7 @@ const Multiplayer: FC = () => {
       console.error('WebSocket error:', error);
       toast({
         position: 'top-right',
-        title: 'Failed to connect to server.',
+        title: 'Failed to connect to server',
         status: 'error',
       });
     };

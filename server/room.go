@@ -15,14 +15,14 @@ type PlayerInfo struct {
 	ID       string `json:"id"`
 	Username string `json:"username"`
 	Progress int    `json:"progress"`
+	Ready    bool   `json:"ready"`
+	Rank     int    `json:"rank"`
 }
 
 type Room struct {
 	ID        string                 `json:"id"`
 	Challenge map[string]interface{} `json:"challenge"`
 	Clients   map[*Client]bool       `json:"-"`
-	Ready     map[string]bool        `json:"ready"`
-	Rankings  map[string]int         `json:"rankings"`
 	NextRank  int                    `json:"nextRank"`
 	mu        sync.RWMutex
 }
@@ -46,8 +46,6 @@ func createRoom(roomID string, challenge map[string]interface{}) *Room {
 		ID:        roomID,
 		Challenge: challenge,
 		Clients:   make(map[*Client]bool),
-		Ready:     make(map[string]bool),
-		Rankings:  make(map[string]int),
 		NextRank:  1,
 	}
 
@@ -88,21 +86,20 @@ func HandleCreateRoom(c *Client, categoryID int) {
 	})
 
 	c.roomID = roomID
+	c.Progress = 0
 	room.addClient(c)
 
 	c.SendJSON(map[string]interface{}{
-		"type":   "roomCreated",
-		"roomID": roomID,
+		"type":      "roomCreated",
+		"roomID":    roomID,
+		"challenge": room.Challenge,
+		"players":   room.getPlayers(),
 	})
 
-	log.Printf("Room %s created", roomID)
+	log.Printf("Room %s created by %s", roomID, c.Username)
 }
 
-func HandleJoinRoom(c *Client, roomID string, username string) {
-	if username == "" {
-		username = "Guest"
-	}
-
+func HandleJoinRoom(c *Client, roomID string) {
 	room := getRoom(roomID)
 	if room == nil {
 		c.SendJSON(map[string]interface{}{"type": "invalidRoom"})
@@ -115,21 +112,20 @@ func HandleJoinRoom(c *Client, roomID string, username string) {
 	}
 
 	c.roomID = roomID
-	c.ID = randomID()
-	c.Username = username
 	c.Progress = 0
+	c.Ready = false
+	c.Rank = 0
 	room.addClient(c)
 
 	joinMsg := map[string]interface{}{
 		"type":      "playerJoined",
 		"players":   room.getPlayers(),
-		"ready":     room.getReadyCount(),
 		"challenge": room.Challenge,
 	}
 	msgJSON, _ := json.Marshal(joinMsg)
 	room.broadcast(msgJSON, nil)
 
-	log.Printf("Player %s joined room %s", username, roomID)
+	log.Printf("Player %s joined room %s", c.Username, roomID)
 }
 
 func HandleReady(c *Client) {
@@ -138,16 +134,17 @@ func HandleReady(c *Client) {
 		return
 	}
 
-	readyCount := room.setReady(c.ID)
+	c.Ready = true
 
 	readyMsg := map[string]interface{}{
-		"type":       "receiveReady",
-		"readyCount": readyCount,
+		"type":    "receiveReady",
+		"id":      c.ID,
+		"players": room.getPlayers(),
 	}
 	msgJSON, _ := json.Marshal(readyMsg)
 	room.broadcast(msgJSON, nil)
 
-	log.Printf("Player %s ready in room %s (%d ready)", c.Username, c.roomID, readyCount)
+	log.Printf("Player %s ready in room %s", c.Username, c.roomID)
 }
 
 func HandleTypingProgress(c *Client, charsTyped int) {
@@ -167,37 +164,6 @@ func HandleTypingProgress(c *Client, charsTyped int) {
 	room.broadcast(msgJSON, nil)
 }
 
-func HandleCompleted(c *Client) {
-	room := getRoom(c.roomID)
-	if room == nil {
-		return
-	}
-
-	rank := room.markCompleted(c.ID)
-
-	completeMsg := map[string]interface{}{
-		"type":     "playerCompleted",
-		"id":       c.ID,
-		"rank":     rank,
-		"rankings": room.getRankings(),
-	}
-	msgJSON, _ := json.Marshal(completeMsg)
-	room.broadcast(msgJSON, nil)
-
-	log.Printf("Player %s completed in room %s (rank %d)", c.Username, c.roomID, rank)
-
-	if room.allCompleted() {
-		allCompleteMsg := map[string]interface{}{
-			"type":     "allCompleted",
-			"rankings": room.getRankings(),
-		}
-		msgJSON, _ := json.Marshal(allCompleteMsg)
-		room.broadcast(msgJSON, nil)
-
-		log.Printf("All players completed in room %s", c.roomID)
-	}
-}
-
 func HandleLeaveRoom(c *Client) {
 	if c.roomID == "" {
 		return
@@ -210,7 +176,6 @@ func HandleLeaveRoom(c *Client) {
 
 	room.removeClient(c)
 
-	// Notify others that player left
 	msg := map[string]interface{}{
 		"type":    "playerLeft",
 		"players": room.getPlayers(),
@@ -225,8 +190,26 @@ func HandleLeaveRoom(c *Client) {
 	}
 }
 
-// Room methods
+func HandleRestartTest(c *Client) {
+	room := getRoom(c.roomID)
+	if room == nil {
+		return
+	}
 
+	room.reset(room.Challenge)
+
+	restartMsg := map[string]interface{}{
+		"type":      "restartTest",
+		"players":   room.getPlayers(),
+		"challenge": room.Challenge,
+	}
+	msgJSON, _ := json.Marshal(restartMsg)
+	room.broadcast(msgJSON, nil)
+
+	log.Printf("Player %s restarted test in room %s", c.Username, c.roomID)
+}
+
+// Room methods
 func (r *Room) addClient(client *Client) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -239,7 +222,6 @@ func (r *Room) removeClient(client *Client) {
 	defer r.mu.Unlock()
 	if _, ok := r.Clients[client]; ok {
 		delete(r.Clients, client)
-		delete(r.Ready, client.ID)
 		close(client.send)
 		log.Printf("Client %s (ID %s) removed from room %s", client.Username, client.ID, r.ID)
 	}
@@ -266,35 +248,6 @@ func (r *Room) clientCount() int {
 	return len(r.Clients)
 }
 
-func (r *Room) setReady(playerID string) int {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.Ready[playerID] = true
-	return len(r.Ready)
-}
-
-func (r *Room) getReadyCount() int {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	return len(r.Ready)
-}
-
-func (r *Room) markCompleted(playerID string) int {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	if _, exists := r.Rankings[playerID]; !exists {
-		r.Rankings[playerID] = r.NextRank
-		r.NextRank++
-	}
-	return r.Rankings[playerID]
-}
-
-func (r *Room) allCompleted() bool {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	return len(r.Rankings) == len(r.Clients)
-}
-
 func (r *Room) getPlayers() []PlayerInfo {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -304,35 +257,25 @@ func (r *Room) getPlayers() []PlayerInfo {
 			ID:       client.ID,
 			Username: client.Username,
 			Progress: client.Progress,
+			Ready:    client.Ready,
+			Rank:     client.Rank,
 		})
 	}
 	return players
 }
 
-func (r *Room) getRankings() map[string]int {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	rankings := make(map[string]int)
-	for k, v := range r.Rankings {
-		rankings[k] = v
+func (r *Room) reset(newChallenge map[string]interface{}) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.Challenge = newChallenge
+	r.NextRank = 1
+	for client := range r.Clients {
+		client.Progress = 0
+		client.Ready = false
 	}
-	return rankings
 }
 
-// func (r *Room) reset(newChallenge map[string]interface{}) {
-// 	r.mu.Lock()
-// 	defer r.mu.Unlock()
-// 	r.Challenge = newChallenge
-// 	r.Ready = make(map[string]bool)
-// 	r.Rankings = make(map[string]int)
-// 	r.NextRank = 1
-// 	for client := range r.Clients {
-// 		client.Progress = 0
-// 	}
-// }
-
 // Database helpers
-
 func getRandomChallenge(categoryID int) (*struct {
 	ID   int32
 	Text string
