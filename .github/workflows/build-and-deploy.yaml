@@ -66,19 +66,19 @@ jobs:
           strip_components: 1
 
       # UNCOMMENT TO UPDATE SECRETS
-      # - name: Set secrets on OVH VPS
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.OVH_HOST }}
-      #     username: ${{ secrets.OVH_USERNAME }}
-      #     key: ${{ secrets.OVH_SSH_KEY }}
-      #     script: |
-      #       mkdir -p ~/typedash/secrets
-      #       echo "${{ secrets.JWT_SECRET }}" > ~/typedash/secrets/jwt_secret
-      #       echo "${{ secrets.POSTGRES_USER }}" > ~/typedash/secrets/postgres_user
-      #       echo "${{ secrets.POSTGRES_PASSWORD }}" > ~/typedash/secrets/postgres_password
-      #       echo "${{ secrets.POSTGRES_DB }}" > ~/typedash/secrets/postgres_db
-      #       chmod 666 ~/typedash/secrets/*
+      - name: Set secrets on OVH VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.OVH_HOST }}
+          username: ${{ secrets.OVH_USERNAME }}
+          key: ${{ secrets.OVH_SSH_KEY }}
+          script: |
+            mkdir -p ~/typedash/secrets
+            echo "${{ secrets.JWT_SECRET }}" > ~/typedash/secrets/jwt_secret
+            echo "${{ secrets.POSTGRES_USER }}" > ~/typedash/secrets/postgres_user
+            echo "${{ secrets.POSTGRES_PASSWORD }}" > ~/typedash/secrets/postgres_password
+            echo "${{ secrets.POSTGRES_DB }}" > ~/typedash/secrets/postgres_db
+            chmod 666 ~/typedash/secrets/*
 
       - name: Deploy on OVH VPS
         uses: appleboy/ssh-action@master
