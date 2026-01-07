@@ -1,4 +1,4 @@
-api.songyang.dev {
+api2.songyang.dev {
     tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
 
     reverse_proxy server:3000
