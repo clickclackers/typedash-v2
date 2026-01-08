@@ -47,10 +47,11 @@ const TypingTest: FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const restartRef = useRef<HTMLButtonElement>(null);
 
-  const [categoryId, setCategoryId] = useState(() => {
-    const stored = localStorage.getItem('challenge-category');
-    return stored ? Number(stored) : 1;
-  });
+  const [categoryId, setCategoryId] = useState(
+    localStorage.getItem('challenge-category')
+      ? Number(localStorage.getItem('challenge-category'))
+      : 1,
+  );
   const { isAuthenticated } = useAuth();
   const { mutate: createSingleplayerResult } = useCreateSingleplayerResults({});
   const { data: challengesData, isLoading: isLoadingChallenges } =

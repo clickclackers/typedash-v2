@@ -6,7 +6,11 @@ import toast from '/src/components/toast';
 import CategorySelect from '/src/components/typing/CategorySelect';
 
 const Multiplayer: FC = () => {
-  const [categoryId, setCategoryId] = useState(1);
+  const [categoryId, setCategoryId] = useState(
+    localStorage.getItem('challenge-category')
+      ? Number(localStorage.getItem('challenge-category'))
+      : 1,
+  );
   const navigate = useNavigate();
   const { socket, setSocket } = useSocket();
 
