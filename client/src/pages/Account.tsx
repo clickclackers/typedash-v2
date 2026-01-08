@@ -66,7 +66,7 @@ const Account: FC = () => {
           <div className='flex flex-col text-left'>
             <div className='text-sm'>average wpm</div>
             <Box color='text.secondary' className='text-2xl font-semibold'>
-              {stats.single_avg_wpm.toFixed(2)}
+              {Math.round(stats.single_avg_wpm)}
             </Box>
           </div>
         </Box>
