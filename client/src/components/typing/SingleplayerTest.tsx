@@ -20,9 +20,8 @@ import { Challenge } from '/src/services/types';
 import useAuth from '/src/hooks/useAuth';
 import CategorySelect from '/src/components/typing/CategorySelect';
 import TypingCaret from '/src/components/typing/TypingCaret';
-import { debounce } from 'lodash';
 
-const DEFAULT_TEST_DURATION = 120;
+const INITIAL_TIME = 120;
 const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
 
 const TypingTest: FC = () => {
@@ -34,6 +33,7 @@ const TypingTest: FC = () => {
   const [isTestStarted, setIsTestStarted] = useState(false);
   const [wrongLettersInWord, setWrongLettersInWord] = useState(0);
   const [showRefocusOverlay, setShowRefocusOverlay] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(true);
   const [showResults, setShowResults] = useState(false);
   const [wrongLetters, setWrongLetters] = useState<number[]>([]);
   const [result, setResult] = useState({
@@ -41,9 +41,7 @@ const TypingTest: FC = () => {
     accuracy: 0,
     time: 0,
   });
-  const [time, { startTimer, pauseTimer, resetTimer }] = useTimer(
-    DEFAULT_TEST_DURATION,
-  );
+  const [time, { startTimer, pauseTimer, resetTimer }] = useTimer(INITIAL_TIME);
   const containerRef = useRef<HTMLDivElement>(null);
   const wordsContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -71,7 +69,7 @@ const TypingTest: FC = () => {
     }
     setIsTestStarted(false);
     pauseTimer();
-    const timeTaken = DEFAULT_TEST_DURATION - time;
+    const timeTaken = INITIAL_TIME - time;
     // WPM formula by MonkeyType:
     // total amount of characters in the correctly typed words (including spaces), divided by 5 and normalised to 60 seconds.
     let correctChars = 0;
@@ -241,10 +239,6 @@ const TypingTest: FC = () => {
     setTypedWordList(parts);
   };
 
-  const debouncedShowRefocusOverlay = debounce(() => {
-    setShowRefocusOverlay(true);
-  }, 1000);
-
   // prevent ctrl A and backspace to delete all words
   useEffect(() => {
     document.addEventListener('keydown', preventCrtlA);
@@ -275,10 +269,15 @@ const TypingTest: FC = () => {
   }, [handleTestComplete, time, typedWordList, wordSet]);
 
   useEffect(() => {
-    return () => {
-      debouncedShowRefocusOverlay.cancel();
-    };
-  }, [debouncedShowRefocusOverlay]);
+    if (!isInputFocused) {
+      const refocusOverlayTimeout = setTimeout(() => {
+        setShowRefocusOverlay(true);
+      }, 1000);
+      return () => clearTimeout(refocusOverlayTimeout);
+    } else {
+      setShowRefocusOverlay(false);
+    }
+  }, [isInputFocused]);
 
   if (isLoadingChallenges || !challenge) {
     return (
@@ -303,7 +302,10 @@ const TypingTest: FC = () => {
         ref={containerRef}
         onKeyDown={handleTab}
       >
-        <Fade in={showRefocusOverlay && !showResults} className='absolute z-10'>
+        <Fade
+          in={showRefocusOverlay && !showResults}
+          className='absolute z-10 cursor-default'
+        >
           <Box
             color='text.secondary'
             onClick={focusOnInput}
@@ -353,7 +355,7 @@ const TypingTest: FC = () => {
                   containerRef={wordsContainerRef}
                   activeWordIndex={activeWordIndex}
                   activeTypedWord={typedWordList[activeWordIndex]}
-                  isVisible={!showResults && !showRefocusOverlay}
+                  isVisible={isInputFocused}
                 />
                 {wordSet.map((word, index) => (
                   <Word
@@ -379,9 +381,11 @@ const TypingTest: FC = () => {
                 onChange={handleKeyPress}
                 onKeyDown={handleKeyDown}
                 onFocus={() => {
-                  setShowRefocusOverlay(false);
+                  setIsInputFocused(true);
                 }}
-                onBlur={debouncedShowRefocusOverlay}
+                onBlur={() => {
+                  setIsInputFocused(false);
+                }}
                 onCopy={(e) => e.preventDefault()}
                 onCut={(e) => e.preventDefault()}
                 onPaste={(e) => e.preventDefault()}

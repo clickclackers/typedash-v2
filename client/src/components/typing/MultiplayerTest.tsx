@@ -1,4 +1,4 @@
-import { Box, Fade, Spinner } from '@chakra-ui/react';
+import { Box, Fade } from '@chakra-ui/react';
 import { FC, useEffect, useRef, useState } from 'react';
 import { HiCursorClick } from 'react-icons/hi';
 import useTimer from '/src/hooks/useTimer';
@@ -9,7 +9,6 @@ import { Challenge } from '/src/services/types';
 import Result from '/src/components/typing/Result';
 import useAuth from '/src/hooks/useAuth';
 import { WordStatus } from '/src/components/typing/Word';
-import { debounce } from 'lodash';
 import { useSocket } from '/src/hooks/useSocket';
 
 interface MultiplayerTestProps {
@@ -18,6 +17,7 @@ interface MultiplayerTestProps {
 }
 
 const INITIAL_TIME = 120;
+const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
 
 const MultiplayerTest: FC<MultiplayerTestProps> = ({
   isTestStarted,
@@ -28,8 +28,6 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
   const [totalStrokes, setTotalStrokes] = useState(0);
   const [mistypedCount, setMistypedCount] = useState(0);
   const [activeLetterIndex, setActiveLetterIndex] = useState(0);
-  const [testStatus, setTestStatus] = useState(0); // -1: test end, 0: waiting for test to start, 1: test ongoing
-  const [timeTaken, setTimeTaken] = useState(0);
   const [wrongLettersInWord, setWrongLettersInWord] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [wrongLetters, setWrongLetters] = useState<number[]>([]);
@@ -39,6 +37,7 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
     time: 0,
   });
   const [showRefocusOverlay, setShowRefocusOverlay] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(true);
   const [time, { startTimer, pauseTimer }] = useTimer(INITIAL_TIME);
   const containerRef = useRef<HTMLDivElement>(null);
   const wordsContainerRef = useRef<HTMLDivElement>(null);
@@ -54,10 +53,6 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
     inputRef.current?.focus();
   };
 
-  const debouncedShowRefocusOverlay = debounce(() => {
-    setShowRefocusOverlay(true);
-  }, 1000);
-
   const handleTab = (e: React.KeyboardEvent) => {
     if (e.key === 'Tab') {
       e.preventDefault();
@@ -70,20 +65,40 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
       e.preventDefault();
       return;
     }
-    if (e.key === ' ') {
-      if (wordSet[activeWordIndex] !== typedWordList[activeWordIndex]) {
-        e.preventDefault();
-      } else {
-        setActiveWordIndex(typedWordList.length);
-        setWrongLettersInWord(0);
-      }
+    if (
+      e.key === 'ArrowUp' ||
+      e.key === 'ArrowDown' ||
+      e.key === 'ArrowLeft' ||
+      e.key === 'ArrowRight'
+    ) {
+      e.preventDefault();
+    } else if (e.key === ' ') {
+      // Always advance to next word on space and reset wrong-letter counter
+      setActiveWordIndex(typedWordList.length);
+      setWrongLettersInWord(0);
     } else if (e.key === 'Backspace') {
       if (wrongLettersInWord > 0) setWrongLettersInWord(wrongLettersInWord - 1);
-      if (inputRef.current?.value.slice(-1) === ' ') e.preventDefault();
-    } else {
-      if (e.key !== 'Shift') {
-        setTotalStrokes(totalStrokes + 1);
+      const endsWithSpace = inputRef.current?.value.slice(-1) === ' ';
+      if (endsWithSpace) {
+        const prevIndex = Math.max(0, activeWordIndex - 1);
+        const prevWordTyped = typedWordList[prevIndex];
+        const prevWordTarget = wordSet[prevIndex];
+        const prevWordHasErrors =
+          typeof prevWordTyped === 'string' &&
+          typeof prevWordTarget === 'string' &&
+          prevWordTyped !== prevWordTarget;
+        if (
+          !prevWordHasErrors ||
+          (prevIndex === 0 && prevWordTyped === undefined)
+        ) {
+          e.preventDefault();
+        } else {
+          setActiveWordIndex(prevIndex);
+          setWrongLettersInWord(0);
+        }
       }
+    } else if (!EXCLUDED_KEYS.has(e.key)) {
+      setTotalStrokes(totalStrokes + 1);
     }
   };
 
@@ -98,10 +113,6 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
         inputRef.current.value = inputRef.current.value.slice(0, -1);
       }
       return;
-    }
-    if (testStatus === 0) {
-      startTimer();
-      setTestStatus(1);
     }
 
     const typed = e.target.value;
@@ -119,14 +130,16 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
         setMistypedCount(mistypedCount + 1);
       }
     } else if (typed.slice(-1) === letterSet[currentLetterIndex]) {
-      setActiveLetterIndex(typed.length);
       if (wrongLetters.includes(currentLetterIndex)) {
         const filtered = wrongLetters.filter((x) => x !== currentLetterIndex);
         setWrongLetters(filtered);
       }
     }
+    // Always reflect the caret position for progress bar
+    setActiveLetterIndex(typed.length);
+    const parts = typed.split(' ');
+    setTypedWordList(parts);
 
-    setTypedWordList(typed.split(' '));
     if (socket) {
       socket.send(
         JSON.stringify({
@@ -144,55 +157,46 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
       typedWordList.at(-1) === wordSet.at(-1)
     ) {
       pauseTimer();
-      setTestStatus(-1);
-      setTimeTaken(INITIAL_TIME - time);
+      const timeTaken = INITIAL_TIME - time;
+      const WPM = Math.floor((wordSet.length / timeTaken) * 60);
+      const accuracy = +(
+        ((totalStrokes - mistypedCount) / totalStrokes) *
+        100
+      ).toFixed(2);
+      setResult({
+        wpm: WPM,
+        accuracy,
+        time: timeTaken,
+      });
+      // TODO: Save results for authenticated users
+      if (user) {
+        // api.post('results_multi', {
+        //   challenge_id: challenge?.id,
+        //   wpm: WPM,
+        //   accuracy,
+        //   time_taken: timeTaken,
+        // });
+      }
+      setShowResults(true);
     }
   }, [typedWordList, wordSet]);
 
-  // generate result once test ends
   useEffect(() => {
-    if (testStatus !== -1) return;
-    const WPM = Math.floor((wordSet.length / timeTaken) * 60);
-    const accuracy = +(
-      ((totalStrokes - mistypedCount) / totalStrokes) *
-      100
-    ).toFixed(2);
-    setResult({
-      wpm: WPM,
-      accuracy,
-      time: timeTaken,
-    });
-    // TODO: Save results for authenticated users
-    if (user) {
-      // api.post('results_multi', {
-      //   challenge_id: challenge?.id,
-      //   wpm: WPM,
-      //   accuracy,
-      //   time_taken: timeTaken,
-      // });
+    if (isTestStarted) {
+      startTimer();
     }
-    setShowResults(true);
-  }, [testStatus]);
+  }, [isTestStarted]);
 
   useEffect(() => {
-    return () => {
-      debouncedShowRefocusOverlay.cancel();
-    };
-  }, [debouncedShowRefocusOverlay]);
-
-  if (!challenge) {
-    return (
-      <div className='flex justify-center items-center'>
-        <Spinner
-          thickness='3px'
-          speed='0.65s'
-          emptyColor='gray.200'
-          color='accent.300'
-          size='lg'
-        />
-      </div>
-    );
-  }
+    if (!isInputFocused) {
+      const refocusOverlayTimeout = setTimeout(() => {
+        setShowRefocusOverlay(true);
+      }, 1000);
+      return () => clearTimeout(refocusOverlayTimeout);
+    } else {
+      setShowRefocusOverlay(false);
+    }
+  }, [isInputFocused]);
 
   return (
     <div
@@ -202,7 +206,10 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
       ref={containerRef}
       onKeyDown={handleTab}
     >
-      <Fade in={showRefocusOverlay && !showResults} className='absolute z-10'>
+      <Fade
+        in={showRefocusOverlay && !showResults}
+        className='absolute z-10 cursor-default'
+      >
         <Box
           color='text.secondary'
           onClick={focusOnInput}
@@ -216,14 +223,6 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
       <div className='flex flex-col justify-center items-center gap-8 h-full overflow-hidden w-full'>
         {!showResults ? (
           <>
-            {/* <div className="w-4/5 h-4 transition">
-              <SlideFade in={testStatus === 1}>
-                <ProgressBar
-                  lettersTyped={activeLetterIndex}
-                  totalLetters={letterSet.length}
-                />
-              </SlideFade>
-            </div> */}
             <Box color='accent.200' className='w-full flex justify-start'>
               {time}
             </Box>
@@ -238,7 +237,7 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
                 containerRef={wordsContainerRef}
                 activeWordIndex={activeWordIndex}
                 activeTypedWord={typedWordList[activeWordIndex]}
-                isVisible={!showResults && !showRefocusOverlay}
+                isVisible={isInputFocused}
               />
               {wordSet.map((word, index) => (
                 <Word
@@ -261,7 +260,12 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
               type='text'
               onChange={handleKeyPress}
               onKeyDown={handleKeyDown}
-              onBlur={debouncedShowRefocusOverlay}
+              onFocus={() => {
+                setIsInputFocused(true);
+              }}
+              onBlur={() => {
+                setIsInputFocused(false);
+              }}
               onCopy={(e) => e.preventDefault()}
               onCut={(e) => e.preventDefault()}
               onPaste={(e) => e.preventDefault()}

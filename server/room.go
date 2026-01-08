@@ -154,13 +154,24 @@ func HandleTypingProgress(c *Client, charsTyped int) {
 	}
 
 	c.Progress = charsTyped
+	var msg map[string]interface{}
 
-	progressMsg := map[string]interface{}{
-		"type":     "progressUpdate",
-		"id":       c.ID,
-		"progress": c.Progress,
+	if charsTyped >= len(room.Challenge["text"].(string)) {
+		c.Rank = room.NextRank
+		room.NextRank++
+		msg = map[string]interface{}{
+			"type":    "playerCompleted",
+			"players": room.getPlayers(),
+		}
+	} else {
+		msg = map[string]interface{}{
+			"type":     "progressUpdate",
+			"id":       c.ID,
+			"progress": c.Progress,
+		}
+
 	}
-	msgJSON, _ := json.Marshal(progressMsg)
+	msgJSON, _ := json.Marshal(msg)
 	room.broadcast(msgJSON, nil)
 }
 

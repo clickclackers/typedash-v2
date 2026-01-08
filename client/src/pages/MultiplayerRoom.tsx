@@ -180,14 +180,10 @@ const MultiplayerRoom: FC = () => {
 
     socket.onerror = (error) => {
       console.error('WebSocket error:', error);
-      toast({
-        title: 'Error occurred',
-        status: 'error',
-      });
     };
   }, [socket, roomID]);
 
-  if (socket?.readyState === socket?.CONNECTING || !challenge) {
+  if (!socket || socket.readyState === socket.CONNECTING || !challenge) {
     return (
       <div className='flex justify-center items-center'>
         <Spinner
@@ -203,34 +199,40 @@ const MultiplayerRoom: FC = () => {
 
   const numReadyPlayers = listOfPlayers.filter(({ ready }) => ready).length;
   const gameStarted = countdownTime === 0;
-
+  const userID = user?.id?.toString();
   return (
     <div className='flex flex-col justify-between'>
       <div className='flex flex-col gap-4'>
-        {listOfPlayers.map((player) => (
-          <div
-            key={player.id}
-            className='flex items-center justify-between gap-6'
-          >
-            <div className='flex w-full items-center gap-6'>
-              <p className='w-24 text-left truncate'>{player.username}</p>
+        {listOfPlayers
+          .sort((a, b) => {
+            if (a.id === userID) return -1;
+            if (b.id === userID) return 1;
+            return a.id.localeCompare(b.id);
+          })
+          .map((player) => (
+            <div
+              key={player.id}
+              className='flex items-center justify-between gap-6'
+            >
+              <div className='flex w-full items-center gap-6'>
+                <p className='w-24 text-left truncate'>{player.username}</p>
 
-              <div className='transition w-[90%]'>
-                <SlideFade in={countdownTime === 0}>
-                  <ProgressBar
-                    lettersTyped={player.progress}
-                    totalLetters={challenge?.text.split('').length || 0}
-                  />
+                <div className='transition w-[90%]'>
+                  <SlideFade in={countdownTime === 0}>
+                    <ProgressBar
+                      lettersTyped={player.progress}
+                      totalLetters={challenge?.text.split('').length || 0}
+                    />
+                  </SlideFade>
+                </div>
+              </div>
+              <div className='flex justify-end items-center w-8 h-8'>
+                <SlideFade in={player.rank > 0}>
+                  {displayBadges(player.rank)}
                 </SlideFade>
               </div>
             </div>
-            <div className='flex justify-end items-center w-8 h-8'>
-              <SlideFade in={player.rank > 0}>
-                {displayBadges(player.rank)}
-              </SlideFade>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
       {!gameStarted &&
         (numReadyPlayers === listOfPlayers.length ? (

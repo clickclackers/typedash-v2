@@ -29,12 +29,12 @@ const Result: FC<ResultProps> = ({ result, challenge, timerRanOut }) => {
         )}
       </div>
       <div className='flex justify-between gap-x-8'>
-        <p className='text-left'>
+        <div className='text-left'>
           <p className='font-bold text-5xl'>wpm</p>
           <Box color='accent.200' className='text-left font-medium text-4xl'>
             {result.wpm}
           </Box>
-        </p>
+        </div>
         <div className='text-left'>
           <p className='font-bold text-5xl'>accuracy</p>
           <Box color='accent.200' className='text-left font-medium text-4xl '>
