@@ -1,8 +1,5 @@
-import type { FC } from 'react';
-import TypingTest from '/src/components/typing/SingleplayerTest';
+import SingleplayerTest from '/src/components/typing/SingleplayerTest';
 
-const Singleplayer: FC = () => {
-  return <TypingTest />;
-};
-
-export default Singleplayer;
+export default function Singleplayer() {
+  return <SingleplayerTest />;
+}

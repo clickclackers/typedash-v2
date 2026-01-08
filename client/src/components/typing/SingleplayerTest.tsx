@@ -6,7 +6,7 @@ import {
   Spinner,
   Tooltip,
 } from '@chakra-ui/react';
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HiCursorClick } from 'react-icons/hi';
 import { VscDebugRestart } from 'react-icons/vsc';
 import useTimer from '/src/hooks/useTimer';
@@ -24,7 +24,7 @@ import TypingCaret from '/src/components/typing/TypingCaret';
 const INITIAL_TIME = 120;
 const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
 
-const TypingTest: FC = () => {
+export default function SingleplayerTest() {
   const [typedWordList, setTypedWordList] = useState<string[]>([]);
   const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [totalStrokes, setTotalStrokes] = useState(0);
@@ -428,6 +428,4 @@ const TypingTest: FC = () => {
       </div>
     </>
   );
-};
-
-export default TypingTest;
+}
