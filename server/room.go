@@ -141,7 +141,9 @@ func HandleReady(c *Client) {
 		return
 	}
 
+	c.mu.Lock()
 	c.Ready = true
+	c.mu.Unlock()
 
 	readyMsg := map[string]interface{}{
 		"type":    "receiveReady",
@@ -160,12 +162,19 @@ func HandleTypingProgress(c *Client, charsTyped int) {
 		return
 	}
 
+	c.mu.Lock()
 	c.Progress = charsTyped
+	c.mu.Unlock()
+
 	var msg map[string]interface{}
 
 	if charsTyped >= len(room.Challenge["text"].(string)) {
+		room.mu.Lock()
+		c.mu.Lock()
 		c.Rank = room.NextRank
+		c.mu.Unlock()
 		room.NextRank++
+		room.mu.Unlock()
 		msg = map[string]interface{}{
 			"type":    "playerCompleted",
 			"players": room.getPlayers(),
@@ -174,9 +183,8 @@ func HandleTypingProgress(c *Client, charsTyped int) {
 		msg = map[string]interface{}{
 			"type":     "progressUpdate",
 			"id":       c.ID,
-			"progress": c.Progress,
+			"progress": charsTyped,
 		}
-
 	}
 	msgJSON, _ := json.Marshal(msg)
 	room.broadcast(msgJSON, nil)
@@ -271,6 +279,7 @@ func (r *Room) getPlayers() []PlayerInfo {
 	defer r.mu.RUnlock()
 	players := make([]PlayerInfo, 0, len(r.Clients))
 	for client := range r.Clients {
+		client.mu.Lock()
 		players = append(players, PlayerInfo{
 			ID:       client.ID,
 			Username: client.Username,
@@ -278,6 +287,7 @@ func (r *Room) getPlayers() []PlayerInfo {
 			Ready:    client.Ready,
 			Rank:     client.Rank,
 		})
+		client.mu.Unlock()
 	}
 	return players
 }
@@ -288,8 +298,10 @@ func (r *Room) reset(newChallenge map[string]interface{}) {
 	r.Challenge = newChallenge
 	r.NextRank = 1
 	for client := range r.Clients {
+		client.mu.Lock()
 		client.Progress = 0
 		client.Ready = false
+		client.mu.Unlock()
 	}
 }
 

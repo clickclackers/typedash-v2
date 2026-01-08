@@ -48,10 +48,11 @@ var upgrader = websocket.Upgrader{
 
 // Client represents a player's WebSocket connection and game state
 type Client struct {
-	conn   *websocket.Conn
-	send   chan []byte
-	roomID string
-	mu     sync.Mutex
+	conn      *websocket.Conn
+	send      chan []byte
+	roomID    string
+	mu        sync.Mutex
+	closeOnce sync.Once
 
 	// Player info (exported for JSON serialization)
 	ID       string `json:"id"` // Database user ID (as string) or random ID for guests
@@ -59,6 +60,16 @@ type Client struct {
 	Progress int    `json:"progress"`
 	Ready    bool   `json:"ready"`
 	Rank     int    `json:"rank"` // 0 means not completed yet
+}
+
+// closeConn safely closes the WebSocket connection exactly once
+func (c *Client) closeConn() {
+	c.closeOnce.Do(func() {
+		err := c.conn.Close()
+		if err != nil {
+			log.Printf("Error closing socket %s: %v", c.ID, err)
+		}
+	})
 }
 
 // HandleWebSocket handles new WebSocket connections
@@ -98,12 +109,7 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Client) writePump() {
-	defer func() {
-		err := c.conn.Close()
-		if err != nil {
-			log.Printf("Error closing connection for client %s: %v", c.ID, err)
-		}
-	}()
+	defer c.closeConn()
 
 	for message := range c.send {
 		c.mu.Lock()
@@ -120,10 +126,7 @@ func (c *Client) writePump() {
 func (c *Client) readPump() {
 	defer func() {
 		HandleLeaveRoom(c)
-		err := c.conn.Close()
-		if err != nil {
-			log.Printf("Error closing connection for client %s: %v", c.ID, err)
-		}
+		c.closeConn()
 	}()
 
 	for {

@@ -1,7 +1,7 @@
 import { Box, Fade } from '@chakra-ui/react';
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { HiCursorClick } from 'react-icons/hi';
-import api from '/src/services/api';
+// import api from '/src/services/api';
 import Word from '/src/components/typing/Word';
 import TypingCaret from '/src/components/typing/TypingCaret';
 import { Challenge } from '/src/services/types';
@@ -97,11 +97,7 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
   };
 
   // function to handle each key press
-  const handleKeyPress = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isTestStarted) {
-      e.preventDefault();
-      return;
-    }
+  const handleInputOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (wrongLettersInWord >= 10) {
       if (inputRef.current && inputRef.current.value) {
         inputRef.current.value = inputRef.current.value.slice(0, -1);
@@ -177,12 +173,12 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
     ).toFixed(1);
 
     if (user) {
-      api.post('results_multi', {
-        challenge_id: challenge.id,
-        wpm,
-        accuracy,
-        time_taken: timeTaken,
-      });
+      // api.post('results_multi', {
+      //   challenge_id: challenge.id,
+      //   wpm,
+      //   accuracy,
+      //   time_taken: timeTaken,
+      // });
     }
 
     return (
@@ -246,7 +242,7 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
         <input
           autoFocus
           type='text'
-          onChange={handleKeyPress}
+          onChange={handleInputOnChange}
           onKeyDown={handleKeyDown}
           onFocus={() => {
             setIsInputFocused(true);

@@ -54,7 +54,6 @@ const MultiplayerRoom: FC = () => {
   );
   const userID = user?.id?.toString() ?? assignedUserID;
   const { socket, setSocket } = useSocket();
-  const username = user?.username || 'Guest';
   const startTimeRef = useRef<number>();
   const [timeTaken, setTimeTaken] = useState<number | null>(null);
 
@@ -111,7 +110,7 @@ const MultiplayerRoom: FC = () => {
       }
       newSocket.close();
     };
-  }, [roomID, username]);
+  }, [roomID]);
 
   // Attach event listeners to web socket
   useEffect(() => {
