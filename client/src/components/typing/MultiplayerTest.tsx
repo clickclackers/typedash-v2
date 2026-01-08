@@ -232,8 +232,10 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
               status={
                 index === activeWordIndex
                   ? WordStatus.ACTIVE
-                  : index < activeWordIndex && typedWordList[index] === word
-                    ? WordStatus.COMPLETED
+                  : index < activeWordIndex
+                    ? typedWordList[index] === word
+                      ? WordStatus.COMPLETED
+                      : WordStatus.WRONG
                     : WordStatus.IDLE
               }
             />
