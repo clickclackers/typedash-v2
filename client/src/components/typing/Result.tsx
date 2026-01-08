@@ -38,7 +38,7 @@ const Result: FC<ResultProps> = ({ result, challenge, timerRanOut }) => {
         <div className='text-left'>
           <p className='font-bold text-5xl'>accuracy</p>
           <Box color='accent.200' className='text-left font-medium text-4xl '>
-            {`${Math.round(result.accuracy)}%`}
+            {`${Math.floor(result.accuracy)}%`}
           </Box>
         </div>
         <div className='text-left'>
