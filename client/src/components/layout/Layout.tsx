@@ -1,8 +1,8 @@
 import { Box, useColorMode } from '@chakra-ui/react';
 import { FC, useEffect, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
-import Footer from '/src/components/Footer';
-import Header from '/src/components/Header';
+import Footer from './Footer';
+import Header from './Header';
 import { ThemeProps } from '/src/themes/theme.interface';
 import { darkThemes, lightThemes } from '/src/themes/themes';
 

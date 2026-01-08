@@ -41,8 +41,6 @@ const Header: FC<HeaderProps> = ({ currentTheme, setCurrentTheme }) => {
         title: 'Logout successful',
         variant: 'solid',
         status: 'success',
-        position: 'top-right',
-        isClosable: true,
       });
       onLogout();
       navigate('/');

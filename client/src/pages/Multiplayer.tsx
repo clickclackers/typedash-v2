@@ -1,22 +1,35 @@
 import { Button } from '@chakra-ui/react';
 import { FC, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { baseURL } from '/src/services/api';
 import { useSocket } from '/src/hooks/useSocket';
 import toast from '/src/components/toast';
 import CategorySelect from '/src/components/typing/CategorySelect';
 
 const Multiplayer: FC = () => {
-  const [categoryId, setCategoryId] = useState(1);
+  const [categoryId, setCategoryId] = useState(
+    localStorage.getItem('challenge-category')
+      ? Number(localStorage.getItem('challenge-category'))
+      : 1,
+  );
   const navigate = useNavigate();
-  const { setSocket } = useSocket();
+  const { socket, setSocket } = useSocket();
 
-  const createRoom = () => {
-    const wsUrl = baseURL.replace(/^http/, 'ws').replace(/\/$/, '') + '/ws';
-    const newSocket = new WebSocket(wsUrl);
+  const handleClickCreateRoom = () => {
+    const wsUrl = import.meta.env.DEV
+      ? `ws://${window.location.host}/ws`
+      : 'wss://api.songyang.dev/ws';
+    let newSocket;
+    if (
+      !socket ||
+      socket.readyState === WebSocket.CLOSED ||
+      socket.readyState === WebSocket.CLOSING
+    ) {
+      newSocket = new WebSocket(wsUrl);
+    } else {
+      newSocket = socket;
+    }
 
     newSocket.onopen = () => {
-      // Send createRoom message to server
       newSocket.send(
         JSON.stringify({
           type: 'createRoom',
@@ -28,23 +41,22 @@ const Multiplayer: FC = () => {
     newSocket.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        console.log('Received message:', message);
-
         // Handle room creation response
         if (message.type === 'roomCreated') {
-          const roomID = message.roomID;
-          navigate(`/multiplayer/${roomID}`);
-        } else if (message.type === 'error') {
-          toast({
-            position: 'top-right',
-            description: message.message || 'Error, please try again later',
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
+          navigate(`/multiplayer/${message.roomID}`, {
+            state: {
+              challenge: message.challenge,
+              players: message.players,
+              assignedID: message.assignedID,
+            },
           });
         }
-      } catch (error) {
-        console.error('Error parsing message:', error);
+      } catch (error: any) {
+        toast({
+          description: error?.message || 'Error creating room',
+          status: 'error',
+        });
+        console.error('Error creating room:', error);
       }
     };
 
@@ -52,10 +64,8 @@ const Multiplayer: FC = () => {
       console.error('WebSocket error:', error);
       toast({
         position: 'top-right',
-        title: 'Failed to connect to server.',
+        title: 'Failed to connect to server',
         status: 'error',
-        duration: 5000,
-        isClosable: true,
       });
     };
 
@@ -70,7 +80,7 @@ const Multiplayer: FC = () => {
         variant='ghost'
         colorScheme='primary'
         color='text.primary'
-        onClick={createRoom}
+        onClick={handleClickCreateRoom}
       >
         Create Room
       </Button>

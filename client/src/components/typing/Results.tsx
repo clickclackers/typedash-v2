@@ -1,18 +1,21 @@
 import { Box, Fade } from '@chakra-ui/react';
-import { FC } from 'react';
 import { Challenge } from '/src/services/types';
 
-interface ResultProps {
-  result: {
-    wpm: number;
-    accuracy: number;
-    time: number;
-  };
-  challenge: Challenge;
-  timerRanOut: boolean;
+export interface Result {
+  wpm: number;
+  accuracy: number;
+  time: number;
 }
 
-const Result: FC<ResultProps> = ({ result, challenge, timerRanOut }) => {
+export default function Results({
+  result,
+  challenge,
+  timerRanOut,
+}: {
+  result: Result;
+  challenge: Challenge;
+  timerRanOut: boolean;
+}) {
   return (
     <Fade in={true} className='w-3/4'>
       <div className='flex justify-between pb-12'>
@@ -29,19 +32,19 @@ const Result: FC<ResultProps> = ({ result, challenge, timerRanOut }) => {
         )}
       </div>
       <div className='flex justify-between gap-x-8'>
-        <p className='text-left'>
+        <div className='flex flex-col gap-y-2'>
           <p className='font-bold text-5xl'>wpm</p>
           <Box color='accent.200' className='text-left font-medium text-4xl'>
             {result.wpm}
           </Box>
-        </p>
-        <div className='text-left'>
+        </div>
+        <div className='flex flex-col gap-y-2'>
           <p className='font-bold text-5xl'>accuracy</p>
           <Box color='accent.200' className='text-left font-medium text-4xl '>
             {`${Math.floor(result.accuracy)}%`}
           </Box>
         </div>
-        <div className='text-left'>
+        <div className='flex flex-col gap-y-2'>
           <p className='font-bold text-5xl'>time</p>
           <Box color='accent.200' className='text-left font-medium text-4xl'>
             {!timerRanOut ? `${Math.round(result.time)}s` : '-'}
@@ -50,6 +53,4 @@ const Result: FC<ResultProps> = ({ result, challenge, timerRanOut }) => {
       </div>
     </Fade>
   );
-};
-
-export default Result;
+}

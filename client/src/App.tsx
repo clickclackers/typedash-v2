@@ -9,7 +9,7 @@ import { AuthProvider } from '/src/context/AuthContext';
 import { SocketProvider } from '/src/context/SocketContext';
 import About from '/src/pages/About';
 import Account from '/src/pages/Account';
-import Layout from './components/Layout';
+import Layout from '/src/components/layout/Layout';
 import Login from '/src/pages/Login';
 import Multiplayer from '/src/pages/Multiplayer';
 import Register from '/src/pages/Register';

@@ -21,10 +21,7 @@ export const Login: FC = () => {
     onSuccess: (data) => {
       toast({
         title: 'Login successful',
-        variant: 'solid',
         status: 'success',
-        position: 'top-right',
-        isClosable: true,
       });
       onLogin(data.user);
       navigate('/');

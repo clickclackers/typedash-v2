@@ -1,10 +1,11 @@
-import { Button, Icon, SlideFade, Spinner } from '@chakra-ui/react';
-import { FC, useEffect, useState } from 'react';
+import { Box, Button, Icon, SlideFade, Spinner } from '@chakra-ui/react';
+import { FC, useEffect, useRef, useState } from 'react';
 import {
   TbRosetteNumber1,
   TbRosetteNumber2,
   TbRosetteNumber3,
   TbRosetteNumber4,
+  TbClipboard,
 } from 'react-icons/tb';
 import { useLocation, useNavigate } from 'react-router-dom';
 import MultiplayerTest from '/src/components/typing/MultiplayerTest';
@@ -12,36 +13,49 @@ import ProgressBar from '/src/components/typing/ProgressBar';
 import { Challenge } from '/src/services/types';
 import useTimer from '../hooks/useTimer';
 import useAuth from '/src/hooks/useAuth';
-import { baseURL } from '/src/services/api';
 import toast from '/src/components/toast';
+import { useSocket } from '/src/hooks/useSocket';
 
 interface Player {
-  id: number;
+  id: string;
   username: string;
+  progress: number;
+  ready: boolean;
+  rank: number;
+}
+
+interface LocationState {
+  challenge?: Challenge;
+  players?: Player[];
+  userID?: string;
 }
 
 const MultiplayerRoom: FC = () => {
   const location = useLocation();
+  const locationState = location.state as LocationState | null;
   const roomID = location.pathname.split('/')[2];
   const roomUrl = import.meta.env.DEV
     ? `http://localhost:5173/multiplayer/${roomID}`
     : `${import.meta.env.VITE_APP_URL}/multiplayer/${roomID}`;
   const navigate = useNavigate();
-  const [numPlayers, setNumPlayers] = useState(1);
-  const [listOfPlayers, setListOfPlayers] = useState<Player[]>([]);
-  const [numReady, setNumReady] = useState(0);
-  const [time, { startTimer, resetTimer }] = useTimer(5);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [chosenChallenge, setChosenChallenge] = useState<Challenge>();
-  const [lettersTyped, setLettersTyped] = useState(0);
-  const [typingProgresses, setTypingProgresses] = useState<
-    Record<number, number>
-  >({});
-  const [rankings, setRankings] = useState<Record<number, number>>({});
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+
+  // Initialize from navigation state (for room creator) or empty (for joiners)
+  const [listOfPlayers, setListOfPlayers] = useState<Player[]>(
+    locationState?.players || [],
+  );
+  const [countdownTime, { startTimer: startCountdownTimer, resetTimer }] =
+    useTimer(5);
+  const [challenge, setChallenge] = useState<Challenge | undefined>(
+    locationState?.challenge,
+  );
   const { user } = useAuth();
-  const username = user?.username || 'Guest';
-  console.log(lettersTyped);
+  const [assignedUserID, setAssignedUserID] = useState<string | null>(
+    locationState?.userID ?? null,
+  );
+  const userID = user?.id?.toString() ?? assignedUserID;
+  const { socket, setSocket } = useSocket();
+  const startTimeRef = useRef<number>();
+  const [timeTaken, setTimeTaken] = useState<number | null>(null);
 
   const displayBadges = (position: number) => {
     const badges = [
@@ -53,36 +67,58 @@ const MultiplayerRoom: FC = () => {
     return badges[position - 1];
   };
 
-  const leaveRoom = () => {
+  const handleClickLeaveRoom = () => {
     if (socket) {
-      socket.send(JSON.stringify({ type: 'leaveRoom', roomID }));
+      socket.send(JSON.stringify({ type: 'leaveRoom' }));
       socket.close();
     }
-    navigate('/singleplayer');
+    navigate('/multiplayer');
   };
 
-  const ready = () => {
+  const handleClickReady = () => {
     if (socket) {
-      socket.send(JSON.stringify({ type: 'ready', roomID, username }));
+      socket.send(JSON.stringify({ type: 'playerReady' }));
     }
   };
 
+  // Set up websocket
   useEffect(() => {
-    const wsUrl = baseURL.replace(/^http/, 'ws').replace(/\/$/, '') + '/ws';
+    // Case for room creator, socket already opened
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      return;
+    }
+
+    const wsUrl = import.meta.env.DEV
+      ? `ws://${window.location.host}/ws`
+      : 'wss://api.songyang.dev/ws';
     const newSocket = new WebSocket(wsUrl);
 
     newSocket.onopen = () => {
-      // Join the room
       newSocket.send(
         JSON.stringify({
           type: 'joinRoom',
-          roomID: roomID,
-          username: username,
+          roomID,
         }),
       );
     };
 
-    newSocket.onmessage = (event) => {
+    setSocket(newSocket);
+
+    return () => {
+      if (newSocket.readyState === WebSocket.OPEN) {
+        newSocket.send(JSON.stringify({ type: 'leaveRoom' }));
+      }
+      newSocket.close();
+    };
+  }, [roomID]);
+
+  // Attach event listeners to web socket
+  useEffect(() => {
+    if (!socket) {
+      return;
+    }
+
+    socket.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
         console.log('Room message:', message);
@@ -90,67 +126,72 @@ const MultiplayerRoom: FC = () => {
         switch (message.type) {
           case 'invalidRoom':
             toast({
-              title: 'Room not found.',
-              description: '',
-              variant: 'subtle',
+              title: 'Room not found',
               status: 'error',
-              position: 'top-right',
-              duration: 5000,
-              isClosable: true,
             });
             navigate('/multiplayer');
             break;
 
           case 'roomFull':
             toast({
-              title: 'Room is full.',
-              description: '',
+              title: 'Room is full',
               variant: 'subtle',
               status: 'error',
-              position: 'top-right',
-              duration: 5000,
-              isClosable: true,
             });
             navigate('/multiplayer');
             break;
 
-          case 'playerJoined':
-            setNumReady(message.ready || 0);
-            setNumPlayers(message.players?.length || 0);
-            setListOfPlayers(message.players || []);
-            setChosenChallenge(message.challenge);
+          case 'assignedID':
+            setAssignedUserID(message.assignedID);
             break;
 
-          case 'playerLeft':
-            setNumPlayers(message.players?.length || 0);
+          case 'playerJoined':
             setListOfPlayers(message.players || []);
+            if (!challenge) {
+              setChallenge(message.challenge);
+            }
             break;
 
           case 'receiveReady':
-            setNumReady(message.readyCount || 0);
+            setListOfPlayers(message.players || []);
+            if (message.players.every((player: Player) => player.ready)) {
+              startCountdownTimer();
+              startTimeRef.current = performance.now();
+            }
             break;
 
-          case 'progressUpdate':
-            setTypingProgresses((prevProgress) => ({
-              ...prevProgress,
-              [message.id]: message.progress,
-            }));
+          case 'playerLeft':
+            setListOfPlayers(message.players || []);
             break;
 
           case 'playerCompleted':
-            setRankings(message.rankings || {});
+            setListOfPlayers(message.players || []);
+            // eslint-disable-next-line no-case-declarations
+            const player = message.players.find(
+              (player: Player) => player.id === userID,
+            );
+            if (player && player.rank > 0 && startTimeRef.current) {
+              const endTime = performance.now();
+              const timeTaken = (endTime - startTimeRef.current) / 1000;
+              setTimeTaken(timeTaken);
+            }
+
             break;
 
-          case 'allCompleted':
-            resetTimer();
-            setGameStarted(false);
-            setNumReady(0);
+          case 'progressUpdate':
+            setListOfPlayers((prevPlayers) =>
+              prevPlayers.map((player) =>
+                player.id === message.id
+                  ? { ...player, progress: message.progress }
+                  : player,
+              ),
+            );
             break;
 
           case 'restartTest':
-            setChosenChallenge(message.nextChallenge);
-            setRankings({});
-            setTypingProgresses({});
+            resetTimer();
+            setChallenge(message.nextChallenge);
+            setListOfPlayers(message.players);
             break;
 
           default:
@@ -161,42 +202,12 @@ const MultiplayerRoom: FC = () => {
       }
     };
 
-    newSocket.onerror = (error) => {
+    socket.onerror = (error) => {
       console.error('WebSocket error:', error);
-      toast({
-        position: 'top-right',
-        title: 'Connection error.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
     };
+  }, [socket, roomID, challenge]);
 
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.close();
-    };
-  }, [roomID, username]);
-
-  useEffect(() => {
-    if (!gameStarted && numReady === numPlayers) {
-      startTimer();
-      setGameStarted(true);
-      if (socket) {
-        socket.send(
-          JSON.stringify({
-            type: 'typingProgress',
-            roomID: roomID,
-            playerID: username,
-            charsTyped: 0,
-          }),
-        );
-      }
-    }
-  }, [numReady, numPlayers, socket, roomID, username]);
-
-  if (!chosenChallenge) {
+  if (!socket || socket.readyState === socket.CONNECTING || !challenge) {
     return (
       <div className='flex justify-center items-center'>
         <Spinner
@@ -210,62 +221,95 @@ const MultiplayerRoom: FC = () => {
     );
   }
 
+  const numReadyPlayers = listOfPlayers.filter(({ ready }) => ready).length;
+  const isTestStarted = countdownTime === 0;
+
   return (
     <div className='flex flex-col justify-between'>
       <div className='flex flex-col gap-4'>
-        {(listOfPlayers ?? []).map((player) => (
-          <div
-            key={player.id}
-            className='flex items-center justify-between gap-6'
-          >
-            <div className='flex w-full items-center gap-6'>
-              <div className='w-24'>{player.username}</div>
+        {listOfPlayers
+          .sort((a, b) => {
+            if (a.id === userID) return -1;
+            if (b.id === userID) return 1;
+            return a.id.localeCompare(b.id);
+          })
+          .map((player) => (
+            <div
+              key={player.id}
+              className='flex items-center justify-between gap-6'
+            >
+              <div className='flex w-full items-center gap-6'>
+                <p className='w-24 text-left truncate'>{player.username}</p>
 
-              <div className='transition w-[90%]'>
-                <SlideFade in={time === 0}>
-                  <ProgressBar
-                    lettersTyped={typingProgresses[player.id]}
-                    totalLetters={chosenChallenge?.text.split('').length || 0}
-                  />
+                <div className='transition w-[90%]'>
+                  <SlideFade in={countdownTime === 0}>
+                    <ProgressBar
+                      lettersTyped={player.progress}
+                      totalLetters={challenge?.text.split('').length || 0}
+                    />
+                  </SlideFade>
+                </div>
+              </div>
+              <div className='flex justify-end items-center w-8 h-8'>
+                <SlideFade in={player.rank > 0}>
+                  {displayBadges(player.rank)}
                 </SlideFade>
               </div>
             </div>
-            <div className='flex justify-end items-center w-8 h-8'>
-              <SlideFade in={!!rankings[player.id]}>
-                {displayBadges(rankings[player.id])}
-              </SlideFade>
-            </div>
+          ))}
+      </div>
+      {!isTestStarted &&
+        (numReadyPlayers === listOfPlayers.length ? (
+          <div>{`Game is starting in ${countdownTime}`}</div>
+        ) : (
+          <div>
+            {numReadyPlayers}/{listOfPlayers.length} ready
           </div>
         ))}
-      </div>
 
       <MultiplayerTest
-        startTyping={time === 0}
-        setLettersTyped={setLettersTyped}
-        socket={socket}
-        roomID={roomID}
-        username={username}
-        challenge={chosenChallenge}
+        isTestStarted={isTestStarted}
+        challenge={challenge}
+        timeTaken={timeTaken}
       />
-      {time !== 0 && (
-        <div>
-          {numReady}/{numPlayers} ready
-        </div>
-      )}
-
-      {numReady !== numPlayers && numPlayers !== 1 && time !== 0 && (
-        <Button onClick={ready} variant='ghost'>
+      {numReadyPlayers < listOfPlayers.length && listOfPlayers.length !== 1 && (
+        <Button
+          onClick={handleClickReady}
+          variant='ghost'
+          className='w-fit mx-auto'
+        >
           ready
         </Button>
       )}
-
-      {time !== 0 && <div>{`Game is starting in ${time}`}</div>}
-
-      <Button onClick={leaveRoom} variant='ghost'>
+      <Button
+        onClick={handleClickLeaveRoom}
+        variant='ghost'
+        className='w-fit mx-auto'
+      >
         leave room
       </Button>
-
-      <div>{roomUrl}</div>
+      <Button
+        variant='ghost'
+        className='w-fit mx-auto mb-8 gap-2'
+        onClick={() => {
+          navigator.clipboard.writeText(roomUrl).then(() => {
+            toast({
+              title: 'Room URL copied',
+              status: 'success',
+            });
+          });
+        }}
+      >
+        <Box className='font-normal' color='text.primary'>
+          {roomUrl}
+        </Box>
+        <Icon
+          as={TbClipboard}
+          boxSize={25}
+          color='accent.200'
+          className='opacity-60'
+        />
+      </Button>
     </div>
   );
 };

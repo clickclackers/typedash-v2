@@ -22,10 +22,7 @@ instance.interceptors.response.use(undefined, (error) => {
       toast({
         title: 'Error',
         description: error?.response?.data?.message ?? 'Please try again later',
-        variant: 'solid',
         status: 'error',
-        position: 'top-right',
-        isClosable: true,
       });
     }
   }
