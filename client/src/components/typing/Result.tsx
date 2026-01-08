@@ -31,20 +31,20 @@ const Result: FC<ResultProps> = ({ result, challenge, timerRanOut }) => {
       <div className='flex justify-between gap-x-8'>
         <p className='text-left'>
           <p className='font-bold text-5xl'>wpm</p>
-          <Box color='accent.200' className='font-medium text-3xl'>
+          <Box color='accent.200' className='text-left font-medium text-4xl'>
             {result.wpm}
           </Box>
         </p>
         <div className='text-left'>
           <p className='font-bold text-5xl'>accuracy</p>
-          <Box color='accent.200' className='font-medium text-3xl'>
-            {`${result.accuracy}%`}
+          <Box color='accent.200' className='text-left font-medium text-4xl '>
+            {`${Math.round(result.accuracy)}%`}
           </Box>
         </div>
         <div className='text-left'>
           <p className='font-bold text-5xl'>time</p>
-          <Box color='accent.200' className='font-medium text-3xl'>
-            {!timerRanOut ? `${result.time}s` : '-'}
+          <Box color='accent.200' className='text-left font-medium text-4xl'>
+            {!timerRanOut ? `${Math.round(result.time)}s` : '-'}
           </Box>
         </div>
       </div>
