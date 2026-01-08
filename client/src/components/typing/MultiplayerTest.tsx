@@ -1,27 +1,27 @@
 import { Box, Fade } from '@chakra-ui/react';
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { HiCursorClick } from 'react-icons/hi';
-import useTimer from '/src/hooks/useTimer';
-// import api from '/src/services/api';
+import api from '/src/services/api';
 import Word from '/src/components/typing/Word';
 import TypingCaret from '/src/components/typing/TypingCaret';
 import { Challenge } from '/src/services/types';
-import Result from '/src/components/typing/Result';
-import useAuth from '/src/hooks/useAuth';
 import { WordStatus } from '/src/components/typing/Word';
 import { useSocket } from '/src/hooks/useSocket';
+import Results from '/src/components/typing/Results';
+import useAuth from '/src/hooks/useAuth';
 
 interface MultiplayerTestProps {
   isTestStarted: boolean;
   challenge: Challenge;
+  timeTaken: number | null;
 }
 
-const INITIAL_TIME = 120;
 const EXCLUDED_KEYS = new Set(['Shift', 'CapsLock']);
 
 const MultiplayerTest: FC<MultiplayerTestProps> = ({
   isTestStarted,
   challenge,
+  timeTaken,
 }) => {
   const [typedWordList, setTypedWordList] = useState<string[]>(['']);
   const [activeWordIndex, setActiveWordIndex] = useState(0);
@@ -29,24 +29,18 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
   const [mistypedCount, setMistypedCount] = useState(0);
   const [activeLetterIndex, setActiveLetterIndex] = useState(0);
   const [wrongLettersInWord, setWrongLettersInWord] = useState(0);
-  const [showResults, setShowResults] = useState(false);
   const [wrongLetters, setWrongLetters] = useState<number[]>([]);
-  const [result, setResult] = useState({
-    wpm: 0,
-    accuracy: 0,
-    time: 0,
-  });
   const [showRefocusOverlay, setShowRefocusOverlay] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(true);
-  const [time, { startTimer, pauseTimer }] = useTimer(INITIAL_TIME);
   const containerRef = useRef<HTMLDivElement>(null);
   const wordsContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const restartRef = useRef<HTMLButtonElement>(null);
-  const { user } = useAuth();
   const { socket } = useSocket();
-  const letterSet = challenge?.text.split('') ?? [];
-  const wordSet = challenge?.text.split(' ') ?? [];
+  const challengeText = challenge?.text ?? '';
+  const letterSet = useMemo(() => challengeText.split(''), [challengeText]);
+  const wordSet = useMemo(() => challengeText.split(' '), [challengeText]);
+  const { user } = useAuth();
 
   const focusOnInput = () => {
     setShowRefocusOverlay(false);
@@ -150,43 +144,6 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
     }
   };
 
-  // if finished word set, stop the test
-  useEffect(() => {
-    if (
-      typedWordList.length >= wordSet.length &&
-      typedWordList.at(-1) === wordSet.at(-1)
-    ) {
-      pauseTimer();
-      const timeTaken = INITIAL_TIME - time;
-      const WPM = Math.floor((wordSet.length / timeTaken) * 60);
-      const accuracy = +(
-        ((totalStrokes - mistypedCount) / totalStrokes) *
-        100
-      ).toFixed(2);
-      setResult({
-        wpm: WPM,
-        accuracy,
-        time: timeTaken,
-      });
-      // TODO: Save results for authenticated users
-      if (user) {
-        // api.post('results_multi', {
-        //   challenge_id: challenge?.id,
-        //   wpm: WPM,
-        //   accuracy,
-        //   time_taken: timeTaken,
-        // });
-      }
-      setShowResults(true);
-    }
-  }, [typedWordList, wordSet]);
-
-  useEffect(() => {
-    if (isTestStarted) {
-      startTimer();
-    }
-  }, [isTestStarted]);
-
   useEffect(() => {
     if (!isInputFocused) {
       const refocusOverlayTimeout = setTimeout(() => {
@@ -198,6 +155,45 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
     }
   }, [isInputFocused]);
 
+  const testComplete = timeTaken !== null;
+
+  if (testComplete) {
+    // WPM formula by MonkeyType:
+    // total amount of characters in the correctly typed words (including spaces), divided by 5 and normalised to 60 seconds.
+    let correctChars = 0;
+    const limit = Math.min(typedWordList.length, wordSet.length);
+    for (let i = 0; i < limit; i++) {
+      if (typedWordList[i] === wordSet[i]) {
+        // + 1 to account for the space after the word
+        correctChars += wordSet[i].length + 1;
+      }
+    }
+    correctChars = Math.max(correctChars - 1, 0);
+    const minutes = timeTaken > 0 ? timeTaken / 60 : 1;
+    const wpm = Math.floor(correctChars / 5 / minutes);
+    const accuracy = +(
+      ((totalStrokes - mistypedCount) / totalStrokes) *
+      100
+    ).toFixed(1);
+
+    if (user) {
+      api.post('results_multi', {
+        challenge_id: challenge.id,
+        wpm,
+        accuracy,
+        time_taken: timeTaken,
+      });
+    }
+
+    return (
+      <Results
+        result={{ wpm, accuracy, time: timeTaken }}
+        challenge={challenge}
+        timerRanOut={false}
+      />
+    );
+  }
+
   return (
     <div
       className={
@@ -206,10 +202,7 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
       ref={containerRef}
       onKeyDown={handleTab}
     >
-      <Fade
-        in={showRefocusOverlay && !showResults}
-        className='absolute z-10 cursor-default'
-      >
+      <Fade in={showRefocusOverlay} className='absolute z-10 cursor-default'>
         <Box
           color='text.secondary'
           onClick={focusOnInput}
@@ -221,70 +214,57 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
       </Fade>
 
       <div className='flex flex-col justify-center items-center gap-8 h-full overflow-hidden w-full'>
-        {!showResults ? (
-          <>
-            <Box color='accent.200' className='w-full flex justify-start'>
-              {time}
-            </Box>
-            <div
-              ref={wordsContainerRef}
-              className={`relative flex flex-wrap gap-y-2 mb-12 w-full select-none font-mono px-1 ${
-                showRefocusOverlay ? 'blur-transition' : ''
-              }`}
-              onClick={focusOnInput}
-            >
-              <TypingCaret
-                containerRef={wordsContainerRef}
-                activeWordIndex={activeWordIndex}
-                activeTypedWord={typedWordList[activeWordIndex]}
-                isVisible={isInputFocused}
-              />
-              {wordSet.map((word, index) => (
-                <Word
-                  key={index}
-                  index={index}
-                  word={word}
-                  typedWord={typedWordList[index]}
-                  status={
-                    index === activeWordIndex
-                      ? WordStatus.ACTIVE
-                      : index < activeWordIndex && typedWordList[index] === word
-                        ? WordStatus.COMPLETED
-                        : WordStatus.IDLE
-                  }
-                />
-              ))}
-            </div>
-            <input
-              autoFocus
-              type='text'
-              onChange={handleKeyPress}
-              onKeyDown={handleKeyDown}
-              onFocus={() => {
-                setIsInputFocused(true);
-              }}
-              onBlur={() => {
-                setIsInputFocused(false);
-              }}
-              onCopy={(e) => e.preventDefault()}
-              onCut={(e) => e.preventDefault()}
-              onPaste={(e) => e.preventDefault()}
-              onDrop={(e) => e.preventDefault()}
-              onDragOver={(e) => e.preventDefault()}
-              ref={inputRef}
-              autoCorrect='off'
-              autoCapitalize='off'
-              spellCheck={false}
-              className='absolute -z-10 border-none bg-transparent focus:outline-none caret-transparent text-transparent'
-            />
-          </>
-        ) : (
-          <Result
-            result={result}
-            challenge={challenge}
-            timerRanOut={time === 0}
+        <div
+          ref={wordsContainerRef}
+          className={`relative flex flex-wrap gap-y-2 mb-12 w-full select-none font-mono px-1 ${
+            showRefocusOverlay ? 'blur-transition' : ''
+          }`}
+          onClick={focusOnInput}
+        >
+          <TypingCaret
+            containerRef={wordsContainerRef}
+            activeWordIndex={activeWordIndex}
+            activeTypedWord={typedWordList[activeWordIndex]}
+            isVisible={isInputFocused}
           />
-        )}
+          {wordSet.map((word, index) => (
+            <Word
+              key={index}
+              index={index}
+              word={word}
+              typedWord={typedWordList[index]}
+              status={
+                index === activeWordIndex
+                  ? WordStatus.ACTIVE
+                  : index < activeWordIndex && typedWordList[index] === word
+                    ? WordStatus.COMPLETED
+                    : WordStatus.IDLE
+              }
+            />
+          ))}
+        </div>
+        <input
+          autoFocus
+          type='text'
+          onChange={handleKeyPress}
+          onKeyDown={handleKeyDown}
+          onFocus={() => {
+            setIsInputFocused(true);
+          }}
+          onBlur={() => {
+            setIsInputFocused(false);
+          }}
+          onCopy={(e) => e.preventDefault()}
+          onCut={(e) => e.preventDefault()}
+          onPaste={(e) => e.preventDefault()}
+          onDrop={(e) => e.preventDefault()}
+          onDragOver={(e) => e.preventDefault()}
+          ref={inputRef}
+          autoCorrect='off'
+          autoCapitalize='off'
+          spellCheck={false}
+          className='absolute -z-10 border-none bg-transparent focus:outline-none caret-transparent text-transparent'
+        />
       </div>
     </div>
   );

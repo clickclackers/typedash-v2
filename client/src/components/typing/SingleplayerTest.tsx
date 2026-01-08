@@ -13,7 +13,7 @@ import useTimer from '/src/hooks/useTimer';
 import ProgressBar from '/src/components/typing/ProgressBar';
 import Word from '/src/components/typing/Word';
 import { WordStatus } from '/src/components/typing/Word';
-import Result from '/src/components/typing/Result';
+import Results from '/src/components/typing/Results';
 import useCreateSingleplayerResults from '/src/hooks/react-query/useCreateSingleplayerResults';
 import useGetChallengesByCategory from '/src/hooks/react-query/useGetChallengesByCategory';
 import { Challenge } from '/src/services/types';
@@ -93,15 +93,14 @@ const TypingTest: FC = () => {
       accuracy,
       time: timeTaken,
     });
-    const params = {
-      challenge_id: challenge?.id ?? 0,
-      wpm,
-      accuracy,
-      time_taken: timeTaken,
-      created_at: new Date().toISOString(),
-    };
     if (isAuthenticated) {
-      createSingleplayerResult(params);
+      createSingleplayerResult({
+        challenge_id: challenge?.id ?? 0,
+        wpm,
+        accuracy,
+        time_taken: timeTaken,
+        created_at: new Date().toISOString(),
+      });
     }
     setShowResults(true);
   }, [
@@ -400,7 +399,7 @@ const TypingTest: FC = () => {
               />
             </>
           ) : (
-            <Result
+            <Results
               result={result}
               challenge={challenge}
               timerRanOut={time === 0}

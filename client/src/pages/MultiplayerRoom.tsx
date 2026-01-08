@@ -1,5 +1,5 @@
 import { Box, Button, Icon, SlideFade, Spinner } from '@chakra-ui/react';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import {
   TbRosetteNumber1,
   TbRosetteNumber2,
@@ -27,6 +27,7 @@ interface Player {
 interface LocationState {
   challenge?: Challenge;
   players?: Player[];
+  userID?: string;
 }
 
 const MultiplayerRoom: FC = () => {
@@ -48,8 +49,14 @@ const MultiplayerRoom: FC = () => {
     locationState?.challenge,
   );
   const { user } = useAuth();
+  const [assignedUserID, setAssignedUserID] = useState<string | null>(
+    locationState?.userID ?? null,
+  );
+  const userID = user?.id?.toString() ?? assignedUserID;
   const { socket, setSocket } = useSocket();
   const username = user?.username || 'Guest';
+  const startTimeRef = useRef<number>();
+  const [timeTaken, setTimeTaken] = useState<number | null>(null);
 
   const displayBadges = (position: number) => {
     const badges = [
@@ -135,6 +142,10 @@ const MultiplayerRoom: FC = () => {
             navigate('/multiplayer');
             break;
 
+          case 'assignedID':
+            setAssignedUserID(message.assignedID);
+            break;
+
           case 'playerJoined':
             setListOfPlayers(message.players || []);
             if (!challenge) {
@@ -146,12 +157,26 @@ const MultiplayerRoom: FC = () => {
             setListOfPlayers(message.players || []);
             if (message.players.every((player: Player) => player.ready)) {
               startCountdownTimer();
+              startTimeRef.current = performance.now();
             }
             break;
 
           case 'playerLeft':
+            setListOfPlayers(message.players || []);
+            break;
+
           case 'playerCompleted':
             setListOfPlayers(message.players || []);
+            // eslint-disable-next-line no-case-declarations
+            const player = message.players.find(
+              (player: Player) => player.id === userID,
+            );
+            if (player && player.rank > 0 && startTimeRef.current) {
+              const endTime = performance.now();
+              const timeTaken = (endTime - startTimeRef.current) / 1000;
+              setTimeTaken(timeTaken);
+            }
+
             break;
 
           case 'progressUpdate':
@@ -181,7 +206,7 @@ const MultiplayerRoom: FC = () => {
     socket.onerror = (error) => {
       console.error('WebSocket error:', error);
     };
-  }, [socket, roomID]);
+  }, [socket, roomID, challenge]);
 
   if (!socket || socket.readyState === socket.CONNECTING || !challenge) {
     return (
@@ -198,8 +223,8 @@ const MultiplayerRoom: FC = () => {
   }
 
   const numReadyPlayers = listOfPlayers.filter(({ ready }) => ready).length;
-  const gameStarted = countdownTime === 0;
-  const userID = user?.id?.toString();
+  const isTestStarted = countdownTime === 0;
+
   return (
     <div className='flex flex-col justify-between'>
       <div className='flex flex-col gap-4'>
@@ -234,7 +259,7 @@ const MultiplayerRoom: FC = () => {
             </div>
           ))}
       </div>
-      {!gameStarted &&
+      {!isTestStarted &&
         (numReadyPlayers === listOfPlayers.length ? (
           <div>{`Game is starting in ${countdownTime}`}</div>
         ) : (
@@ -244,8 +269,9 @@ const MultiplayerRoom: FC = () => {
         ))}
 
       <MultiplayerTest
-        isTestStarted={countdownTime === 0}
+        isTestStarted={isTestStarted}
         challenge={challenge}
+        timeTaken={timeTaken}
       />
       {numReadyPlayers < listOfPlayers.length && listOfPlayers.length !== 1 && (
         <Button

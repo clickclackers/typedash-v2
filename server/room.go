@@ -69,7 +69,6 @@ func deleteRoom(roomID string) {
 }
 
 // Game action handlers
-
 func HandleCreateRoom(c *Client, categoryID int) {
 	roomID := randomID()
 
@@ -90,10 +89,11 @@ func HandleCreateRoom(c *Client, categoryID int) {
 	room.addClient(c)
 
 	c.SendJSON(map[string]interface{}{
-		"type":      "roomCreated",
-		"roomID":    roomID,
-		"challenge": room.Challenge,
-		"players":   room.getPlayers(),
+		"type":       "roomCreated",
+		"roomID":     roomID,
+		"challenge":  room.Challenge,
+		"players":    room.getPlayers(),
+		"assignedID": c.ID,
 	})
 
 	log.Printf("Room %s created by %s", roomID, c.Username)
@@ -117,6 +117,13 @@ func HandleJoinRoom(c *Client, roomID string) {
 	c.Rank = 0
 	room.addClient(c)
 
+	// Send userID directly to the joining client
+	c.SendJSON(map[string]interface{}{
+		"type":       "assignedID",
+		"assignedID": c.ID,
+	})
+
+	// Broadcast playerJoined to everyone
 	joinMsg := map[string]interface{}{
 		"type":      "playerJoined",
 		"players":   room.getPlayers(),

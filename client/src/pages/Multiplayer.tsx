@@ -30,7 +30,6 @@ const Multiplayer: FC = () => {
     }
 
     newSocket.onopen = () => {
-      // Send createRoom message to server
       newSocket.send(
         JSON.stringify({
           type: 'createRoom',
@@ -48,6 +47,7 @@ const Multiplayer: FC = () => {
             state: {
               challenge: message.challenge,
               players: message.players,
+              assignedID: message.assignedID,
             },
           });
         }

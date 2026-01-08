@@ -88,7 +88,6 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// If not authenticated, set guest defaults
 	if client.ID == "" {
 		client.ID = randomID()
 		client.Username = "Guest"
