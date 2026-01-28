@@ -90,7 +90,7 @@ const MultiplayerRoom: FC = () => {
 
     const wsUrl = import.meta.env.DEV
       ? `ws://${window.location.host}/ws`
-      : 'wss://api2.songyang.dev/ws';
+      : 'wss://api.songyang.dev/ws';
     const newSocket = new WebSocket(wsUrl);
 
     newSocket.onopen = () => {
