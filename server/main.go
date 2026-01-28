@@ -14,7 +14,7 @@ func getAllowedOrigins() []string {
 	if os.Getenv("IS_LOCAL_DEV") == "true" {
 		return []string{"http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"}
 	}
-	return []string{"https://typedash.songyang.dev", "https://typedash-v2.netlify.app"}
+	return []string{"https://typedash.songyang.dev", "https://typedash-v2.netlify.app", "https://deploy-preview-26--typedash-v2.netlify.app"}
 }
 
 func main() {
