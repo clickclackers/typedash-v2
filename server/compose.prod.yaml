@@ -2,8 +2,8 @@ services:
   server:
     # Set RELEASE_TAG in CI to pin a tag/SHA.
     image: ghcr.io/clickclackers/typedash-v2:${RELEASE_TAG:-latest}
-    expose:
-      - "3000"
+    ports:
+      - "127.0.0.1:3000:3000" # Expose to localhost for nginx on host
     environment:
       GIN_MODE: release
     secrets:
