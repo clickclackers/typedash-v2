@@ -3,7 +3,7 @@ import toast from '/src/components/toast';
 
 export const baseURL: string = import.meta.env.DEV
   ? '/api' // Use Vite proxy in development for same-origin requests
-  : 'https://api.songyang.dev';
+  : 'https://api2.songyang.dev';
 
 const instance = axios.create({
   baseURL,
