@@ -17,7 +17,7 @@ const Multiplayer: FC = () => {
   const handleClickCreateRoom = () => {
     const wsUrl = import.meta.env.DEV
       ? `ws://${window.location.host}/ws`
-      : 'wss://api.songyang.dev/ws';
+      : 'wss://api2.songyang.dev/ws';
     let newSocket;
     if (
       !socket ||
