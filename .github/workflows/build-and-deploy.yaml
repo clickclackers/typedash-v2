@@ -55,13 +55,13 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Copy compose, Caddyfile, migrations, and seed files to OVH VPS 
+      - name: Copy compose, migrations, and seed files to OVH VPS
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.OVH_HOST }}
           username: ${{ secrets.OVH_USERNAME }}
           key: ${{ secrets.OVH_SSH_KEY }}
-          source: "server/compose.prod.yaml,server/Caddyfile,server/db/migrations,server/db/seed.sql"
+          source: "server/compose.prod.yaml,server/db/migrations,server/db/seed.sql"
           target: "~/typedash"
           strip_components: 1
 
