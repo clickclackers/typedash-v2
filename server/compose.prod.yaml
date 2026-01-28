@@ -1,23 +1,4 @@
 services:
-  caddy:
-    image: caddy:2
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      db:
-        condition: service_healthy
-      server:
-        condition: service_started
-    volumes:
-      # Mount Caddyfile
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      # Persist Caddy certificates and config
-      - ./caddy/certs:/etc/caddy/certs:ro
-      - caddy_data:/data
-      - caddy_config:/config
-
   server:
     # Set RELEASE_TAG in CI to pin a tag/SHA.
     image: ghcr.io/clickclackers/typedash-v2:${RELEASE_TAG:-latest}
@@ -70,5 +51,3 @@ secrets:
 
 volumes:
   db_data: {}
-  caddy_data: {}
-  caddy_config: {}
