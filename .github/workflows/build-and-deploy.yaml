@@ -102,5 +102,13 @@ jobs:
             set -e
             trap 'echo "Error on line $LINENO"; exit 1' ERR
 
+            # Install golang-migrate CLI if not present
+            if ! command -v migrate >/dev/null 2>&1; then
+              curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.0/migrate.linux-amd64.tar.gz \
+                | tar xz
+              sudo mv migrate /usr/local/bin/migrate
+              sudo chmod +x /usr/local/bin/migrate
+            fi
+
             # sslmode=disable is required for golang-migrate to work
             migrate -path ~/typedash/db/migrations -database "postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}?sslmode=disable" up
