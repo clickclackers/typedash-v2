@@ -121,7 +121,6 @@ const MultiplayerRoom: FC = () => {
     socket.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        console.log('Room message:', message);
 
         switch (message.type) {
           case 'invalidRoom':
@@ -226,7 +225,7 @@ const MultiplayerRoom: FC = () => {
 
   return (
     <div className='flex flex-col justify-between'>
-      <div className='flex flex-col gap-4'>
+      <div className='flex flex-col gap-4 mt-2'>
         {listOfPlayers
           .sort((a, b) => {
             if (a.id === userID) return -1;
@@ -240,7 +239,6 @@ const MultiplayerRoom: FC = () => {
             >
               <div className='flex w-full items-center gap-6'>
                 <p className='w-24 text-left truncate'>{player.username}</p>
-
                 <div className='transition w-[90%]'>
                   <SlideFade in={countdownTime === 0}>
                     <ProgressBar

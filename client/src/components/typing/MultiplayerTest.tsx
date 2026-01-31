@@ -66,10 +66,6 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
       e.key === 'ArrowRight'
     ) {
       e.preventDefault();
-    } else if (e.key === ' ') {
-      // Always advance to next word on space and reset wrong-letter counter
-      setActiveWordIndex(typedWordList.length);
-      setWrongLettersInWord(0);
     } else if (e.key === 'Backspace') {
       if (wrongLettersInWord > 0) setWrongLettersInWord(wrongLettersInWord - 1);
       const endsWithSpace = inputRef.current?.value.slice(-1) === ' ';
@@ -129,6 +125,12 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
     setActiveLetterIndex(typed.length);
     const parts = typed.split(' ');
     setTypedWordList(parts);
+
+    // Advance caret on space
+    setActiveWordIndex(Math.max(0, parts.length - 1));
+    if (typed.slice(-1) === ' ') {
+      setWrongLettersInWord(0);
+    }
 
     if (socket) {
       socket.send(

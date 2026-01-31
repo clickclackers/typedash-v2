@@ -172,10 +172,6 @@ export default function SingleplayerTest() {
       e.key === 'ArrowRight'
     ) {
       e.preventDefault();
-    } else if (e.key === ' ') {
-      // Always advance to next word on space and reset wrong-letter counter
-      setActiveWordIndex(typedWordList.length);
-      setWrongLettersInWord(0);
     } else if (e.key === 'Backspace') {
       if (wrongLettersInWord > 0) setWrongLettersInWord(wrongLettersInWord - 1);
       const endsWithSpace = inputRef.current?.value.slice(-1) === ' ';
@@ -203,7 +199,7 @@ export default function SingleplayerTest() {
   };
 
   // function to handle each key press
-  const handleKeyPress = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (inputRef.current && wrongLettersInWord >= 10) {
       inputRef.current.value = inputRef.current.value.slice(0, -1);
       return;
@@ -237,6 +233,9 @@ export default function SingleplayerTest() {
     setActiveLetterIndex(typed.length);
     const parts = typed.split(' ');
     setTypedWordList(parts);
+    // Advance caret on space
+    setActiveWordIndex(Math.max(0, parts.length - 1));
+    if (typed.slice(-1) === ' ') setWrongLettersInWord(0);
   };
 
   // prevent ctrl A and backspace to delete all words
@@ -378,7 +377,7 @@ export default function SingleplayerTest() {
               <input
                 autoFocus
                 type='text'
-                onChange={handleKeyPress}
+                onChange={handleInputOnChange}
                 onKeyDown={handleKeyDown}
                 onFocus={() => {
                   setIsInputFocused(true);
