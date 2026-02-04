@@ -27,7 +27,6 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
   const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [totalStrokes, setTotalStrokes] = useState(0);
   const [mistypedCount, setMistypedCount] = useState(0);
-  const [activeLetterIndex, setActiveLetterIndex] = useState(0);
   const [wrongLettersInWord, setWrongLettersInWord] = useState(0);
   const [wrongLetters, setWrongLetters] = useState<number[]>([]);
   const [showRefocusOverlay, setShowRefocusOverlay] = useState(false);
@@ -122,7 +121,6 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
       }
     }
     // Always reflect the caret position for progress bar
-    setActiveLetterIndex(typed.length);
     const parts = typed.split(' ');
     setTypedWordList(parts);
 
@@ -136,7 +134,7 @@ const MultiplayerTest: FC<MultiplayerTestProps> = ({
       socket.send(
         JSON.stringify({
           type: 'typingProgress',
-          charsTyped: activeLetterIndex + 1,
+          charsTyped: typed.length,
         }),
       );
     }

@@ -301,6 +301,7 @@ func (r *Room) reset(newChallenge map[string]interface{}) {
 		client.mu.Lock()
 		client.Progress = 0
 		client.Ready = false
+		client.Rank = 0
 		client.mu.Unlock()
 	}
 }
