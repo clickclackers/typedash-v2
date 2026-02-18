@@ -173,8 +173,8 @@ func (c *Client) handleMessage(msgType string, msg map[string]interface{}) {
 	case "leaveRoom":
 		HandleLeaveRoom(c)
 
-	case "restartTest":
-		HandleRestartTest(c)
+		// case "restartTest":
+		// 	HandleRestartTest(c)
 	}
 }
 

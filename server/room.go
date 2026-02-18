@@ -216,24 +216,24 @@ func HandleLeaveRoom(c *Client) {
 	}
 }
 
-func HandleRestartTest(c *Client) {
-	room := getRoom(c.roomID)
-	if room == nil {
-		return
-	}
+// func HandleRestartTest(c *Client) {
+// 	room := getRoom(c.roomID)
+// 	if room == nil {
+// 		return
+// 	}
 
-	room.reset(room.Challenge)
+// 	room.reset(room.Challenge)
 
-	restartMsg := map[string]interface{}{
-		"type":      "restartTest",
-		"players":   room.getPlayers(),
-		"challenge": room.Challenge,
-	}
-	msgJSON, _ := json.Marshal(restartMsg)
-	room.broadcast(msgJSON, nil)
+// 	restartMsg := map[string]interface{}{
+// 		"type":      "restartTest",
+// 		"players":   room.getPlayers(),
+// 		"challenge": room.Challenge,
+// 	}
+// 	msgJSON, _ := json.Marshal(restartMsg)
+// 	room.broadcast(msgJSON, nil)
 
-	log.Printf("Player %s restarted test in room %s", c.Username, c.roomID)
-}
+// 	log.Printf("Player %s restarted test in room %s", c.Username, c.roomID)
+// }
 
 // Room methods
 func (r *Room) addClient(client *Client) {
@@ -292,19 +292,19 @@ func (r *Room) getPlayers() []PlayerInfo {
 	return players
 }
 
-func (r *Room) reset(newChallenge map[string]interface{}) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.Challenge = newChallenge
-	r.NextRank = 1
-	for client := range r.Clients {
-		client.mu.Lock()
-		client.Progress = 0
-		client.Ready = false
-		client.Rank = 0
-		client.mu.Unlock()
-	}
-}
+// func (r *Room) reset(newChallenge map[string]interface{}) {
+// 	r.mu.Lock()
+// 	defer r.mu.Unlock()
+// 	r.Challenge = newChallenge
+// 	r.NextRank = 1
+// 	for client := range r.Clients {
+// 		client.mu.Lock()
+// 		client.Progress = 0
+// 		client.Ready = false
+// 		client.Rank = 0
+// 		client.mu.Unlock()
+// 	}
+// }
 
 // Database helpers
 func getRandomChallenge(categoryID int) (*struct {
